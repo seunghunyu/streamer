@@ -37,6 +37,10 @@ public class CreateTopic{
     @Value("${kafka.bootstrapAddress}")
     private String bootstrapServers;
 
+    //특정 인터벌마다 수행 캠페인(3000,3100) 체크
+    @Value("${run.campaign.pollingInterval}")
+    private String Interval;
+
 //    @Override
 //    public void run(ApplicationArguments args) throws Exception {
 //        System.out.println("Application Runner@@@@@@@");
@@ -44,7 +48,7 @@ public class CreateTopic{
 
     @Bean
     public void create() {
-        System.out.println("create1 ");
+        System.out.println("create1 :: " + bootstrapServers );
         //프로퍼티 생성
         System.out.println(bootstrapServers);
         Map<String,Object> map = new HashMap<>();
@@ -76,9 +80,13 @@ public class CreateTopic{
     //수행 캠페인 정보 가져오기
     @Bean
     public void getRunningCamp(){
-        System.out.println("getRunningCamp!!!");
+        System.out.println("getRunningCamp!!!" + Interval);
         log.info("getRunningCamp!!!");
+
         GetReadyCamp getReadyCamp = new GetReadyCamp();
         getReadyCamp.polling();
+
+
+
     }
 }
