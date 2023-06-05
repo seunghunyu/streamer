@@ -12,7 +12,7 @@ import java.sql.ResultSet;
 @Slf4j
 public class GetReadyCamp {
 
-
+    @Autowired
     private JdbcTemplateRepository repository;
 
     String getDetcChanQry = " SELECT B.DETC_CHAN_CD, COUNT(*) "
@@ -30,7 +30,7 @@ public class GetReadyCamp {
         log.debug("GetReadyCamp polling Interval : " );
 
         //감치채널 갯수 있는지 체크
-        int count = repository.getCount(getDetcChanQry);
+        //int count = repository.getCount(getDetcChanQry);
         //System.out.println("오늘 일자의 수행, 테스트수행에서 사용중인 감지채널 갯수 ::::::"+Integer.toString(count));
 
     }
