@@ -1,18 +1,23 @@
 package com.realtime.streamer.execution;
 
+import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.repository.JdbcTemplateRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
+//@Component
 public class GetReadyCamp {
 
-    @Autowired
+    //@Autowired
     private JdbcTemplateRepository repository;
 
     String getDetcChanQry = " SELECT B.DETC_CHAN_CD, COUNT(*) "
@@ -28,10 +33,11 @@ public class GetReadyCamp {
     public void polling(){
         System.out.println("polling :: " );
         log.debug("GetReadyCamp polling Interval : " );
+        System.out.println("####");
+        //repository.getCampList();
+        System.out.println("*****************");
 
-        //감치채널 갯수 있는지 체크
-        //int count = repository.getCount(getDetcChanQry);
-        //System.out.println("오늘 일자의 수행, 테스트수행에서 사용중인 감지채널 갯수 ::::::"+Integer.toString(count));
+
 
     }
 

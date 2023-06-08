@@ -78,15 +78,14 @@ public class CreateTopic{
         }
     }
     //수행 캠페인 정보 가져오기
-    @Bean
+    //@Bean
     public void getRunningCamp(){
         System.out.println("getRunningCamp!!!" + Interval);
-        log.info("getRunningCamp!!!");
-
+        System.out.println("getRunningCamp!!!");
+        System.out.println("2getRunningCamp!!!");
         GetReadyCamp getReadyCamp = new GetReadyCamp();
+        System.out.println("3getRunningCamp!!!");
         getReadyCamp.polling();
-
-
-
+        System.out.println("4getRunningCamp!!!");
     }
 }

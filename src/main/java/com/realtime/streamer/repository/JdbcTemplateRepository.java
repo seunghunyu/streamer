@@ -3,6 +3,7 @@ package com.realtime.streamer.repository;
 import com.realtime.streamer.data.Camp;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -17,11 +18,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Repository
 public class JdbcTemplateRepository implements CampRepository{
+    @Autowired
     private final JdbcTemplate jdbcTemplate;
-
-    public JdbcTemplateRepository(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
 
     @Override
     public List<Camp> getCampList() {
