@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.*;
 @Slf4j
 @RequiredArgsConstructor
-@Component //Main 호출시 스캔
+//@Component //Main 호출시 스캔
 //@Order(1) -> ApplicationRunner 순서 정해 줄 수 있음
 //public class CreateTopic implements ApplicationRunner {
 public class CreateTopic{

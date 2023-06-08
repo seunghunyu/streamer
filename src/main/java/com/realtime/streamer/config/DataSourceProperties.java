@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 
-@Configuration
-@EnableConfigurationProperties
+//@Configuration
+//@EnableConfigurationProperties
 public class DataSourceProperties {
 //    @Bean(name = "metaDataSource") //name에 설정된 이름으로 Bean 등록
 //    @Qualifier("metaDataSource")   //설정된 이름으로 객체 선택 할 수 있음
