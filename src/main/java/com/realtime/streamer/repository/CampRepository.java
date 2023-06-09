@@ -7,7 +7,8 @@ import java.util.Optional;
 
 public interface CampRepository {
     List<Camp> getCampList();
-    Camp getCampOne();
+    Camp getCampOne(String id);
     Optional<Camp> findById(String id);
     Optional<Camp> findByDt(String strDt, String endDt);
+    int getCampCount();
 }

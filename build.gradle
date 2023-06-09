@@ -21,6 +21,7 @@ repositories {
 }
 
 dependencies {
+	implementation group: 'com.oracle.ojdbc', name: 'orai18n', version: '19.3.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.apache.kafka:kafka-streams'
 	implementation 'org.springframework.kafka:spring-kafka'

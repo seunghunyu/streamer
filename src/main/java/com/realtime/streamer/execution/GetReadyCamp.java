@@ -1,24 +1,17 @@
 package com.realtime.streamer.execution;
 
-import com.realtime.streamer.data.Camp;
-import com.realtime.streamer.repository.JdbcTemplateRepository;
+import com.realtime.streamer.repository.JdbcTemplateCampRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 //@Component
 public class GetReadyCamp {
 
     //@Autowired
-    private JdbcTemplateRepository repository;
+    private JdbcTemplateCampRepository repository;
 
     String getDetcChanQry = " SELECT B.DETC_CHAN_CD, COUNT(*) "
                           + "   FROM ECUBEEBM.R_PLAN A, ECUBEEBM.R_FLOW_DETC_CHAN B "
