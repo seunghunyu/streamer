@@ -11,6 +11,8 @@ public class Camp {
     String campStat;
     String campStrDt;
     String campEndDt;
+    String detcChanCd;
+    int count;
 
 
     public String getCampId() {

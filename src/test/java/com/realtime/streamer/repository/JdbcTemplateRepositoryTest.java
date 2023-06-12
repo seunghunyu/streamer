@@ -52,6 +52,13 @@ class JdbcTemplateRepositoryTest {
 
     @Test
     void findByDt() {
+
+    }
+
+    @Test
+    void getDetcChanList(){
+        List<Camp> camp = repository.getDetcChanList();
+        System.out.println("수행중인 캠페인에서 사용중인 감지채널 코드 ::" + camp.get(0).getDetcChanCd());
     }
 
 }

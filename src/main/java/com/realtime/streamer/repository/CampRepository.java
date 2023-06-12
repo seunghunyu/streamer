@@ -10,5 +10,5 @@ public interface CampRepository {
     Camp getCampOne(String id);
     Optional<Camp> findById(String id);
     Optional<Camp> findByDt(String strDt, String endDt);
-    int getCampCount();
+    List<Camp> getDetcChanList();
 }

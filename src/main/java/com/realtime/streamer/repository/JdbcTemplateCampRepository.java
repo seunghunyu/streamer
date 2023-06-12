@@ -12,6 +12,10 @@ import javax.sql.DataSource;
 import javax.sql.RowSet;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,12 +64,34 @@ public class JdbcTemplateCampRepository implements CampRepository{
                 "FROM R_PLAN WHERE CAMP_STR_DT >= ? AND CAMP_END_DT <= ? ", campRowMapper(), strDt, endDt);
         return result.stream().findAny();
     }
-
+    //사용중인 캠페인 조회
     @Override
-    public int getCampCount() {
-        int count = jdbcTemplate.queryForObject(" SELECT COUNT(*) FROM R_PLAN ", Integer.class);
-        return count;
+    public List<Camp> getDetcChanList() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        Calendar c1 = Calendar.getInstance();
+
+        String strDt = sdf.format(c1.getTime());
+        String endDt = sdf.format(c1.getTime());
+        System.out.println("TODAY :::" + strDt);
+
+        List<Camp> result = jdbcTemplate.query(" SELECT B.DETC_CHAN_CD, COUNT(*) AS CNT"
+                                                + " FROM R_PLAN A, R_FLOW_DETC_CHAN B "
+                                                + " WHERE A.CAMP_ID = B.CAMP_ID "
+                                                + "   AND A.CAMP_STAT in ('3100', '3000') "
+                                                + "   AND A.CAMP_EX_TY = '9' "
+                                                + "   AND A.CAMP_STR_DT <= ? "
+                                                + "   AND A.CAMP_END_DT >= ? "
+                                                + " GROUP BY B.DETC_CHAN_CD ",
+                (resultSet, rowNum) -> {
+                    Camp newCamp = new Camp();
+                    newCamp.setDetcChanCd(resultSet.getString("DETC_CHAN_CD"));
+                    newCamp.setCount(resultSet.getInt("CNT"));
+                    return newCamp;
+                }, strDt, endDt);
+
+        return result;
     }
+
 
     private RowMapper<Camp> campRowMapper() {
         return (rs, rowNum) -> {
