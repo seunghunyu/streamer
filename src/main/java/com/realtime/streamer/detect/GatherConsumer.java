@@ -79,8 +79,8 @@ public class GatherConsumer implements ApplicationRunner {
             useDetcChanList = repository.getDetcChanList();
         }
         useDetcChanList = repository.getDetcChanList();
-        System.out.println("사용중인 감지채널 :::::" + useDetcChanList.get(0).getDetcChanCd());
-
+//        System.out.println("사용중인 감지채널 :::::" + useDetcChanList.get(0).getDetcChanCd());
+        System.out.println("사용중인 감지채널 :::::" + "9001");
         System.out.println("@@@kafka config info@@@");
         System.out.println("%%"+conf.get("bootstrap.servers"));
         System.out.println("%%"+conf.get("group.id"));
@@ -90,6 +90,9 @@ public class GatherConsumer implements ApplicationRunner {
             loop:
             while(true){
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(500)); //데이터가 없을 경우 최대 0.5초 기다림
+
+                if(records.count() == 0) continue ;
+
                 System.out.println("records :::" + records + ":::count ::"+Integer.toString(records.count()));
 
 //                if(FailCnt > 10){
@@ -100,10 +103,10 @@ public class GatherConsumer implements ApplicationRunner {
 //                    continue;
 //                }
                 for (ConsumerRecord<String, String> record : records) {
-                    System.out.println("kafka message ::::");
-                    System.out.println(record.value());
-                    JSONParser parser = new JSONParser();
-                    JSONObject bjob = (JSONObject)parser.parse(record.value());
+                    System.out.println("kafka message ::::" + record.value());
+
+//                    JSONParser parser = new JSONParser();
+//                    JSONObject bjob = (JSONObject)parser.parse(record.value());
 //                    newDetectId = new BigDecimal(svrBridge.getSequenceNumber());  //감지ID 생성
 
 //                    tmpWorkInfo = new WorkInfo();
@@ -130,10 +133,11 @@ public class GatherConsumer implements ApplicationRunner {
 //                    svrBridge.info_println("kafka message info : "+ tmpWorkInfo);
                     SuccessCnt++;
                     System.out.println("Success count : "+SuccessCnt);
-                    if (SuccessCnt >= 30) { //최대 500건 get
-                        consumer.commitSync(); //commit
-                        break loop; //탈출
-                    }
+//                    if (SuccessCnt >= 30) { //최대 500건 get
+//                        consumer.commitSync(); //commit
+//                        break loop; //탈출
+//                    }
+                    consumer.commitSync(); //commit
                 }
                 consumer.commitSync();//commit
             }
