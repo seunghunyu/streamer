@@ -1,5 +1,6 @@
 package com.realtime.streamer.detect;
 
+import com.realtime.streamer.cosumer.DataConsumer;
 import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.repository.JdbcTemplateCampRepository;
 import lombok.RequiredArgsConstructor;
@@ -7,10 +8,11 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.session.NonUniqueSessionRepositoryException;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.stereotype.Component;
 
@@ -21,12 +23,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
+/*
+ * [2023.06.27] 신규 생성 - 감지 토픽에서 데이터 컨슈밍
+ *
+ *
+ */
 @RequiredArgsConstructor
 @Component
-public class GatherConsumer implements ApplicationRunner {
+public class GatherConsumer implements DataConsumer,ApplicationRunner {
     String Address = "192.168.20.77:9092";
     String GroupId = "test-consumer-group";
     String topic   = "TEST";
@@ -37,6 +41,7 @@ public class GatherConsumer implements ApplicationRunner {
     List<Camp> useDetcChanList;
     //신규 감지 ID
     BigDecimal newDetectId;
+
 
     @Autowired
     JdbcTemplateCampRepository repository;
@@ -105,30 +110,27 @@ public class GatherConsumer implements ApplicationRunner {
                 for (ConsumerRecord<String, String> record : records) {
                     System.out.println("kafka message ::::" + record.value());
 
-//                    JSONParser parser = new JSONParser();
-//                    JSONObject bjob = (JSONObject)parser.parse(record.value());
-//                    newDetectId = new BigDecimal(svrBridge.getSequenceNumber());  //감지ID 생성
+                    JSONParser parser = new JSONParser();
+                    JSONObject bjob = (JSONObject)parser.parse(record.value());
 
-//                    tmpWorkInfo = new WorkInfo();
-//                    tmpWorkInfo.hashmap.put("REBM_DETECT_ID", newDetectId.toString());
-//                    tmpWorkInfo.hashmap.put("WORK_SVR_NM", realtimeservername);
-//                    tmpWorkInfo.hashmap.put("WORK_SVR_ID", realtimeserverid);
-//                    tmpWorkInfo.hashmap.put("CRAT_METH_CD", "T");
-//                    tmpWorkInfo.hashmap.put("WORK_DTM_MIL", String.valueOf(System.currentTimeMillis()));
-
+                    bjob.put("REBM_DETECT_ID" , String.valueOf(System.currentTimeMillis())+bjob.get("CUST_ID")); //감지아이디
+                    bjob.put("WORK_DTM_MIL", String.valueOf(System.currentTimeMillis()));
+                    bjob.put("WORK_SVR_ID","A");
+                    bjob.put("WORK_SVR_NM","serverA");
+                    bjob.put("sidocd", "001");
 
                     String na = "";
                     System.out.println("@@ "+ System.currentTimeMillis());
 
-//                    for (Object e : bjob.entrySet())  // 아이템화 시작
-//                    {
-//                        Map.Entry entry = (Map.Entry) e;
-//                        na = String.valueOf(entry.getKey());
-////                        tmpWorkInfo.hashmap.put(na, bjob.get(na).toString()); // (아이템명, 아이템값) 형태로 워커객체에 put
-//
-//                        // Content에 CUST_ID 이름이 다른경우
-//                        // tmpWorkInfo.hashmap.put("CUST_ID", na.equals("고객번호에 해당하는 아이템")); 형태로 사용가능
-//                    }
+                    for (Object e : bjob.entrySet())  // 아이템화 시작
+                    {
+                        Map.Entry entry = (Map.Entry) e;
+                        na = String.valueOf(entry.getKey());
+//                        tmpWorkInfo.hashmap.put(na, bjob.get(na).toString()); // (아이템명, 아이템값) 형태로 워커객체에 put
+
+                        // Content에 CUST_ID 이름이 다른경우
+                        // tmpWorkInfo.hashmap.put("CUST_ID", na.equals("고객번호에 해당하는 아이템")); 형태로 사용가능
+                    }
 //                    objectQueue.addWorkItem(tmpWorkInfo); // worker에 전달
 //                    svrBridge.info_println("kafka message info : "+ tmpWorkInfo);
                     SuccessCnt++;

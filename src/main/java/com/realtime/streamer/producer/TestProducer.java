@@ -5,7 +5,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.util.Properties;
 
-public class TestProducer {
+public class TestProducer implements DataProducer {
     private static final String TOPIC_NAME = "TEST";
     private static final String FIN_MESSAGE = "exit";
     String IP = "192.168.20.57:9092";
@@ -18,7 +18,8 @@ public class TestProducer {
         this.configs = configs;
     }
 
-    public void sendMessageToTopic(){
+    @Override
+    public void sendMessage(){
         Properties configs = new Properties();
         configs.put("bootstrap.servers", IP); // kafka host 및 server 설정
         configs.put("acks", "all");                         // 자신이 보낸 메시지에 대해 카프카로부터 확인을 기다리지 않습니다.
@@ -60,4 +61,6 @@ public class TestProducer {
             }
         }
     }
+
+
 }
