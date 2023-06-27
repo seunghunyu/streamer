@@ -8,6 +8,8 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +66,10 @@ public class GatherConsumer implements DataConsumer,ApplicationRunner {
         this.configs.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); // value deserializer
         this.configs.put("auto.offset.reset", "latest"); // earliest(처음부터 읽음) | latest(현재부터 읽음)
         this.configs.put("enable.auto.commit", false); //AutoCommit 여부
+
+        this.configs.put("acks", "all");                         // 자신이 보낸 메시지에 대해 카프카로부터 확인을 기다리지 않습니다.
+        this.configs.put("block.on.buffer.full", "true");        // 서버로 보낼 레코드를 버퍼링 할 때 사용할 수 있는 전체 메모리의 바이트수
+
         this.consumer = new KafkaConsumer<String, String>(this.configs);
         this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
 
@@ -117,7 +123,7 @@ public class GatherConsumer implements DataConsumer,ApplicationRunner {
                     bjob.put("WORK_DTM_MIL", String.valueOf(System.currentTimeMillis()));
                     bjob.put("WORK_SVR_ID","A");
                     bjob.put("WORK_SVR_NM","serverA");
-                    bjob.put("sidocd", "001");
+                    bjob.put("SIDO_CD", "001");
 
                     String na = "";
                     System.out.println("@@ "+ System.currentTimeMillis());
@@ -140,6 +146,7 @@ public class GatherConsumer implements DataConsumer,ApplicationRunner {
 //                        break loop; //탈출
 //                    }
                     consumer.commitSync(); //commit
+                    producing(bjob.toString());
                 }
                 consumer.commitSync();//commit
             }
@@ -151,6 +158,43 @@ public class GatherConsumer implements DataConsumer,ApplicationRunner {
 
         }finally{
 
+        }
+
+    }
+
+
+    public void producing(String producingData){
+        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(configs);
+        ProducerRecord<String, String> record, record2;
+        String ruleTopic = "RULE";
+        String detcSaveTopic = "DETC_SAVE";
+        int num = 0;
+
+        while(true) {
+            System.out.print("sendMessage > " + producingData);
+            record = new ProducerRecord<>(ruleTopic, producingData);
+            record2 = new ProducerRecord<>(detcSaveTopic, producingData);
+
+            try {
+                Thread.sleep(2000);
+                System.out.println("Rule ::::"+Integer.toString(num++)+"번째 메시지 :: " + producingData);
+                //Rule처리로 이동하는 메시지
+                producer.send(record, (metadata, exception) -> {
+                    if (exception != null) {
+                        System.out.println(exception.toString());
+                    }
+                });
+                //감지이력 저장으로 이동하는 메시지
+                producer.send(record2, (metadata, exception) -> {
+                    if (exception != null) {
+                        System.out.println(exception.toString());
+                    }
+                });
+            } catch (Exception e) {
+                // exception
+            } finally {
+                producer.flush();
+            }
         }
 
     }
