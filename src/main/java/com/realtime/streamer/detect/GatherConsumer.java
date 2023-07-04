@@ -15,7 +15,11 @@ import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.json.JsonParseException;
+import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -30,10 +34,13 @@ import java.util.Properties;
  *
  *
  */
+@Order(2)
+@EnableAsync
 @RequiredArgsConstructor
 @Component
-public class GatherConsumer implements DataConsumer,ApplicationRunner {
-    String Address = "192.168.20.77:9092";
+//public class GatherConsumer implements DataConsumer,ApplicationRunner {
+public class GatherConsumer implements DataConsumer, CommandLineRunner {
+    String Address = "192.168.20.57:9092";
     String GroupId = "test-consumer-group";
     String topic   = "TEST";
     Properties configs;
@@ -67,6 +74,9 @@ public class GatherConsumer implements DataConsumer,ApplicationRunner {
         this.configs.put("auto.offset.reset", "latest"); // earliest(처음부터 읽음) | latest(현재부터 읽음)
         this.configs.put("enable.auto.commit", false); //AutoCommit 여부
 
+        this.configs.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");   // serialize 설정
+        this.configs.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); // serialize 설정
+
         this.configs.put("acks", "all");                         // 자신이 보낸 메시지에 대해 카프카로부터 확인을 기다리지 않습니다.
         this.configs.put("block.on.buffer.full", "true");        // 서버로 보낼 레코드를 버퍼링 할 때 사용할 수 있는 전체 메모리의 바이트수
 
@@ -92,11 +102,11 @@ public class GatherConsumer implements DataConsumer,ApplicationRunner {
         useDetcChanList = repository.getDetcChanList();
 //        System.out.println("사용중인 감지채널 :::::" + useDetcChanList.get(0).getDetcChanCd());
         System.out.println("사용중인 감지채널 :::::" + "9001");
-        System.out.println("@@@kafka config info@@@");
-        System.out.println("%%"+conf.get("bootstrap.servers"));
-        System.out.println("%%"+conf.get("group.id"));
-        System.out.println("%%"+conf.get("auto.offset.reset"));
-        System.out.println("#########"+testVar);
+//        System.out.println("@@@kafka config info@@@");
+//        System.out.println("%%"+conf.get("bootstrap.servers"));
+//        System.out.println("%%"+conf.get("group.id"));
+//        System.out.println("%%"+conf.get("auto.offset.reset"));
+//        System.out.println("#########"+testVar);
         try{
             loop:
             while(true){
@@ -104,7 +114,7 @@ public class GatherConsumer implements DataConsumer,ApplicationRunner {
 
                 if(records.count() == 0) continue ;
 
-                System.out.println("records :::" + records + ":::count ::"+Integer.toString(records.count()));
+                System.out.println("records count ::"+Integer.toString(records.count()));
 
 //                if(FailCnt > 10){
 //                    break loop;
@@ -114,10 +124,12 @@ public class GatherConsumer implements DataConsumer,ApplicationRunner {
 //                    continue;
 //                }
                 for (ConsumerRecord<String, String> record : records) {
-                    System.out.println("kafka message ::::" + record.value());
+                    System.out.println("GATHER CONSUMER1 @@@@@@@@@@@@ " + record.value() + record);
 
                     JSONParser parser = new JSONParser();
+//                    JSONObject bjob = (JSONObject)parser.parse(record.value());
                     JSONObject bjob = (JSONObject)parser.parse(record.value());
+                    System.out.println("GATHER CONSUMER2 @@@@@@@@@@@@ " + bjob.toString());
 
                     bjob.put("REBM_DETECT_ID" , String.valueOf(System.currentTimeMillis())+bjob.get("CUST_ID")); //감지아이디
                     bjob.put("WORK_DTM_MIL", String.valueOf(System.currentTimeMillis()));
@@ -145,17 +157,19 @@ public class GatherConsumer implements DataConsumer,ApplicationRunner {
 //                        consumer.commitSync(); //commit
 //                        break loop; //탈출
 //                    }
+                    System.out.println("1$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
                     consumer.commitSync(); //commit
-                    producing(bjob.toString());
+                    System.out.println("2$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+                    producing(conf, bjob.toString());
+                    System.out.println("3$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
                 }
                 consumer.commitSync();//commit
             }
         }catch(JsonParseException e){
-            System.out.println(e.getMessage());
+            System.out.println("JsonParsing Error:::" + e.getMessage());
             //e.printStackTrace();
         }catch(Exception e) {
-
-
+            System.out.println("Exception:::" + e.getMessage());
         }finally{
 
         }
@@ -163,47 +177,57 @@ public class GatherConsumer implements DataConsumer,ApplicationRunner {
     }
 
 
-    public void producing(String producingData){
-        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(configs);
+    public void producing(Properties conf, String producingData){
+        System.out.println("producing1");
+        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(conf);
+        System.out.println("producing2");
         ProducerRecord<String, String> record, record2;
         String ruleTopic = "RULE";
         String detcSaveTopic = "DETC_SAVE";
         int num = 0;
 
-        while(true) {
-            System.out.print("sendMessage > " + producingData);
-            record = new ProducerRecord<>(ruleTopic, producingData);
-            record2 = new ProducerRecord<>(detcSaveTopic, producingData);
+//        while(true) {
+        //System.out.print("sendMessage > " + producingData);
+        record = new ProducerRecord<>(ruleTopic, producingData);
+        record2 = new ProducerRecord<>(detcSaveTopic, producingData);
 
-            try {
-                Thread.sleep(2000);
-                System.out.println("Rule ::::"+Integer.toString(num++)+"번째 메시지 :: " + producingData);
-                //Rule처리로 이동하는 메시지
-                producer.send(record, (metadata, exception) -> {
-                    if (exception != null) {
-                        System.out.println(exception.toString());
-                    }
-                });
-                //감지이력 저장으로 이동하는 메시지
-                producer.send(record2, (metadata, exception) -> {
-                    if (exception != null) {
-                        System.out.println(exception.toString());
-                    }
-                });
-            } catch (Exception e) {
-                // exception
-            } finally {
-                producer.flush();
-            }
+        try {
+            //  Thread.sleep(2000);
+            System.out.println("RULE ::::"+Integer.toString(num++)+"번째 메시지 :: " + producingData);
+            //Rule처리로 이동하는 메시지
+            producer.send(record, (metadata, exception) -> {
+                if (exception != null) {
+                    System.out.println("RULE TOPIC SENDING EXCEPTION :: "+ exception.toString());
+                }
+            });
+            System.out.println("DETC SAVE ::::"+Integer.toString(num++)+"번째 메시지 :: " + producingData);
+            //감지이력 저장으로 이동하는 메시지
+            producer.send(record2, (metadata, exception) -> {
+                if (exception != null) {
+                    System.out.println("DETC SAVE TOPIC SENDING EXCEPTION ::" + exception.toString());
+                }
+            });
+        } catch (Exception e) {
+            System.out.println("PRODUCING EXCEPTION ::" + e.toString());
+        } finally {
+            producer.flush();
         }
+//        }
 
     }
 
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception {
+//        System.out.println("Gather Consumer START::::::::::::::::::::::::::::::::::");
+//        GatherConsumer gatherConsumer = new GatherConsumer("192.168.20.57:9092","test-consumer-group","TEST");
+//        polling(gatherConsumer.configs, gatherConsumer.consumer);
+//
+//    }
+    @Async
     @Override
-    public void run(ApplicationArguments args) throws Exception {
-
+    public void run(String... args) throws Exception {
+        System.out.println("Gather Consumer START::::::::::::::::::::::::::::::::::");
         GatherConsumer gatherConsumer = new GatherConsumer("192.168.20.57:9092","test-consumer-group","TEST");
         polling(gatherConsumer.configs, gatherConsumer.consumer);
-
     }
 }
