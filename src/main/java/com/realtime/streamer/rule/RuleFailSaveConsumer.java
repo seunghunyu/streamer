@@ -17,7 +17,6 @@ public class RuleFailSaveConsumer implements DataConsumer, CommandLineRunner {
     KafkaConsumer<String, String> consumer;
     int lastUpdate = 0;
 
-
     public RuleFailSaveConsumer(String address, String groupId, String topic) {
         this.Address = address;
         this.GroupId = groupId;
