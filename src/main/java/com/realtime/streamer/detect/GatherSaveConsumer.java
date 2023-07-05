@@ -1,6 +1,8 @@
 package com.realtime.streamer.detect;
 
 import com.realtime.streamer.cosumer.DataConsumer;
+import com.realtime.streamer.util.Utility;
+import jdk.jshell.execution.Util;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -35,6 +37,14 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
     Properties configs;
     KafkaConsumer<String, String> consumer;
     int lastUpdate = 0;
+    Utility utility = new Utility();
+    String tableDt = utility.getTableDtNum();
+    //사용중인 감지채널 리스트
+    String DETC_CHAN_CD_LIST = "";
+    //감지테이블 저장 쿼리
+    String INSQ_QRY = "";
+    //감지테이블 저장 아이템
+    String DETC_INST_ITEM = "";
 
     public GatherSaveConsumer(String address, String groupId, String topic) {
         this.Address = address;
@@ -56,6 +66,8 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
 
         this.consumer = new KafkaConsumer<String, String>(this.configs);
         this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
+        //요일별 테이블 날짜 조회
+        this.tableDt = utility.getTableDtNum();
 
     }
     @Override
@@ -66,6 +78,12 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
             try{
                 loop:
                 while(true){
+
+                    if(lastUpdate + 7 < LocalTime.now().getSecond()){
+                        //사용중인 감지채널 조회, 감지테이블 저장 쿼리 조회, 감지 테이블 저장 아이템 조회
+
+                    }
+
                     ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(500)); //데이터가 없을 경우 최대 0.5초 기다림
 
                     if(records.count() == 0) continue ;

@@ -60,7 +60,7 @@ public class GatherProducer implements DataProducer, CommandLineRunner {
         while(true) {
             cust_id = Integer.toString((int)(Math.random() * 10000));
             age     = Integer.toString((int)(Math.random() * 10));
-            String message = "{\"cust_id\" : \""+ cust_id + "\", \"cust_name\" : \"Yu\", \"age\" : "+ age +"}";
+            String message = "{\"CUST_ID\" : \""+ cust_id + "\", \"CUST_NAME\" : \"Yu\", \"AGE\" : "+ age +"}";
             ProducerRecord<String, String> record = new ProducerRecord<>(topic, message);
             //System.out.println(topic);
             try {

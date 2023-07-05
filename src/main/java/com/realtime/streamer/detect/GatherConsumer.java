@@ -157,11 +157,8 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
 //                        consumer.commitSync(); //commit
 //                        break loop; //≈ª√‚
 //                    }
-                    System.out.println("1$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
                     consumer.commitSync(); //commit
-                    System.out.println("2$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
                     producing(conf, bjob.toString());
-                    System.out.println("3$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
                 }
                 consumer.commitSync();//commit
             }
