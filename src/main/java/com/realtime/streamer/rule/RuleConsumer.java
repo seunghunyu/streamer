@@ -28,7 +28,6 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
     KafkaConsumer<String, String> consumer;
     int lastUpdate = 0;
 
-
     public RuleConsumer(String address, String groupId, String topic) {
         this.Address = address;
         this.GroupId = groupId;
