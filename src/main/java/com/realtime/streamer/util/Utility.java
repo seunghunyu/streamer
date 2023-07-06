@@ -5,9 +5,12 @@ import com.realtime.streamer.data.DetcChanSqlInfo;
 import com.realtime.streamer.repository.JdbcTemplateCampRepository;
 import com.realtime.streamer.repository.JdbcTemplateDetcChanRepository;
 import com.realtime.streamer.repository.JdbcTemplateDetcChanSqlInfoRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -19,6 +22,8 @@ import java.util.List;
 /* 필요 메소드 정의
  * [2023.07.05] 신규생성
  */
+@Component
+@RequiredArgsConstructor
 public class Utility {
     /*
      *  [2023.07.05] 요일별 테이블을 구하기 위한 날짜 조회
@@ -32,7 +37,7 @@ public class Utility {
     JdbcTemplateDetcChanSqlInfoRepository detcChanSqlInfoRepository;
 
     @Autowired
-    StringRedisTemplate redisTemplate;
+    StringRedisTemplate redisTemplate = new StringRedisTemplate();
 
     public String getTableDtNum() {
         LocalDateTime date = LocalDate.now().atStartOfDay();
@@ -43,12 +48,19 @@ public class Utility {
      *  [2023.07.05] 사용 중인 감지채널 리스트 업로드
      *               Redis Server에 업로드
      */
-    public void setRedisDetcChanList(){
-        String key = "DETC_CHAN_LIST";
+    public void setRedisDetcChanList(String detcChanCd){
+        String key = "DETC_CHAN_LIST_";
+        if(detcChanRepository == null){
+            System.out.println("detcChanRepository is null@@@@@@@");
+            return;
+        }
         List<DetcChan> useDetcChanList = detcChanRepository.getUseDetcChanList();
+
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+useDetcChanList);
+
         ValueOperations<String, String> stringStringValueOperations = redisTemplate.opsForValue();
         for(int i=0 ; i < useDetcChanList.size() ; i++){
-            stringStringValueOperations.set(key, useDetcChanList.get(i).getDetcChanCd());
+            stringStringValueOperations.set(key+detcChanCd, useDetcChanList.get(i).getDetcChanCd());
         }
 
         System.out.println("DETC_CHAN_LIST UPLOAD COMPLETE::::::::::::::::");
@@ -57,11 +69,11 @@ public class Utility {
     /*
      *  [2023.07.05] 사용 중인 감지채널 리스트 Redis Server에서 가져오기
      */
-    public String getRedisDetcChanList(){
-        String key = "DETC_CHAN_LIST";
+    public String getRedisDetcChanList(String detcChanCd){
+        String key = "DETC_CHAN_LIST_";
         List<DetcChan> useDetcChanList = detcChanRepository.getUseDetcChanList();
         ValueOperations<String, String> stringStringValueOperations = redisTemplate.opsForValue();
-        return stringStringValueOperations.get(key);
+        return stringStringValueOperations.get(key+detcChanCd);
     }
 
     public void setRedisDetcChanInstSqlList(){

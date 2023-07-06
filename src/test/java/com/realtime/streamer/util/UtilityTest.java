@@ -12,12 +12,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class UtilityTest {
     Utility utility = new Utility();
     @Test
+    void test(){
+        System.out.println("qqqqqqqqqqqqqq");
+    }
+
+    @Test
     void setDetcChanList(){
-        utility.setRedisDetcChanList();
+        String detcChanCd = "9001";
+        utility.setRedisDetcChanList(detcChanCd);
     }
     @Test
     void getDetcChanList(){
-        utility.getRedisDetcChanList();
+        String detcChanCd = "9001";
+        utility.getRedisDetcChanList("9001");
     }
     @Test
     void setDetcChanInstSqlList(){
