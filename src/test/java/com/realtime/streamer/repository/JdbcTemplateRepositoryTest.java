@@ -18,7 +18,6 @@ class JdbcTemplateRepositoryTest {
 
     @Autowired
     JdbcTemplateCampRepository repository;
-    DataSource dataSource;
 
     @Test
     void testConnecion(){

@@ -30,9 +30,9 @@ public class JdbcTemplateDetcChanRepository implements DetcChanReposiotry{
         return (rs, rowNum) -> {
             DetcChan detcChan = new DetcChan();
             detcChan.setDetcChanCd(rs.getString("DETC_CHAN_CD"));
-            detcChan.setDetcChanCd(rs.getString("DETC_CHAN_NM"));
-            detcChan.setDetcChanCd(rs.getString("STOP_REG_YN"));
-            detcChan.setDetcChanCd(rs.getString("USE_YN"));
+            detcChan.setDetcChanNm(rs.getString("DETC_CHAN_NM"));
+            detcChan.setStopRegYn(rs.getString("STOP_REG_YN"));
+            detcChan.setUseYn(rs.getString("USE_YN"));
             return detcChan;
         };
     }
