@@ -89,7 +89,9 @@ public class Utility {
 
         return stringStringValueOperations.get(key);
     }
-
+    /*
+     *  [2023.07.05] 사용 중인 감지채널의 저장이력 쿼리 Redis Server에 저장
+     */
     public void setRedisDetcChanInstSqlList(){
 //        String key = "DETC_CHAN_INST_SQL_";
         String key = "detcChanInstSql";
@@ -115,31 +117,26 @@ public class Utility {
 
         getRedisDetcChanInstSqlList("9001");
     }
+
+    /*
+     *  [2023.07.05] Redis Server에서 감지채널 코드에 해당하는 쿼리 가져오기
+     */
     public String getRedisDetcChanInstSqlList(String detcChanCd){
-//        String key = "DETC_CHAN_INST_SQL_";
         String key = "detcChanInstSql"+detcChanCd;
-        List<DetcChanSqlInfo> useDetcChanSqlList = detcChanSqlInfoRepository.getUseDetcChanSqlList();
+        //List<DetcChanSqlInfo> useDetcChanSqlList = detcChanSqlInfoRepository.getUseDetcChanSqlList();
 
         ValueOperations<String, String> stringStringValueOperations = redisTemplate.opsForValue();
-
-        List<String> instQryList = new ArrayList<>();
-
-//        byte[] decodedBytes =  null;
-//        String decodedString = "";
-
-//        //인코딩된 디코딩 후 업로드
-//        for(int i=0 ; i < useDetcChanSqlList.size() ; i++){
-//            if(useDetcChanSqlList.get(i).getSqlScrt().length() > 3) {
-//                decodedBytes = Base64.getDecoder().decode(useDetcChanSqlList.get(i).getSqlScrt().substring(3));
-//            }else{
-//                decodedBytes = Base64.getDecoder().decode(useDetcChanSqlList.get(i).getSqlScrt());
-//            }
-//            System.out.println("GET INST QRY ::" + stringStringValueOperations.get(key));
-//            instQryList.add(stringStringValueOperations.get(key+useDetcChanSqlList.get(i).getDetcChanCd()));
-//        }
         System.out.println("GET INST QRY ::" + stringStringValueOperations.get(key));
         System.out.println("DETC_CHAN_LIST_SQL_INFO SELECT COMPLETE::::::::::::::::");
         return stringStringValueOperations.get(key);
+    }
+
+    /*
+     *  [2023.07.05] 감지채널 저장이력 쿼리 RDB 조회후 가져오기
+     */
+    public String getDetcChanInstSqlList(String detcChanCd) {
+        System.out.println(detcChanSqlInfoRepository.findByOne(detcChanCd));
+        return detcChanSqlInfoRepository.findByOne(detcChanCd);
     }
 
     public void redistTest(){

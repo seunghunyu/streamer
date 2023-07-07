@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface DetcChanSqlInfoReposiotry {
     List<DetcChanSqlInfo> getUseDetcChanSqlList();
+    String findByOne(String detcChanCd);
 }

@@ -10,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
@@ -25,7 +26,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
-@Order(3)
+@Order(4)
 @EnableAsync
 @RequiredArgsConstructor
 @Component
@@ -37,8 +38,11 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
     Properties configs;
     KafkaConsumer<String, String> consumer;
     int lastUpdate = 0;
-    Utility utility = new Utility();
-    String tableDt = utility.getTableDtNum();
+
+    @Autowired
+    Utility utility;
+
+    String tableDt;
     //사용중인 감지채널 리스트
     String DETC_CHAN_CD_LIST = "";
     //감지테이블 저장 쿼리
@@ -74,14 +78,14 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
     public void polling(Properties conf, Consumer consumer) {
             int SuccessCnt = 0;
             int FailCnt = 0;
-
+            String inst_Qry = "";
             try{
                 loop:
                 while(true){
 
                     if(lastUpdate + 7 < LocalTime.now().getSecond()){
                         //사용중인 감지채널 조회, 감지테이블 저장 쿼리 조회, 감지 테이블 저장 아이템 조회
-
+                        tableDt = utility.getTableDtNum();
                     }
 
                     ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(500)); //데이터가 없을 경우 최대 0.5초 기다림
@@ -96,12 +100,18 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
 
                         JSONParser parser = new JSONParser();
                         JSONObject bjob = (JSONObject)parser.parse(record.value());
+                        String detcChanCd = "";
+                        //감지채널 key 값 존재시에만 데이터 세팅
+                        if(bjob.get("DETC_CHAN_CD") != null && !bjob.get("DETC_CHAN_CD").equals("")){
+                            detcChanCd = bjob.get("DETC_CHAN_CD").toString();
+                        }else{
+                            inst_Qry = "";
+                            continue;
+                        }
+                        //감지채널에 해당하는 Insert 문 가져오기(Redis 에서 가져오기)
+                        inst_Qry = utility.getRedisDetcChanInstSqlList(detcChanCd);
+                        //
 
-                        bjob.put("REBM_DETECT_ID" , String.valueOf(System.currentTimeMillis())+bjob.get("CUST_ID")); //감지아이디
-                        bjob.put("WORK_DTM_MIL", String.valueOf(System.currentTimeMillis()));
-                        bjob.put("WORK_SVR_ID","A");
-                        bjob.put("WORK_SVR_NM","serverA");
-                        bjob.put("SIDO_CD", "001");
 
                         String na = "";
                         System.out.println("@@ "+ System.currentTimeMillis());

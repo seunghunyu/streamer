@@ -34,7 +34,7 @@ import java.util.Properties;
  *
  *
  */
-@Order(2)
+@Order(3)
 @EnableAsync
 @RequiredArgsConstructor
 @Component
@@ -136,7 +136,7 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
                     bjob.put("WORK_SVR_ID","A");
                     bjob.put("WORK_SVR_NM","serverA");
                     bjob.put("SIDO_CD", "001");
-
+                    bjob.put("DETC_CHAN_CD", "9009"); // Kafka 채널 코드 임시
                     String na = "";
                     System.out.println("@@ "+ System.currentTimeMillis());
 
