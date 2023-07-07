@@ -9,14 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @SpringBootTest
 class UtilityTest {
-//    Utility utility = new Utility();
     @Autowired
     Utility utility;
-
-    @Test
-    void test(){
-        System.out.println("qqqqqqqqqqqqqq");
-    }
 
     @Test
     void setRedisDetcChanList(){

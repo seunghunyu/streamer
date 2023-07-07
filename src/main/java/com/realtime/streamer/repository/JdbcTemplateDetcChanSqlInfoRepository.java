@@ -24,13 +24,13 @@ public class JdbcTemplateDetcChanSqlInfoRepository implements DetcChanSqlInfoRep
     @Override
     public List<DetcChanSqlInfo> getUseDetcChanSqlList() {
         return jdbcTemplate.query(" SELECT DETC_CHAN_CD, SQL_KIND, SQL_TYPE, SQL_STEP, SQL_SCRT, ENCODE_YN  " +
-                                         " FROM R_REBM_DETC_CHAN_SQL WHERE SQL_KIND = '1' AND SQL_TYPE = '3' ", detChanSqlInfoRowMapper());
+                                         " FROM R_REBM_DETC_CHAN_SQL WHERE SQL_KIND = '2' AND SQL_TYPE = '1' ", detChanSqlInfoRowMapper());
     }
 
     @Override
     public String findByOne(String detcChanCd) {
         DetcChanSqlInfo DetcChanSqlInfo = jdbcTemplate.queryForObject(
-                "SELECT SQL_SCRT FROM R_REBM_DETC_CHAN_SQL WHERE SQL_KIND = '1' AND SQL_TYPE = '3' AND DETC_CHAN_CD = ? " ,
+                "SELECT SQL_SCRT FROM R_REBM_DETC_CHAN_SQL WHERE SQL_KIND = '2' AND SQL_TYPE = '1' AND DETC_CHAN_CD = ? " ,
                 (resultSet, rowNum) -> {
                     DetcChanSqlInfo sqlInfo = new DetcChanSqlInfo();
                     sqlInfo.setSqlScrt(resultSet.getString("SQL_SCRT"));

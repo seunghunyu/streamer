@@ -126,8 +126,9 @@ public class Utility {
         //List<DetcChanSqlInfo> useDetcChanSqlList = detcChanSqlInfoRepository.getUseDetcChanSqlList();
 
         ValueOperations<String, String> stringStringValueOperations = redisTemplate.opsForValue();
-        System.out.println("GET INST QRY ::" + stringStringValueOperations.get(key));
+        System.out.println("GET INST QRY ::" + stringStringValueOperations.get(key).replaceAll("R_REBM_DETC_MSTR_1", "R_REBM_DETC_MSTR_"+this.getTableDtNum()));
         System.out.println("DETC_CHAN_LIST_SQL_INFO SELECT COMPLETE::::::::::::::::");
+        stringStringValueOperations.get(key).replaceAll("R_REBM_DETC_MSTR_1", "R_REBM_DETC_MSTR_"+this.getTableDtNum());
         return stringStringValueOperations.get(key);
     }
 
@@ -135,8 +136,8 @@ public class Utility {
      *  [2023.07.05] 감지채널 저장이력 쿼리 RDB 조회후 가져오기
      */
     public String getDetcChanInstSqlList(String detcChanCd) {
-        System.out.println(detcChanSqlInfoRepository.findByOne(detcChanCd));
-        return detcChanSqlInfoRepository.findByOne(detcChanCd);
+        System.out.println(detcChanSqlInfoRepository.findByOne(detcChanCd).replaceAll("R_REBM_DETC_MSTR_1", "R_REBM_DETC_MSTR_"+this.getTableDtNum()));
+        return detcChanSqlInfoRepository.findByOne(detcChanCd).replaceAll("R_REBM_DETC_MSTR_1", "R_REBM_DETC_MSTR_"+this.getTableDtNum());
     }
 
     public void redistTest(){
