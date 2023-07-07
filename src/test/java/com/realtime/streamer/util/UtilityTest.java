@@ -2,6 +2,7 @@ package com.realtime.streamer.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,7 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @SpringBootTest
 class UtilityTest {
-    Utility utility = new Utility();
+//    Utility utility = new Utility();
+    @Autowired
+    Utility utility;
+
     @Test
     void test(){
         System.out.println("qqqqqqqqqqqqqq");
@@ -18,13 +22,12 @@ class UtilityTest {
 
     @Test
     void setDetcChanList(){
-        String detcChanCd = "9001";
-        utility.setRedisDetcChanList(detcChanCd);
+        utility.setRedisDetcChanList();
+//        utility.redistTest();
     }
     @Test
     void getDetcChanList(){
-        String detcChanCd = "9001";
-        utility.getRedisDetcChanList("9001");
+        utility.getRedisDetcChanList();
     }
     @Test
     void setDetcChanInstSqlList(){
@@ -32,6 +35,6 @@ class UtilityTest {
     }
     @Test
     void getDetcChanInstSqlList(){
-        utility.getRedisDetcChanInstSqlList();
+        utility.getRedisDetcChanInstSqlList("9001");
     }
 }
