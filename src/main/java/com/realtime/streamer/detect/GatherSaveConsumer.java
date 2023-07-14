@@ -83,7 +83,7 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
                 loop:
                 while(true){
 
-                    if(lastUpdate + 7 < LocalTime.now().getSecond()){
+                    if(lastUpdate + 60 < LocalTime.now().getSecond()){
                         //사용중인 감지채널 조회, 감지테이블 저장 쿼리 조회, 감지 테이블 저장 아이템 조회
                         tableDt = utility.getTableDtNum();
                     }
