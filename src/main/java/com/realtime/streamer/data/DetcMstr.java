@@ -15,7 +15,7 @@ public class DetcMstr {
     String evtOccrDtm;
     String custId;
     String cratMethCd;
-    String workDtmMil;
+    Integer workDtmMil;
     String statCd;
     String stopNodeId;
     String COL01;

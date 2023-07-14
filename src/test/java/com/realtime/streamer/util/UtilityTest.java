@@ -13,6 +13,11 @@ class UtilityTest {
     Utility utility;
 
     @Test
+    void getTableDtNum(){
+        System.out.println(utility.getTableDtNum());
+    }
+
+    @Test
     void setRedisDetcChanList(){
         utility.setRedisDetcChanList();
 //        utility.redistTest();

@@ -65,12 +65,13 @@ public class JdbcTemplateHistorySaveRepository implements HistorySaveRepository{
                 ps.setString(2, detcMstr.getWorkSvrNm());
                 ps.setString(3, detcMstr.getWorkSvrId());
                 ps.setString(4, detcMstr.getDetcChanCd());
-                ps.setString(5, detcMstr.getEvtOccrDtm());
-                ps.setString(6, detcMstr.getCustId());
-                ps.setString(7, detcMstr.getCratMethCd());
-                ps.setString(8, detcMstr.getWorkDtmMil());
-                ps.setString(9, detcMstr.getStatCd());
-                ps.setString(10, detcMstr.getStopNodeId());
+                ps.setString(5, detcMstr.getCratMethCd());
+                ps.setInt(6, detcMstr.getWorkDtmMil());
+                ps.setString(7, detcMstr.getStatCd());
+                ps.setString(8, detcMstr.getStopNodeId());
+                ps.setString(9, detcMstr.getCustId());
+                ps.setString(10, detcMstr.getEvtOccrDtm());
+
                 ps.setString(11, detcMstr.getCOL01());
                 ps.setString(12, detcMstr.getCOL02());
                 ps.setString(13, detcMstr.getCOL03());

@@ -29,8 +29,8 @@ import java.util.List;
 public class Utility {
     /*
      *  [2023.07.05] 요일별 테이블을 구하기 위한 날짜 조회
-     *               기존 DayOfWeek 클래스 기준 1,2,3,4,5,6,7(월,화,수,목,금,토)
-     *                               현재 기준 2,3,4,5,6,7,1(월,화,수,목,금,토) -> 0은 Simulation
+     *               기존 DayOfWeek 클래스 기준 1,2,3,4,5,6,7(월,화,수,목,금,토,일)
+     *                               현재 기준 2,3,4,5,6,7,1(월,화,수,목,금,토,일) -> 0은 Simulation
      */
     @Autowired
     JdbcTemplateDetcChanRepository detcChanRepository;
