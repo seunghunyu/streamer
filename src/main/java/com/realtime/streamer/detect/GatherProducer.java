@@ -23,7 +23,7 @@ import java.util.Properties;
 *
 *
  */
-@Order(2)
+@Order(3)
 @EnableAsync
 @RequiredArgsConstructor
 @Component

@@ -34,7 +34,7 @@ import java.util.Properties;
  *
  *
  */
-@Order(3)
+@Order(4)
 @EnableAsync
 @RequiredArgsConstructor
 @Component
@@ -45,7 +45,8 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
     String topic   = "TEST";
     Properties configs;
     KafkaConsumer<String, String> consumer;
-    String testVar = "";
+//    KafkaProducer<String, String> producer;
+//    ProducerRecord<String, String> record, record2;
     int lastUpdate = 0;
     List<Camp> useDetcChanList;
     //신규 감지 ID
@@ -62,7 +63,6 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
         this.GroupId = groupId;
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
-        this.testVar = "qqqqq";
 
         this.configs = new Properties();
         this.configs.put("bootstrap.servers", Address); // kafka server host 및 port
@@ -83,14 +83,13 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
         this.consumer = new KafkaConsumer<String, String>(this.configs);
         this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
 
-
         System.out.println("######### consturctor info");
         System.out.println("%%"+configs.get("group.id"));
         System.out.println("%%"+configs.get("bootstrap.servers"));
         System.out.println("%%"+configs.get("group.id"));
         System.out.println("%%"+configs.get("auto.offset.reset"));
         System.out.println("######### consturctor info end");
-
+//        this.producer = new KafkaProducer<String, String>(this.configs);
     }
 
     public void polling(Properties conf, Consumer consumer){
@@ -102,11 +101,7 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
         useDetcChanList = repository.getDetcChanList();
 //        System.out.println("사용중인 감지채널 :::::" + useDetcChanList.get(0).getDetcChanCd());
         System.out.println("사용중인 감지채널 :::::" + "9001");
-//        System.out.println("@@@kafka config info@@@");
-//        System.out.println("%%"+conf.get("bootstrap.servers"));
-//        System.out.println("%%"+conf.get("group.id"));
-//        System.out.println("%%"+conf.get("auto.offset.reset"));
-//        System.out.println("#########"+testVar);
+
         try{
             loop:
             while(true){
@@ -124,33 +119,20 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
 //                    continue;
 //                }
                 for (ConsumerRecord<String, String> record : records) {
-                    System.out.println("GATHER CONSUMER1 @@@@@@@@@@@@ " + record.value() + record);
+                    System.out.println("GATHER CONSUMER1 @@@@@@@@@@@@ " + record.value());
 
                     JSONParser parser = new JSONParser();
 //                    JSONObject bjob = (JSONObject)parser.parse(record.value());
                     JSONObject bjob = (JSONObject)parser.parse(record.value());
                     System.out.println("GATHER CONSUMER2 @@@@@@@@@@@@ " + bjob.toString());
+                    System.out.println(bjob.get("CUST_ID"));
 
                     bjob.put("REBM_DETECT_ID" , String.valueOf(System.currentTimeMillis())+bjob.get("CUST_ID")); //감지아이디
                     bjob.put("WORK_DTM_MIL", String.valueOf(System.currentTimeMillis()));
                     bjob.put("WORK_SVR_ID","A");
                     bjob.put("WORK_SVR_NM","serverA");
-                    bjob.put("SIDO_CD", "001");
-                    bjob.put("DETC_CHAN_CD", "9009"); // Kafka 채널 코드 임시
-                    String na = "";
-                    System.out.println("@@ "+ System.currentTimeMillis());
-
-                    for (Object e : bjob.entrySet())  // 아이템화 시작
-                    {
-                        Map.Entry entry = (Map.Entry) e;
-                        na = String.valueOf(entry.getKey());
-//                        tmpWorkInfo.hashmap.put(na, bjob.get(na).toString()); // (아이템명, 아이템값) 형태로 워커객체에 put
-
-                        // Content에 CUST_ID 이름이 다른경우
-                        // tmpWorkInfo.hashmap.put("CUST_ID", na.equals("고객번호에 해당하는 아이템")); 형태로 사용가능
-                    }
-//                    objectQueue.addWorkItem(tmpWorkInfo); // worker에 전달
-//                    svrBridge.info_println("kafka message info : "+ tmpWorkInfo);
+//                    bjob.put("DETC_CHAN_CD", "9009"); // Kafka 채널 코드 임시
+                    bjob.put("DETC_CHAN_CD", "9001"); // Kafka 채널 코드 임시
                     SuccessCnt++;
                     System.out.println("Success count : "+SuccessCnt);
 //                    if (SuccessCnt >= 30) { //최대 500건 get
@@ -175,29 +157,26 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
 
 
     public void producing(Properties conf, String producingData){
-        System.out.println("producing1");
-        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(conf);
-        System.out.println("producing2");
-        ProducerRecord<String, String> record, record2;
+
         String ruleTopic = "RULE";
         String detcSaveTopic = "DETC_SAVE";
         int num = 0;
 
-//        while(true) {
-        //System.out.print("sendMessage > " + producingData);
+        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(conf);;
+        ProducerRecord<String, String> record, record2;
         record = new ProducerRecord<>(ruleTopic, producingData);
         record2 = new ProducerRecord<>(detcSaveTopic, producingData);
 
         try {
             //  Thread.sleep(2000);
-            System.out.println("RULE ::::"+Integer.toString(num++)+"번째 메시지 :: " + producingData);
+            System.out.println("RULE MESSAGE PRODUCING:::::: " + producingData);
             //Rule처리로 이동하는 메시지
             producer.send(record, (metadata, exception) -> {
                 if (exception != null) {
                     System.out.println("RULE TOPIC SENDING EXCEPTION :: "+ exception.toString());
                 }
             });
-            System.out.println("DETC SAVE ::::"+Integer.toString(num++)+"번째 메시지 :: " + producingData);
+            System.out.println("DETC SAVE PRODUCING:::::: " + producingData);
             //감지이력 저장으로 이동하는 메시지
             producer.send(record2, (metadata, exception) -> {
                 if (exception != null) {
@@ -209,7 +188,6 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
         } finally {
             producer.flush();
         }
-//        }
 
     }
 

@@ -1,8 +1,6 @@
 package com.realtime.streamer.repository;
 
-import com.realtime.streamer.data.Camp;
-import com.realtime.streamer.data.DetcChan;
-import com.realtime.streamer.data.DetcChanSqlInfo;
+import com.realtime.streamer.data.DetcChanSql;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,23 +14,23 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Repository
-public class JdbcTemplateDetcChanSqlInfoRepository implements DetcChanSqlInfoReposiotry{
+public class JdbcTemplateDetcChanSqlRepository implements DetcChanSqlInfoReposiotry{
     @Autowired
     private final JdbcTemplate jdbcTemplate;
 
 
     @Override
-    public List<DetcChanSqlInfo> getUseDetcChanSqlList() {
+    public List<DetcChanSql> getUseDetcChanSqlList() {
         return jdbcTemplate.query(" SELECT DETC_CHAN_CD, SQL_KIND, SQL_TYPE, SQL_STEP, SQL_SCRT, ENCODE_YN  " +
-                                         " FROM R_REBM_DETC_CHAN_SQL WHERE SQL_KIND = '2' AND SQL_TYPE = '1' ", detChanSqlInfoRowMapper());
+                                         " FROM R_REBM_DETC_CHAN_SQL WHERE SQL_KIND = '2' AND SQL_TYPE = '1' ", detChanSqlRowMapper());
     }
 
     @Override
     public String findByOne(String detcChanCd) {
-        DetcChanSqlInfo DetcChanSqlInfo = jdbcTemplate.queryForObject(
+        DetcChanSql DetcChanSqlInfo = jdbcTemplate.queryForObject(
                 "SELECT SQL_SCRT FROM R_REBM_DETC_CHAN_SQL WHERE SQL_KIND = '2' AND SQL_TYPE = '1' AND DETC_CHAN_CD = ? " ,
                 (resultSet, rowNum) -> {
-                    DetcChanSqlInfo sqlInfo = new DetcChanSqlInfo();
+                    DetcChanSql sqlInfo = new DetcChanSql();
                     sqlInfo.setSqlScrt(resultSet.getString("SQL_SCRT"));
                     return sqlInfo;
                 }, detcChanCd);
@@ -49,16 +47,16 @@ public class JdbcTemplateDetcChanSqlInfoRepository implements DetcChanSqlInfoRep
         return new String(decodedBytes);
     }
 
-    private RowMapper<DetcChanSqlInfo> detChanSqlInfoRowMapper() {
+    private RowMapper<DetcChanSql> detChanSqlRowMapper() {
         return (rs, rowNum) -> {
-            DetcChanSqlInfo detcChanSqlInfo = new DetcChanSqlInfo();
-            detcChanSqlInfo.setDetcChanCd(rs.getString("DETC_CHAN_CD"));
-            detcChanSqlInfo.setSqlKind(rs.getString("SQL_KIND"));
-            detcChanSqlInfo.setSqlType(rs.getString("SQL_TYPE"));
-            detcChanSqlInfo.setSqlStep(rs.getString("SQL_STEP"));
-            detcChanSqlInfo.setSqlScrt(rs.getString("SQL_SCRT"));
-            detcChanSqlInfo.setEncodeyn(rs.getString("ENCODE_YN"));
-            return detcChanSqlInfo;
+            DetcChanSql detcChanSql = new DetcChanSql();
+            detcChanSql.setDetcChanCd(rs.getString("DETC_CHAN_CD"));
+            detcChanSql.setSqlKind(rs.getString("SQL_KIND"));
+            detcChanSql.setSqlType(rs.getString("SQL_TYPE"));
+            detcChanSql.setSqlStep(rs.getString("SQL_STEP"));
+            detcChanSql.setSqlScrt(rs.getString("SQL_SCRT"));
+            detcChanSql.setEncodeyn(rs.getString("ENCODE_YN"));
+            return detcChanSql;
         };
     }
 

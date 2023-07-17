@@ -1,25 +1,26 @@
 package com.realtime.streamer.util;
 
 import com.realtime.streamer.data.DetcChan;
+import com.realtime.streamer.data.DetcChanSql;
 import com.realtime.streamer.data.DetcChanSqlInfo;
-import com.realtime.streamer.repository.JdbcTemplateCampRepository;
 import com.realtime.streamer.repository.JdbcTemplateDetcChanRepository;
-import com.realtime.streamer.repository.JdbcTemplateDetcChanSqlInfoRepository;
+import com.realtime.streamer.repository.JdbcTemplateDetcChanSqlRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
-import java.time.DayOfWeek;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 /* 필요 메소드 정의
  * [2023.07.05] 신규생성
@@ -36,15 +37,19 @@ public class Utility {
     JdbcTemplateDetcChanRepository detcChanRepository;
 
     @Autowired
-    JdbcTemplateDetcChanSqlInfoRepository detcChanSqlInfoRepository;
+    JdbcTemplateDetcChanSqlRepository detcChanSqlRepository;
 
     @Autowired
     StringRedisTemplate redisTemplate;
 
+    @Autowired
+    private final JdbcTemplate jdbcTemplate;
+
     public String getTableDtNum() {
         LocalDateTime date = LocalDate.now().atStartOfDay();
         //System.out.println("dayofWeekNumber" + Integer.toString(dayOfWeekNumber);
-        return Integer.toString(date.getDayOfWeek().getValue()-1);
+//        return Integer.toString(date.getDayOfWeek().getValue()-1);
+        return Integer.toString(date.getDayOfWeek().getValue());
     }
     /*
      *  [2023.07.05] 사용 중인 감지채널 리스트 업로드
@@ -71,7 +76,7 @@ public class Utility {
             stringListOperations.rightPush(key, useDetcChanList.get(i).getDetcChanCd());
         }
 
-        System.out.println("DETC_CHAN_LIST UPLOAD COMPLETE::::::::::::::::");
+        System.out.println("REDIS DETC_CHAN_LIST UPLOAD COMPLETE::::::::::::::::");
 //        List<String> ResultRange = stringListOperations.range(key, 0, stringListOperations.size(key));
         System.out.println(stringListOperations.range(key, 0, stringListOperations.size(key)));
 
@@ -93,9 +98,13 @@ public class Utility {
      *  [2023.07.05] 사용 중인 감지채널의 저장이력 쿼리 Redis Server에 저장
      */
     public void setRedisDetcChanInstSqlList(){
-//        String key = "DETC_CHAN_INST_SQL_";
+//        String key = "DETC_CHAN_INST_SQL_";       key 세팅시 특수문자 사용하면 에러 발생
         String key = "detcChanInstSql";
-        List<DetcChanSqlInfo> useDetcChanSqlList = detcChanSqlInfoRepository.getUseDetcChanSqlList();
+        ////List<DetcChanSql> useDetcChanSqlList = detcChanSqlRepository.getUseDetcChanSqlList(); //조회 쿼리
+//        List<DetcChanSql> useDetcChanSqlList = detcChanSqlRepository.findByOne("9001");
+
+        //사용중인 감지채널
+        List<DetcChan> userDetcChan = detcChanRepository.getUseDetcChanList();
 
         ValueOperations<String, String> stringStringValueOperations = redisTemplate.opsForValue();
 
@@ -103,19 +112,25 @@ public class Utility {
         String decodedString = "";
 
         //인코딩된 디코딩 후 업로드
-        for(int i=0 ; i < useDetcChanSqlList.size() ; i++){
-            if(useDetcChanSqlList.get(i).getSqlScrt().length() > 3) {
-                decodedBytes = Base64.getDecoder().decode(useDetcChanSqlList.get(i).getSqlScrt().substring(3));
-            }else{
-                decodedBytes = Base64.getDecoder().decode(useDetcChanSqlList.get(i).getSqlScrt());
-            }
-            redisTemplate.delete(key+useDetcChanSqlList.get(i).getDetcChanCd());       //삭제 후 insert
-            stringStringValueOperations.set(key+useDetcChanSqlList.get(i).getDetcChanCd(),
-                                             new String(decodedBytes));
-        }
-        System.out.println("DETC_CHAN_LIST_SQL_INFO UPLOAD COMPLETE::::::::::::::::");
+        for(int i=0 ; i < userDetcChan.size() ; i++){
 
-        getRedisDetcChanInstSqlList("9001");
+            String scrt = detcChanSqlRepository.findByOne(userDetcChan.get(i).getDetcChanCd());
+
+            System.out.println("SCRT:::::::::@@@@@@@@@@@@@@@@@"+scrt);
+
+//            if(scrt.length() > 3) {
+//                decodedBytes = Base64.getDecoder().decode(scrt.substring(3));
+//            }else{
+//                decodedBytes = Base64.getDecoder().decode(scrt);
+//            }
+
+
+            redisTemplate.delete(key+userDetcChan.get(i).getDetcChanCd());       //삭제 후 insert
+            stringStringValueOperations.set(key+userDetcChan.get(i).getDetcChanCd(), scrt);
+//            stringStringValueOperations.set(key+userDetcChan.get(i).getDetcChanCd(), new String(decodedBytes));
+        }
+        System.out.println("REDIS DETC CHAN INST QRY UPLOAD COMPLETE::::::::::::::::");
+
     }
 
     /*
@@ -128,17 +143,77 @@ public class Utility {
         ValueOperations<String, String> stringStringValueOperations = redisTemplate.opsForValue();
         System.out.println("GET INST QRY ::" + stringStringValueOperations.get(key).replaceAll("R_REBM_DETC_MSTR_1", "R_REBM_DETC_MSTR_"+this.getTableDtNum()));
         System.out.println("DETC_CHAN_LIST_SQL_INFO SELECT COMPLETE::::::::::::::::");
-        stringStringValueOperations.get(key).replaceAll("R_REBM_DETC_MSTR_1", "R_REBM_DETC_MSTR_"+this.getTableDtNum());
-        return stringStringValueOperations.get(key);
+        String detcQry = stringStringValueOperations.get(key).replaceAll("R_REBM_DETC_MSTR_1", "R_REBM_DETC_MSTR_"+this.getTableDtNum());
+        return detcQry;
     }
 
     /*
      *  [2023.07.05] 감지채널 저장이력 쿼리 RDB 조회후 가져오기
      */
     public String getDetcChanInstSqlList(String detcChanCd) {
-        System.out.println(detcChanSqlInfoRepository.findByOne(detcChanCd).replaceAll("R_REBM_DETC_MSTR_1", "R_REBM_DETC_MSTR_"+this.getTableDtNum()));
-        return detcChanSqlInfoRepository.findByOne(detcChanCd).replaceAll("R_REBM_DETC_MSTR_1", "R_REBM_DETC_MSTR_"+this.getTableDtNum());
+        System.out.println(detcChanSqlRepository.findByOne(detcChanCd).replaceAll("R_REBM_DETC_MSTR_1", "R_REBM_DETC_MSTR_"+this.getTableDtNum()));
+        return detcChanSqlRepository.findByOne(detcChanCd).replaceAll("R_REBM_DETC_MSTR_1", "R_REBM_DETC_MSTR_"+this.getTableDtNum());
     }
+
+    /*
+     *  [2023.07.17] 감지채널 사용 부가정보 아이템 Redis 서버 세팅
+     */
+    public void setRedisDetcChanAddInfoItem(){
+        String key = "detcChanAddInfoItem";
+        List<DetcChanSql> useDetcChanSqlList = detcChanSqlRepository.getUseDetcChanSqlList();
+
+
+
+        ValueOperations<String, String> stringStringValueOperations = redisTemplate.opsForValue();
+
+        for(int i = 0 ; i < useDetcChanSqlList.size() ; i++){
+            String addInfoList = "";
+            if(getDetcChanAddInfoList(useDetcChanSqlList.get(i).getDetcChanCd()) == null) addInfoList = "";
+            else addInfoList = getDetcChanAddInfoList(useDetcChanSqlList.get(i).getDetcChanCd());
+            redisTemplate.delete(key+useDetcChanSqlList.get(i).getDetcChanCd());       //삭제 후 insert
+            stringStringValueOperations.set(key+useDetcChanSqlList.get(i).getDetcChanCd(), addInfoList);
+
+        }
+        System.out.println("DETC_CHAN_LIST_SQL_ADD_INFO_ITEM UPLOAD COMPLETE::::::::::::::::");
+    }
+    /*
+     *  [2023.07.17] 감지채널 사용 부가정보 아이템 Redis 서버에서 가져오기
+     */
+    public String getRedisDetcChanAddInfoItem(String detcChancd){
+        String key = "detcChanAddInfoItem"+detcChancd;
+
+        ValueOperations<String, String> stringStringValueOperations = redisTemplate.opsForValue();
+        System.out.println("DETC_CHAN_LIST_SQL_ADD_INFO_ITEM SELECT COMPLETE::::::::::::::::");
+        String item = stringStringValueOperations.get(key);
+
+        return item;
+    }
+
+
+    /*
+     *  [2023.07.17] RDB 조회 이용 감지채널 사용 부가정보 아이템 데이터 가져오기
+     */
+    public String getDetcChanAddInfoList(String detcChanCd){
+        String qry = " SELECT DETC_CHAN_CD, SQL_KIND, DB_POOL, SEL_ITEM, SEL_TYPE FROM R_REBM_DETC_CHAN_SQL_INFO WHERE DETC_CHAN_CD = ? AND SQL_KIND = ? ";
+
+       List<DetcChanSqlInfo> results =  jdbcTemplate.query(qry, new RowMapper<DetcChanSqlInfo>() {
+            @Override
+            public DetcChanSqlInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+                DetcChanSqlInfo sqlInfo = new DetcChanSqlInfo();
+                sqlInfo.setDetcChanCd(rs.getString("DETC_CHAN_CD"));
+                sqlInfo.setSqlKind(rs.getString("SQL_KIND"));
+                sqlInfo.setDbPool(rs.getString("DB_POOL"));
+                sqlInfo.setSelItem(rs.getString("SEL_ITEM"));
+                sqlInfo.setSelType(rs.getString("SEL_TYPE"));
+
+                return sqlInfo;
+            }
+        }, detcChanCd, "5");
+
+
+        return results.isEmpty() ? null : results.get(0).getSelItem();
+    }
+
 
     public void redistTest(){
         String key = "test";

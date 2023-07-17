@@ -7,9 +7,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
 
-@Order(1)
-@Component
-public class RuleDataLoader implements CommandLineRunner {
+
+public class RuleDataLoader  {
     Utility utility;
     int lastUpdate = 0;
 
@@ -21,8 +20,4 @@ public class RuleDataLoader implements CommandLineRunner {
         }
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        //polling();
-    }
 }

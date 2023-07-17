@@ -5,10 +5,11 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-public class DetcChanSqlInfo {
+public class DetcChanSql {
     String detcChanCd;
     String sqlKind;
-    String dbPool;
-    String selItem;
-    String selType;
+    String sqlType;
+    String sqlStep;
+    String sqlScrt;
+    String encodeyn;
 }
