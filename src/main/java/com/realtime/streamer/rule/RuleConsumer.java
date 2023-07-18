@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.boot.CommandLineRunner;
@@ -21,9 +22,11 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /* [2023.07.04] 룰 처리 컨슈머
  *
@@ -39,6 +42,13 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
     Properties configs;
     KafkaConsumer<String, String> consumer;
     int lastUpdate = 0;
+    private Vector<InnerRuleWorkInfo> innerRuleWorkInfoArray =  new Vector<InnerRuleWorkInfo>();
+
+    private Thread[] innerRuleWorkThread;
+    private int      innerRuleWorkThreadCount = 0;;
+    boolean isClose = false;
+    int multiExecCount = 5;  //한번에 수행 될 룰 수행 쓰레드의 갯수
+
     public static class InnerRuleWorkInfo
     {
         String            real_flow_id;
@@ -96,6 +106,54 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
                 for (ConsumerRecord<String, String> record : records) {
                     JSONParser parser = new JSONParser();
                     JSONObject bjob = (JSONObject)parser.parse(record.value());
+
+                    String routeIds = bjob.get("DETC_ROUTE_IDS").toString();
+                    String flowIds = bjob.get("REAL_FLOW_IDS").toString();
+                    String campIds = bjob.get("CAMP_IDS").toString();
+
+                    String resultStr = "";
+
+                    String[] arr_route_id = routeIds.split(",");
+                    String[] arr_flow_id = flowIds.split(",");
+                    String[] arr_camp_id = campIds.split(",");
+                    String work_camp_id = "";
+                    String work_route_id = "";
+                    String work_flow_id = "";
+
+                    InnerRuleWorkInfo innerRuleWorkInfo = null;
+                    JSONArray arrExActInfo = new JSONArray();   
+                    
+                    innerRuleWorkInfoArray.clear();
+
+                    //CountDownLatch 이용하여 넘어온 캠페인에 해당하는 스케줄러의 Rule들을 스레드로 돌리고 한 캠페인의 해당하는 룰 스레드들이 모두종료가 되면 이후의 로직 수행
+                    CountDownLatch countDownLatch = new CountDownLatch(arr_route_id.length);
+                    for(int i=0; i<arr_route_id.length; i++)
+                    {
+                        work_route_id = arr_route_id[i];
+                        work_flow_id = arr_flow_id[i];
+                        work_camp_id = arr_camp_id[i];    //work_route_id.substring(0, work_route_id.indexOf("_"));
+
+                        if(work_camp_id != null && work_camp_id.length() > 3)
+                        {
+                            innerRuleWorkInfo = new InnerRuleWorkInfo();
+
+                            //Rule 처리를 해 복제 : 두개이상의 이벤트에 여러개의 캠페인이 매핑시시 아이템 값을 덮어쓰는 현상 방지를 위해
+                            
+//                            innerRuleWorkInfo.workinfo.hashmap.put("CAMP_ID", work_camp_id);
+//                            innerRuleWorkInfo.workinfo.hashmap.put("EX_CAMP_ID", hashFlowId_ExCampId.get(work_flow_id));  
+//                            innerRuleWorkInfo.workinfo.hashmap.put("OBZ_TIME_SEC", svrBridge.getTimeSec()+""); 
+//                            innerRuleWorkInfo.workinfo.hashmap.put("WORK_SVR_ID", worksvrid);
+//                            innerRuleWorkInfo.workinfo.hashmap.put("REAL_FLOW_ID", work_flow_id);
+
+                            innerRuleWorkInfo.real_flow_id = work_flow_id;
+                            innerRuleWorkInfo.detc_route_id = work_route_id;
+                            innerRuleWorkInfo.countDownLatch = countDownLatch;
+                            InnerRuleWorkInfoQueue.put(innerRuleWorkInfo);
+                            innerRuleWorkInfoArray.addElement(innerRuleWorkInfo);
+                        }
+                    }
+                    countDownLatch.await(); // 작업 호출
+
 
                     //@@@@@@@@@@@@@@@@@@@@@@@RULE 수행 로직@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -166,10 +224,56 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
             producer.flush();
         }
     }
+    private void  __InnerRuleRun(InnerRuleWorkInfo info)
+    {
+//        info.resultStr = svrBridge.invokeRule(info.workinfo.hashmap, classpath, getAddCampId(info.real_flow_id));
+        // 룰 수행 결과 저장 로직 수행
+
+        info.countDownLatch.countDown();
+    }
 
     @Override
     public void run(String... args) throws Exception {
         System.out.println("RuleConsumer start ::::::::::::::::::::::::::::");
+        // 내부 수행 Thread 생성
+        // Lambda Runnable
+        Runnable workTask =
+                ()->{
+                    InnerRuleWorkInfo info;
+
+                    while(isClose != true)
+                    {
+                        try
+                        {
+
+                            info = InnerRuleWorkInfoQueue.poll(1000, TimeUnit.MILLISECONDS);
+                            if(info == null)
+                                continue;
+
+                            info.starttime = System.currentTimeMillis();
+                            __InnerRuleRun(info);
+                            info.elapsedtime = System.currentTimeMillis();
+
+                        }
+                        catch (Exception e)
+                        {
+                            if(e instanceof InterruptedException)
+                                isClose = true;
+                        }
+                    }
+                };
+
+        innerRuleWorkThreadCount = multiExecCount;
+        innerRuleWorkThread = new Thread[innerRuleWorkThreadCount];
+        for(int i=0; i<innerRuleWorkThreadCount; i++)
+        {
+            innerRuleWorkThread[i] = new Thread(workTask);
+            innerRuleWorkThread[i].setName("RuleWork" + i);
+            innerRuleWorkThread[i].start();
+        }
+
+
+
         RuleConsumer ruleConsumer = new RuleConsumer("192.168.20.57:9092","test-consumer-group","RULE");
         polling(ruleConsumer.configs, ruleConsumer.consumer);
     }
