@@ -37,7 +37,7 @@ public class RuleSuccessSaveConsumer implements DataConsumer, CommandLineRunner 
     KafkaConsumer<String, String> consumer;
     int lastUpdate = 0;
     String tableDt = "";
-    String inst_Qry = " INSERT INTO R_REBM_RULE_REX_SLIST_0 (REBM_DETECT_ID, EX_CAMP_ID, STEP_ID, DETC_ROUTE_ID, WORK_DTM_MIL, STOP_NODE_ID, EX_TERM," +
+    String inst_Qry = " INSERT INTO R_REBM_RULE_REX_SLIST_1 (REBM_DETECT_ID, EX_CAMP_ID, STEP_ID, DETC_ROUTE_ID, WORK_DTM_MIL, STOP_NODE_ID, EX_TERM," +
                       "                                      CAMP_ID, CUST_ID, REAL_FLOW_ID, STOP_NODE_ITEM) " +
                       "                             VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 

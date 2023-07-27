@@ -1,6 +1,7 @@
 package com.realtime.streamer.chan;
 
 import com.realtime.streamer.cosumer.DataConsumer;
+import com.realtime.streamer.data.ChanEx;
 import com.realtime.streamer.data.RuleExS;
 import com.realtime.streamer.repository.JdbcTemplateHistorySaveRepository;
 import com.realtime.streamer.rule.RuleSuccessSaveConsumer;
@@ -31,9 +32,10 @@ public class ChanSaveConsumer implements DataConsumer, CommandLineRunner {
     KafkaConsumer<String, String> consumer;
     int lastUpdate = 0;
     String tableDt = "";
-    String inst_Qry = " INSERT INTO R_REBM_RULE_REX_SLIST_0 (REBM_DETECT_ID, EX_CAMP_ID, STEP_ID, DETC_ROUTE_ID, WORK_DTM_MIL, STOP_NODE_ID, EX_TERM," +
-            "                                      CAMP_ID, CUST_ID, REAL_FLOW_ID, STOP_NODE_ITEM) " +
-            "                             VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+    String inst_Qry = " INSERT INTO R_REBM_CHAN_EX_LIST_1 (REBM_DETECT_ID, EX_CAMP_ID, ACT_ID, STAT_CD, WORK_SVR_NM, WORK_SVR_ID, CHAN_CD," +
+            "                                      CUST_ID, SCRT_ID, REBM_SEND_ID, DETC_CHAN_CD, CONT_SET_YN, WORK_DTM_MIL, CAMP_ID, EX_ACT_ID, STEP_ID," +
+            "                                      DETC_ROUTE_ID, ABT_OBJ_KIND, ABT_OBJ_ID, EX_TERM, WORK_DTM, REAL_FLOW_ID ) " +
+            "                             VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,? )";
 
     @Autowired
     Utility utility;
@@ -68,11 +70,11 @@ public class ChanSaveConsumer implements DataConsumer, CommandLineRunner {
 
     @Override
     public void polling(Properties conf, Consumer consumer) {
-        System.out.println("RuleFailSave SAVE POLLING START@@@@@@@@@@@@@@@@@@@@");
+        System.out.println("ChanSave POLLING START@@@@@@@@@@@@@@@@@@@@");
         int SuccessCnt = 0;
-        List<RuleExS> ruleExSList = new ArrayList<>();
+        List<ChanEx> chanExList = new ArrayList<>();
         String detcChanSqlInfoItem;
-        RuleExS ruleExS;
+        ChanEx chanEx;
 
         try{
 
@@ -81,52 +83,66 @@ public class ChanSaveConsumer implements DataConsumer, CommandLineRunner {
                 if(lastUpdate + 600000 < LocalTime.now().getSecond()){
                     //사용중인 감지채널 조회, 감지테이블 저장 쿼리 조회, 감지 테이블 저장 아이템 조회
                     tableDt = utility.getTableDtNum();
-                    inst_Qry = inst_Qry.replaceAll("R_REBM_RULE_REX_SLIST_0", "R_REBM_RULE_REX_SLIST_"+tableDt);
+                    inst_Qry = inst_Qry.replaceAll("R_REBM_CHAN_EX_LIST_1", "R_REBM_CHAN_EX_LIST_"+tableDt);
                 }
 
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(500)); //데이터가 없을 경우 최대 0.5초 기다림
                 System.out.println("records :::" + records + ":::count ::"+Integer.toString(records.count()));
 
                 for (ConsumerRecord<String, String> record : records) {
-                    System.out.println("!@#RULE FAIL SAVE  ::::" + record.value());
+                    System.out.println("!@#CHAN SAVE  ::::" + record.value());
 
                     JSONParser parser = new JSONParser();
                     JSONObject bjob = (JSONObject)parser.parse(record.value());
                     String detcChanCd = "";
-                    //감지채널 key 값 존재시에만 데이터 세팅
 
-                    ruleExS = new RuleExS();
-                    ruleExS.setRebmDetcId(BigDecimal.valueOf(Double.parseDouble(bjob.get("REBM_DETECT_ID").toString())));
-                    ruleExS.setExCampId(bjob.get("WORK_SVR_NM").toString());
-                    ruleExS.setStepId(bjob.get("WORK_SVR_ID").toString());
-                    ruleExS.setDetcRouteId(bjob.get("DETC_CHAN_CD").toString());
-                    ruleExS.setWorkDtmMil("T");
-                    ruleExS.setCampId("");
-                    ruleExS.setCustId(bjob.get("CUST_ID").toString());
-                    ruleExS.setRealFlowId("");
 
-                    ruleExSList.add(ruleExS);
+                    chanEx = new ChanEx();
+                    chanEx.setRebmDetcId(BigDecimal.valueOf(Double.parseDouble(bjob.get("REBM_DETECT_ID").toString())));
+                    chanEx.setExCampId(bjob.get("WORK_SVR_NM").toString());
+                    chanEx.setActId(bjob.get("WORK_SVR_ID").toString());
+                    chanEx.setStatCd(bjob.get("DETC_CHAN_CD").toString());
+                    chanEx.setWorkSvrNm("T");
+                    chanEx.setWorkSvrId("");
+                    chanEx.setChanCd(bjob.get("CUST_ID").toString());
+                    chanEx.setCustId("");
+                    chanEx.setScrtId("");
+                    chanEx.setRebmSendId("");
+                    chanEx.setDetcChanCd("");
+                    chanEx.setContSetYn("");
+                    chanEx.setWorkDtmMil("");
+                    chanEx.setCampId("");
+                    chanEx.setExActId("");
+                    chanEx.setStepId("");
+                    chanEx.setDetcRouteId("");
+                    chanEx.setAbtObjKind("");
+                    chanEx.setAbtObjId("");
+                    chanEx.setExTerm("");
+                    chanEx.setWorkDtm("");
+                    chanEx.setRealFlowId("");
+
+                    chanExList.add(chanEx);
 
                     SuccessCnt++;
                     if (SuccessCnt >= 500) { //최대 500건 get
 
-                        historySaveRepository.batchInsertRuleS(ruleExSList, inst_Qry);
-                        System.out.println("RULE_SUCCESS_SAVE Success count : "+SuccessCnt);
+                        historySaveRepository.batchInsertChan(chanExList, inst_Qry);
+                        System.out.println("CHAN_SAVE Success count : "+SuccessCnt);
                         consumer.commitSync(); //commit
                         SuccessCnt = 0;
-                        ruleExSList.clear();
+                        chanExList.clear();
 
                         //break loop; //탈출
                     }
                     //consumer.commitSync(); //commit
                 }
 
-                if(ruleExSList.size() > 0) {
-                    historySaveRepository.batchInsertRuleS(ruleExSList, inst_Qry);
+                if(chanExList.size() > 0) {
+                    historySaveRepository.batchInsertChan(chanExList, inst_Qry);
                     //System.out.println("RULE_FAIL_SAVE Success count : "+SuccessCnt);
                     consumer.commitSync(); //commit
                     SuccessCnt = 0;
-                    ruleExSList.clear();
+                    chanExList.clear();
                 }
             }
         }catch(JsonParseException e){

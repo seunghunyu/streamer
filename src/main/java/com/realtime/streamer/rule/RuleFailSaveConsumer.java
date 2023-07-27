@@ -33,10 +33,10 @@ public class RuleFailSaveConsumer implements DataConsumer, CommandLineRunner {
     Properties configs;
     KafkaConsumer<String, String> consumer;
     int lastUpdate = 0;
-    String inst_Qry = " INSERT INTO R_REBM_RULE_REX_FLIST_0 (REBM_DETECT_ID, EX_CAMP_ID, STEP_ID, DETC_ROUTE_ID, WORK_DTM_MIL, STOP_NODE_ID, EX_TERM," +
+    String inst_Qry = " INSERT INTO R_REBM_RULE_REX_FLIST_1 (REBM_DETECT_ID, EX_CAMP_ID, STEP_ID, DETC_ROUTE_ID, WORK_DTM_MIL, STOP_NODE_ID, EX_TERM," +
                       "                                      CAMP_ID, CUST_ID, REAL_FLOW_ID, STOP_NODE_ITEM) " +
                       "                             VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-
+    String tableDt = "";
     @Autowired
     Utility utility;
 
@@ -65,6 +65,8 @@ public class RuleFailSaveConsumer implements DataConsumer, CommandLineRunner {
 
         this.consumer = new KafkaConsumer<String, String>(this.configs);
         this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
+        this.tableDt = utility.getTableDtNum();
+
     }
 
     @Override
@@ -81,7 +83,8 @@ public class RuleFailSaveConsumer implements DataConsumer, CommandLineRunner {
 
                 if(lastUpdate + 6 < LocalTime.now().getSecond()){
                     //사용중인 감지채널 조회, 감지테이블 저장 쿼리 조회, 감지 테이블 저장 아이템 조회
-                    ///tableDt = utility.getTableDtNum();
+                    tableDt = utility.getTableDtNum();
+                    inst_Qry = inst_Qry.replaceAll("R_REBM_RULE_REX_FLIST_1", "R_REBM_RULE_REX_FLIST_"+tableDt);
 
                 }
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(500)); //데이터가 없을 경우 최대 0.5초 기다림
