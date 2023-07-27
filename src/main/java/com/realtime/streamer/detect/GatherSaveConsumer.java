@@ -215,7 +215,6 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
                 //e.printStackTrace();
             }catch(Exception e) {
                 System.out.println("GATHER SAVE CONSUMING ERROR ::: "+e.getMessage());
-
             }finally{
 
             }

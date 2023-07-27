@@ -53,6 +53,7 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
     {
         String            real_flow_id;
 //        WorkInfo          workinfo;
+        JSONObject        workinfo;
         String            resultStr;
         CountDownLatch countDownLatch;
         long              starttime;
@@ -121,8 +122,10 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
                     String work_flow_id = "";
 
                     InnerRuleWorkInfo innerRuleWorkInfo = null;
-                    JSONArray arrExActInfo = new JSONArray();   
-                    
+                    innerRuleWorkInfo.workinfo = bjob;
+
+                    JSONArray arrExActInfo = new JSONArray();
+
                     innerRuleWorkInfoArray.clear();
 
                     //CountDownLatch 이용하여 넘어온 캠페인에 해당하는 스케줄러의 Rule들을 스레드로 돌리고 한 캠페인의 해당하는 룰 스레드들이 모두종료가 되면 이후의 로직 수행
@@ -138,7 +141,7 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
                             innerRuleWorkInfo = new InnerRuleWorkInfo();
 
                             //Rule 처리를 해 복제 : 두개이상의 이벤트에 여러개의 캠페인이 매핑시시 아이템 값을 덮어쓰는 현상 방지를 위해
-                            
+
 //                            innerRuleWorkInfo.workinfo.hashmap.put("CAMP_ID", work_camp_id);
 //                            innerRuleWorkInfo.workinfo.hashmap.put("EX_CAMP_ID", hashFlowId_ExCampId.get(work_flow_id));  
 //                            innerRuleWorkInfo.workinfo.hashmap.put("OBZ_TIME_SEC", svrBridge.getTimeSec()+""); 
@@ -155,18 +158,23 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
                     countDownLatch.await(); // 작업 호출
 
 
-                    //@@@@@@@@@@@@@@@@@@@@@@@RULE 수행 로직@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//                    //@@@@@@@@@@@@@@@@@@@@@@@RULE 수행 로직@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//                    producing(conf, bjob.toString(), innerRuleWorkInfo.resultStr);
 
                     //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                     SuccessCnt++;
                     System.out.println("Success count : "+SuccessCnt + ", Fail count : "+ FailCnt);
+
                     if (SuccessCnt >= 500) { //최대 500건 get
                         consumer.commitSync(); //commit
                         SuccessCnt = 0;
                         FailCnt = 0;
                     }
+                    //@@@@@@@@@@@@@@@@@@@@@@@RULE 수행 로직@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                    producing(conf, bjob.toString(), innerRuleWorkInfo.resultStr);
+
                     consumer.commitSync(); //commit
-                    producing(conf, bjob.toString());
+
                 }
                 consumer.commitSync();//commit
             }
@@ -180,7 +188,7 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
         }
     }
 
-    public void producing(Properties conf, String producingData){
+    public void producing(Properties conf, String producingData, String resultStr){
 
         String clanTopic = "CLAN";
         String ruleSTopic = "RULES_SAVE";
@@ -194,29 +202,32 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
         ruleFRecord = new ProducerRecord<>(ruleFTopic, producingData);
 
         try {
-            //  Thread.sleep(2000);
-            System.out.println("CLAN MESSAGE PRODUCING:::::: " + producingData);
-            //Rule처리로 이동하는 메시지
-            producer.send(clanRecord, (metadata, exception) -> {
-                if (exception != null) {
-                    System.out.println("CLAN TOPIC SENDING EXCEPTION :: "+ exception.toString());
-                }
-            });
-            System.out.println("RULE SUCCESS SAVE PRODUCING:::::: " + producingData);
-            //감지이력 저장으로 이동하는 메시지
-            producer.send(ruleSRecord, (metadata, exception) -> {
-                if (exception != null) {
-                    System.out.println("RULE SUCCESS TOPIC SENDING EXCEPTION ::" + exception.toString());
-                }
-            });
-
-            System.out.println("RULE FAIL SAVE PRODUCING:::::: " + producingData);
-            //감지이력 저장으로 이동하는 메시지
-            producer.send(ruleFRecord, (metadata, exception) -> {
-                if (exception != null) {
-                    System.out.println("RULE FAIL TOPIC SENDING EXCEPTION ::" + exception.toString());
-                }
-            });
+            //1. Rule 성공 , Clan 으로 이동
+            if(resultStr == "true") {
+                System.out.println("CLAN MESSAGE PRODUCING:::::: " + producingData);
+                //Rule처리로 이동하는 메시지
+                producer.send(clanRecord, (metadata, exception) -> {
+                    if (exception != null) {
+                        System.out.println("CLAN TOPIC SENDING EXCEPTION :: " + exception.toString());
+                    }
+                });
+                System.out.println("RULE SUCCESS SAVE PRODUCING:::::: " + producingData);
+                //감지이력 저장으로 이동하는 메시지
+                producer.send(ruleSRecord, (metadata, exception) -> {
+                    if (exception != null) {
+                        System.out.println("RULE SUCCESS TOPIC SENDING EXCEPTION ::" + exception.toString());
+                    }
+                });
+            //2. Rule 실패
+            }else {
+                System.out.println("RULE FAIL SAVE PRODUCING:::::: " + producingData);
+                //감지이력 저장으로 이동하는 메시지
+                producer.send(ruleFRecord, (metadata, exception) -> {
+                    if (exception != null) {
+                        System.out.println("RULE FAIL TOPIC SENDING EXCEPTION ::" + exception.toString());
+                    }
+                });
+            }
 
         } catch (Exception e) {
             System.out.println("PRODUCING EXCEPTION ::" + e.toString());
@@ -228,6 +239,10 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
     {
 //        info.resultStr = svrBridge.invokeRule(info.workinfo.hashmap, classpath, getAddCampId(info.real_flow_id));
         // 룰 수행 결과 저장 로직 수행
+        //임시
+        if(Integer.parseInt(info.workinfo.get("나이").toString()) > 20 ){
+            info.resultStr = "false";
+        }
 
         info.countDownLatch.countDown();
     }
@@ -250,6 +265,7 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
                             if(info == null)
                                 continue;
 
+                            //룰 수행 및 시간 체크
                             info.starttime = System.currentTimeMillis();
                             __InnerRuleRun(info);
                             info.elapsedtime = System.currentTimeMillis();
