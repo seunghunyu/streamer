@@ -26,7 +26,7 @@ import java.util.Properties;
 @Order(3)
 @EnableAsync
 @RequiredArgsConstructor
-@Component
+//@Component
 //public class GatherProducer implements DataProducer, ApplicationRunner {
 public class GatherProducer implements DataProducer, CommandLineRunner {
     private static final String TOPIC_NAME = "TEST";

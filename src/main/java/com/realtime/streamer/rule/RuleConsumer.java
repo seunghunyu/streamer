@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 @Order(4)
 @EnableAsync
 @RequiredArgsConstructor
-@Component
+//@Component
 public class RuleConsumer implements DataConsumer, CommandLineRunner {
     String Address = "192.168.20.57:9092";
     String GroupId = "test-consumer-group";

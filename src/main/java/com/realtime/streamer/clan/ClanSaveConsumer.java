@@ -29,7 +29,7 @@ import java.util.Properties;
 
 @EnableAsync
 @RequiredArgsConstructor
-@Component
+//@Component
 public class ClanSaveConsumer implements DataConsumer, CommandLineRunner {
     String Address = "192.168.20.57:9092";
     String GroupId = "test-consumer-group";
@@ -71,7 +71,7 @@ public class ClanSaveConsumer implements DataConsumer, CommandLineRunner {
 
         this.consumer = new KafkaConsumer<String, String>(this.configs);
         this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
-        this.tableDt = utility.getTableDtNum();
+        //this.tableDt = utility.getTableDtNum();
     }
 
     @Override

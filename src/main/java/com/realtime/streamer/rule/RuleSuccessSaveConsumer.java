@@ -28,7 +28,7 @@ import java.util.Properties;
 
 @EnableAsync
 @RequiredArgsConstructor
-@Component
+//@Component
 public class RuleSuccessSaveConsumer implements DataConsumer, CommandLineRunner {
     String Address = "192.168.20.57:9092";
     String GroupId = "test-consumer-group";

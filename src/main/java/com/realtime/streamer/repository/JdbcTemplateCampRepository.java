@@ -93,6 +93,7 @@ public class JdbcTemplateCampRepository implements CampRepository{
     }
 
 
+
     private RowMapper<Camp> campRowMapper() {
         return (rs, rowNum) -> {
             Camp camp = new Camp();

@@ -37,7 +37,7 @@ import java.util.Properties;
 @Order(4)
 @EnableAsync
 @RequiredArgsConstructor
-@Component
+//@Component
 //public class GatherConsumer implements DataConsumer,ApplicationRunner {
 public class GatherConsumer implements DataConsumer, CommandLineRunner {
     String Address = "192.168.20.57:9092";

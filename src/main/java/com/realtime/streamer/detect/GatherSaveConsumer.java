@@ -32,7 +32,7 @@ import java.util.*;
 @Order(4)
 @EnableAsync
 @RequiredArgsConstructor
-@Component
+//@Component
 //public class GatherSaveConsumer implements DataConsumer, ApplicationRunner {
 public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
     String Address = "192.168.20.57:9092";
