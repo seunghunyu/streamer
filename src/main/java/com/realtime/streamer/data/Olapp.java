@@ -17,4 +17,6 @@ public class Olapp {
     String olappObjId;
     String campId;
     String realFlowId;
+
+    String excldCondId;
 }

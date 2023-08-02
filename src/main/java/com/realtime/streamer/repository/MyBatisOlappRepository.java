@@ -23,6 +23,23 @@ public class MyBatisOlappRepository implements OlappRepository{
         return olappList;
     }
 
+    public List<Olapp> getActExcldOlappList(String actId) {
+        List<Olapp> actExcldList = olappMapper.findActExcldOlapp(actId);
+        return actExcldList;
+    }
+
+    @Override
+    public List<Olapp> getExternalFatList() {
+        List<Olapp> externalFatList = olappMapper.findExternalFatList();
+        return externalFatList;
+    }
+
+    @Override
+    public List<Olapp> getNoFatigueAct() {
+        List<Olapp> noFatList = olappMapper.findNoFatigueAct();
+        return noFatList;
+    }
+
 //    @Override
 //    public void update(Long itemId, ItemUpdateDto updateParam) {
 //        itemMapper.update(itemId, updateParam);

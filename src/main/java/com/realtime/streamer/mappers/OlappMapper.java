@@ -14,4 +14,9 @@ public interface OlappMapper {
 //    Optional<Item> findById(Long id);
     List<Olapp> findAll();
 
+    List<Olapp> findActExcldOlapp(@Param("actId") String actId);
+
+    List<Olapp> findExternalFatList();
+
+    List<Olapp> findNoFatigueAct();
 }

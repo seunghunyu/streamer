@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CampService {
@@ -19,4 +21,7 @@ public class CampService {
     public Camp getCampById(String id) {
         return repository.getCampOne(id);
     }
+    public List<Camp> getCampBrchList() { return repository.getCampBrch(); }
+
+    public List<Camp> getFlowStatList(String endDt) { return repository.getFlowStat(endDt); }
 }

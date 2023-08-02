@@ -14,6 +14,10 @@ public class Camp {
     String detcChanCd;
     int count;
 
+    String campBrch;
+    String realFlowId;
+    String statCd;
+    String endDt;
 
     public String getCampId() {
         return campId;

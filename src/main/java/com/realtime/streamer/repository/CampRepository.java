@@ -13,4 +13,6 @@ public interface CampRepository {
     Optional<Camp> findById(String id);
     Optional<Camp> findByDt(String strDt, String endDt);
     List<Camp> getDetcChanList();
+    List<Camp> getCampBrch();
+    List<Camp> getFlowStat(String endDt);
 }

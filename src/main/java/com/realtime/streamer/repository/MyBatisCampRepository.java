@@ -1,8 +1,12 @@
 package com.realtime.streamer.repository;
 
 import com.realtime.streamer.data.Camp;
+import com.realtime.streamer.mappers.CampMapper;
+import com.realtime.streamer.mappers.OlappMapper;
+import com.realtime.streamer.service.CampService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,7 +17,9 @@ import java.util.Optional;
 public class MyBatisCampRepository  implements CampRepository{
 
 
-    private final CampRepository repository;
+    private final CampMapper campMapper;
+
+    @Autowired
 
     @Override
     public List<Camp> getCampList() {
@@ -22,12 +28,12 @@ public class MyBatisCampRepository  implements CampRepository{
 
     @Override
     public Camp getCampOne(String id) {
-        return repository.getCampOne(id);
+        return campMapper.getCampOne(id);
     }
 
     @Override
     public Optional<Camp> findById(String id) {
-        return Optional.ofNullable(repository.getCampOne(id));
+        return Optional.ofNullable(campMapper.getCampOne(id));
     }
 
     @Override
@@ -38,5 +44,15 @@ public class MyBatisCampRepository  implements CampRepository{
     @Override
     public List<Camp> getDetcChanList() {
         return null;
+    }
+
+    @Override
+    public List<Camp> getCampBrch() {
+        return campMapper.getCampBrch();
+    }
+
+    @Override
+    public List<Camp> getFlowStat(String endDt) {
+        return campMapper.getFlowStat(endDt);
     }
 }

@@ -92,6 +92,15 @@ public class JdbcTemplateCampRepository implements CampRepository{
         return result;
     }
 
+    @Override
+    public List<Camp> getCampBrch() {
+        return null;
+    }
+
+    @Override
+    public List<Camp> getFlowStat() {
+        return null;
+    }
 
 
     private RowMapper<Camp> campRowMapper() {

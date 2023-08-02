@@ -24,5 +24,13 @@ public class OlappService {
         return repository.getCampOlappList();
     }
 
+    public List<Olapp> getActExcldUseList(String id){
+        return repository.getActExcldOlappList(id);
+    }
+    public List<Olapp> getExternalFatList(){
+        return repository.getExternalFatList();
+    }
+
+    public List<Olapp> getNoFatActList(){ return repository.getNoFatigueAct();}
 
 }
