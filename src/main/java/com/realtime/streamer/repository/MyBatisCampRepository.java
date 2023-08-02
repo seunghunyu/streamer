@@ -12,6 +12,9 @@ import java.util.Optional;
 @Repository
 public class MyBatisCampRepository  implements CampRepository{
 
+
+    private final CampRepository repository;
+
     @Override
     public List<Camp> getCampList() {
         return null;
@@ -19,12 +22,12 @@ public class MyBatisCampRepository  implements CampRepository{
 
     @Override
     public Camp getCampOne(String id) {
-        return null;
+        return repository.getCampOne(id);
     }
 
     @Override
     public Optional<Camp> findById(String id) {
-        return Optional.empty();
+        return Optional.ofNullable(repository.getCampOne(id));
     }
 
     @Override

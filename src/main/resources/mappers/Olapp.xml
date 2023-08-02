@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.realtime.streamer.mappers.OlappMapper">
+    <select id="findAll" resultType="Olapp">
+        SELECT ACT_ID, OLAPP_KIND_CD, OLAPP_USE_OBJ_ID, OLAPP_OBJ_ID, CAMP_ID, REAL_FLOW_ID
+        FROM R_ACT_OLAPP_USE_LIST
+
+<!--        <where>-->
+<!--            <if test="itemName != null and itemName != ''" >-->
+<!--                and item_name like concat('%', #{itemName}, '%')-->
+<!--            </if>-->
+<!--            <if test="maxPrice != null" >  &lt;!&ndash;  <=  &ndash;&gt;-->
+<!--                and price &lt;= #{maxPrice}-->
+<!--            </if>-->
+<!--        </where>-->
+    </select>
+</mapper>

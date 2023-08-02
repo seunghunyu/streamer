@@ -2,7 +2,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.realtime.streamer.repository.CampRepository">
+<mapper namespace="com.realtime.streamer.mappers.CampMapper">
     <select id="getCampOne" resultType="Camp">
         SELECT CAMP_ID, CAMP_NM, CAMP_STAT FROM R_PLAN WHERE CAMP_ID = #{id}
     </select>

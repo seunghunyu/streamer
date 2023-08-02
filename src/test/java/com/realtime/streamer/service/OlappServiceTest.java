@@ -1,27 +1,29 @@
 package com.realtime.streamer.service;
 
 import com.realtime.streamer.data.Camp;
-import com.realtime.streamer.repository.JdbcTemplateCampRepository;
+import com.realtime.streamer.data.Olapp;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
-@Transactional
 @SpringBootTest
-class CampServiceTest {
+class OlappServiceTest {
 
     @Autowired
-    CampService campService;
-
+    OlappService olappService;
     @Test
-    void findById() {
-        Camp camp = campService.getCampById("C22052390M");
-        System.out.println(camp);
+    void getOlappUseList() {
+        List<Olapp> list = olappService.getOlappUseList();
+        log.info(Integer.toString(list.size()));
+        for(int i = 0 ; i < list.size() ; i++){
+            log.info("OlappInfo = {}",list.get(i).toString());
+        }
+
     }
+
 }
