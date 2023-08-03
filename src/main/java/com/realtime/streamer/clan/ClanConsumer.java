@@ -5,7 +5,9 @@ import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.data.Olapp;
 import com.realtime.streamer.repository.JdbcTemplateCampRepository;
 import com.realtime.streamer.repository.MyBatisCampRepository;
+import com.realtime.streamer.repository.MyBatisChanRepository;
 import com.realtime.streamer.repository.MyBatisOlappRepository;
+import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -23,6 +25,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
@@ -62,7 +65,8 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
     HashMap<String,String> hashFlowId_Stat = new HashMap<String,String>();
     HashMap<String,String> hashCampBrch = new HashMap<String,String>();
 
-
+    String exDBKind = "ORACLE";
+    int olappSaveTerm = 0;
 
     List<Olapp> olappList = new ArrayList<>();
     List<Olapp> externalFatList = new ArrayList<>();
@@ -73,6 +77,14 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
     @Autowired
     MyBatisOlappRepository olappRepository;
 
+    @Autowired
+    MyBatisChanRepository chanRepository;
+
+
+    @Autowired
+    Utility utility;
+
+    String tableDt = "";
 
     public ClanConsumer(String address, String groupId, String topic) {
         System.out.println("call Gather Consumer Constructor");
@@ -108,17 +120,21 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
         System.out.println("######### consturctor info end");
 //        this.producer = new KafkaProducer<String, String>(this.configs);
         setCampOlappList(olappRepository);
+
+        tableDt = utility.getTableDtNum();
     }
 
     public void polling(Properties conf, Consumer consumer){
         int SuccessCnt = 0;
         int FailCnt = 0;
         boolean notClean = true;
-        String camp_id = "", act_id = "", chan_cd ="", detc_route_id = "", ex_camp_id = "", real_flow_id = "";
+        String camp_id = "", act_id = "", chan_cd ="", detc_route_id = "", ex_camp_id = "", real_flow_id = "", cust_id = "";
         String excldCd = "", exdBrch = "";
+        String qry1 = "";
         if(lastUpdate + 30 < LocalTime.now().getSecond()){
             //Olapp 정보 세팅
             setCampOlappList(olappRepository);
+            tableDt = utility.getTableDtNum();
         }
 
         try{
@@ -141,6 +157,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
                     detc_route_id = bjob.get("DETC_ROUTE_ID").toString();
                     ex_camp_id    = bjob.get("EX_CAMP_ID").toString();
                     real_flow_id  = bjob.get("REAL_FLOW_ID").toString();
+                    cust_id       = bjob.get("CUST_ID").toString();
 
                     notClean = true;
 
@@ -154,7 +171,17 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
                     }
 
 
-                    //2. 110.캠페인당 채널 전송 1회 접촉 제한
+                    //2. 110.캠페인 활동당 1일 채널 전송 1회 접촉 제한
+                    if(notClean == true) {
+
+                        checkActOneDayOlapp110(camp_id , act_id, real_flow_id, cust_id);
+                       // if(rs1.next() == true) {
+                            notClean = false;
+                            exdBrch = "1";
+                            excldCd = "110";
+                        //}
+                    }
+
 
 
                     //3. 99.Global Fatigue 채널 접촉횟수 제한
@@ -182,6 +209,26 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
 
         }
 
+    }
+
+    private boolean checkActOneDayOlapp110(String camp_id, String act_id, String real_flow_id, String cust_id) {
+        String tableName = "R_REBM_CHAN_EX_LIST_" + tableDt;
+        if( hashActOneDayOlapp110.get(act_id) != null)
+        {
+            if(hashFlowId_Stat.get(real_flow_id) != null && hashFlowId_Stat.get(real_flow_id).equals("3100"))
+            {
+            //1.수행시점
+                chanRepository.countChanCust(tableName, camp_id, act_id, real_flow_id, cust_id, "C");
+            }else{
+            //2.시뮬레이션용
+                chanRepository.countChanCust(tableName, camp_id, act_id, real_flow_id, cust_id, "T");
+            }
+
+            if(false){
+                return false;
+            }
+        }
+        return true;
     }
 
 

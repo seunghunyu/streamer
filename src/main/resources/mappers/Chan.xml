@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.realtime.streamer.mappers.ChanMapper">
+    <!-- 채널 발송 고객 확인 -->
+    <select id="countChanSendCust" resultType="int">
+        SELECT 1 FROM ${tableName}
+         WHERE CUST_ID = #{custId} and CAMP_ID = #{campId} and ACT_ID = #{actId} and STAT_CD = 'C'
+
+<!--        <where>-->
+<!--            <if test="itemName != null and itemName != ''" >-->
+<!--                and item_name like concat('%', #{itemName}, '%')-->
+<!--            </if>-->
+<!--            <if test="maxPrice != null" >  &lt;!&ndash;  <=  &ndash;&gt;-->
+<!--                and price &lt;= #{maxPrice}-->
+<!--            </if>-->
+<!--        </where>-->
+    </select>
+
+</mapper>

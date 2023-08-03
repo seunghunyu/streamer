@@ -98,7 +98,7 @@ public class JdbcTemplateCampRepository implements CampRepository{
     }
 
     @Override
-    public List<Camp> getFlowStat() {
+    public List<Camp> getFlowStat(String endDt) {
         return null;
     }
 

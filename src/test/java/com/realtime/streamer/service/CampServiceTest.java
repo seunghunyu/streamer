@@ -33,4 +33,12 @@ class CampServiceTest {
             log.info("campID = {}, campBrch = {}", campBrchList.get(i).getCampId(), campBrchList.get(i).getCampBrch());
         }
     }
+    @Test
+    void getFlowStatList() {
+        List<Camp> flowStatList = campService.getFlowStatList("20230803");
+        for(int i = 0 ; i < flowStatList.size() ; i++){
+            log.info("realFlowId = {} , statCd = {}",flowStatList.get(i).getRealFlowId(), flowStatList.get(i).getStatCd());
+        }
+
+    }
 }

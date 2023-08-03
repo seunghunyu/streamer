@@ -216,6 +216,8 @@ public class JdbcTemplateHistorySaveRepository implements HistorySaveRepository{
     }
 
 
+
+
 //
 //    private RowMapper<DetcMstr> detcMstrRowMapper() {
 //        return (rs, rowNum) -> {

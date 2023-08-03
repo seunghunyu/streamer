@@ -16,4 +16,6 @@ public interface HistorySaveRepository {
     boolean batchInsertRuleF(List<RuleExF> ruleFList, String qry);
     boolean batchInsertClan(List<ClanEx> clanList, String qry);
     boolean batchInsertChan(List<ChanEx> chanList, String qry);
+
+
 }
