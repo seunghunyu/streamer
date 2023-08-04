@@ -25,7 +25,7 @@ public class RebmDbDataSourceConfig {
     @Primary
     @Bean(REBM_SOURCE)
     @ConfigurationProperties(prefix = "spring.rebm.datasource.hikari")
-    public DataSource ADataSource() {
+    public DataSource rebmSource() {
         return DataSourceBuilder.create()
                 .type(HikariDataSource.class)
                 .build();

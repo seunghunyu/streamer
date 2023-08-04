@@ -17,7 +17,6 @@ import javax.sql.DataSource;
 
 @Configuration
 @MapperScan(value = "com.realtime.streamer.mappers.crm", sqlSessionFactoryRef = "CrmSqlSessionFactory")
-
 public class CrmDbDataSourceConfig {
 
     private final String CRM_SOURCE = "crmSource";
@@ -26,7 +25,7 @@ public class CrmDbDataSourceConfig {
     // crm database DataSource
     @Bean(CRM_SOURCE)
     @ConfigurationProperties(prefix = "spring.crm.datasource.hikari")
-    public DataSource BDataSource() {
+    public DataSource crmSource() {
         return DataSourceBuilder.create()
                 .type(HikariDataSource.class)
                 .build();
