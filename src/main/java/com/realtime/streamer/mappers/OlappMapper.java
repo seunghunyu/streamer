@@ -13,10 +13,12 @@ public interface OlappMapper {
 //    void update(@Param("id") Long id, @Param("updateParam") ItemUpdateDto updateParam);
 //    Optional<Item> findById(Long id);
     List<Olapp> findAll();
-
     List<Olapp> findActExcldOlapp(@Param("actId") String actId);
-
     List<Olapp> findExternalFatList();
-
     List<Olapp> findNoFatigueAct();
+
+    List<Olapp> findFatChanInfo();
+    Integer findFatStupDay();
+    Integer findFatStupCount();
+
 }

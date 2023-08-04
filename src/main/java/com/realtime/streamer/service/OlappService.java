@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /*
 *
@@ -33,4 +34,15 @@ public class OlappService {
 
     public List<Olapp> getNoFatActList(){ return repository.getNoFatigueAct();}
 
+    public List<Olapp> findFatChanInfo(){
+        return repository.findFatChanInfo();
+    }
+
+    public Integer findFatStupDay() {
+        return repository.findFatStupDay();
+    }
+
+    public Integer findFatStupCount() {
+        return repository.findFatStupCount();
+    }
 }

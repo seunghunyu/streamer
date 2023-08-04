@@ -40,6 +40,25 @@ public class MyBatisOlappRepository implements OlappRepository{
         return noFatList;
     }
 
+
+    @Override
+    public List<Olapp> findFatChanInfo() {
+        List<Olapp> fatChanInfo = olappMapper.findFatChanInfo();
+        return fatChanInfo;
+    }
+
+    @Override
+    public Integer findFatStupDay() {
+        Integer fatStupDay = olappMapper.findFatStupDay();
+        return fatStupDay;
+    }
+
+    @Override
+    public Integer findFatStupCount() {
+        Integer fatStupCount = olappMapper.findFatStupCount();
+        return fatStupCount;
+    }
+
 //    @Override
 //    public void update(Long itemId, ItemUpdateDto updateParam) {
 //        itemMapper.update(itemId, updateParam);

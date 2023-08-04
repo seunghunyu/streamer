@@ -21,4 +21,7 @@ public class ChanService {
         return repository.countChanCust(tableName, campId, actId, realFlowId, custId, runYn);
     }
 
+    public Integer getOTimeCustCount(String actId, String custId) {
+        return repository.countOTimeCust(actId, custId);
+    }
 }

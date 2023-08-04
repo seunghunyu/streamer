@@ -17,5 +17,9 @@
 <!--            </if>-->
 <!--        </where>-->
     </select>
+    <!-- 캠페인당 채널 전송 1회 접촉 고객 조회-->
+    <select id="countOTimeCust" resultType="int">
+        SELECT 1 from R_OTIME_EX_CUST_LIST WHERE ACT_ID = #{actId} and CUST_ID = #{custId}
+    </select>
 
 </mapper>

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
@@ -38,6 +39,23 @@ class OlappServiceTest {
     void getExtFatigueList(){
         List<Olapp> extFatList = olappService.getExternalFatList();
         log.info("getExternalFatList =  {}", extFatList.get(0).getOlappKindCd());
+    }
+    @Test
+    void  findFatChanInfo(){
+        List<Olapp> fatChanInfo = olappService.findFatChanInfo();
+        for(int i = 0 ; i < fatChanInfo.size() ; i++){
+            log.info("fatChanInfo = {}",fatChanInfo.get(i).toString());
+        }
+    }
+    @Test
+    void  findFatStupDay() {
+        Integer fatStupDay = olappService.findFatStupDay();
+        log.info("fatStupDay = {}",fatStupDay);
+    }
+    @Test
+    void  findFatStupCount() {
+        Integer fatStupCount = olappService.findFatStupCount();
+        log.info("fatStupCount = {}",fatStupCount);
     }
 
 }

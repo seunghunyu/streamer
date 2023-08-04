@@ -17,4 +17,9 @@ public class MyBatisChanRepository implements ChanRepository{
     public Integer countChanCust(String tableName, String campId, String actId, String realFlowId, String custId, String runYn) {
         return chanMapper.countChanSendCust(tableName, campId, actId, realFlowId, custId, runYn);
     }
+
+    @Override
+    public Integer countOTimeCust(String actId, String custId) {
+        return chanMapper.countOTimeCust(actId, custId);
+    }
 }

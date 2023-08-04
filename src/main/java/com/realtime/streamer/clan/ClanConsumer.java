@@ -7,6 +7,9 @@ import com.realtime.streamer.repository.JdbcTemplateCampRepository;
 import com.realtime.streamer.repository.MyBatisCampRepository;
 import com.realtime.streamer.repository.MyBatisChanRepository;
 import com.realtime.streamer.repository.MyBatisOlappRepository;
+import com.realtime.streamer.service.CampService;
+import com.realtime.streamer.service.ChanService;
+import com.realtime.streamer.service.OlappService;
 import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -65,20 +68,30 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
     HashMap<String,String> hashFlowId_Stat = new HashMap<String,String>();
     HashMap<String,String> hashCampBrch = new HashMap<String,String>();
 
+    HashMap<String,String>  hashChanBrchCd = new HashMap<String,String>();
+    HashMap<String,Integer> hashChanContRsrctTem = new HashMap<String,Integer>();
+    HashMap<String,Integer> hashChanContRsrctCnt = new HashMap<String,Integer>();
+    HashMap<String,Integer> hashChanContNoTime = new HashMap<String,Integer>();
+
+
+    Integer camp_brch_fatigue_day = 0;  // 캠페인유형별 중복제거 재수행 일수
+    Integer chan_fatigue_count = 0;     // 채널 접촉횟수 제한 여부
+
     String exDBKind = "ORACLE";
     int olappSaveTerm = 0;
 
     List<Olapp> olappList = new ArrayList<>();
     List<Olapp> externalFatList = new ArrayList<>();
 
-    @Autowired
-    MyBatisCampRepository campRepository;
 
     @Autowired
-    MyBatisOlappRepository olappRepository;
+    CampService campService;
 
     @Autowired
-    MyBatisChanRepository chanRepository;
+    OlappService olappService;
+
+    @Autowired
+    ChanService chanService;
 
 
     @Autowired
@@ -119,7 +132,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
         System.out.println("%%"+configs.get("auto.offset.reset"));
         System.out.println("######### consturctor info end");
 //        this.producer = new KafkaProducer<String, String>(this.configs);
-        setCampOlappList(olappRepository);
+        setCampOlappList();
 
         tableDt = utility.getTableDtNum();
     }
@@ -133,7 +146,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
         String qry1 = "";
         if(lastUpdate + 30 < LocalTime.now().getSecond()){
             //Olapp 정보 세팅
-            setCampOlappList(olappRepository);
+            setCampOlappList();
             tableDt = utility.getTableDtNum();
         }
 
@@ -162,7 +175,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
                     notClean = true;
 
                     //1. 채널별 제외조건 수행
-                    excldCd = runChanExcld(olappRepository, act_id);
+                    excldCd = runChanExcld(act_id);
                     //채널 제외 수행 후 성공 시 빈값 return
                     if(!excldCd.equals("")) {
                         notClean = false;
@@ -173,21 +186,34 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
 
                     //2. 110.캠페인 활동당 1일 채널 전송 1회 접촉 제한
                     if(notClean == true) {
-
-                        checkActOneDayOlapp110(camp_id , act_id, real_flow_id, cust_id);
-                       // if(rs1.next() == true) {
+                        if(!checkActOneDayOlapp110(camp_id , act_id, real_flow_id, cust_id)){
                             notClean = false;
                             exdBrch = "1";
                             excldCd = "110";
-                        //}
+                        }
+                    }
+
+                    //3. 110.캠페인당 채널 전송 1회 접촉 제한
+                    //select 1 from R_OTIME_EX_CUST_LIST where ACT_ID = ? and CUST_ID = ?
+                    if(notClean == true) {
+                        if(!checkActOneTimeOlapp110(act_id, cust_id)){
+                            notClean = false;
+                            exdBrch = "1";
+                            excldCd = "110";
+                        }
                     }
 
 
+                    //4. 99.Global Fatigue 채널 접촉횟수 제한
+                    if(notClean == true){
+                        if(hashNoFatigue99.get(act_id) == null && chan_fatigue_count > 0 && hashChanContRsrctTem.get(chan_cd) > 0 && hashChanContRsrctCnt.get(chan_cd) > 0)
+                        {
 
-                    //3. 99.Global Fatigue 채널 접촉횟수 제한
+                        }
+                    }
 
 
-                    //4. 3.Global Fatigue 유형별  중복제거 체크
+                    //5. 3.Global Fatigue 유형별  중복제거 체크
 
                     SuccessCnt++;
                     System.out.println("Clan Success count : "+SuccessCnt);
@@ -211,20 +237,30 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
 
     }
 
+    private boolean checkActOneTimeOlapp110(String act_id, String cust_id) {
+        Integer countOTime = chanService.getOTimeCustCount(act_id, cust_id);
+        if(countOTime != null && countOTime > 0){
+            return false;
+        }
+
+        return true;
+    }
+
     private boolean checkActOneDayOlapp110(String camp_id, String act_id, String real_flow_id, String cust_id) {
         String tableName = "R_REBM_CHAN_EX_LIST_" + tableDt;
+        int cnt = 0;
         if( hashActOneDayOlapp110.get(act_id) != null)
         {
             if(hashFlowId_Stat.get(real_flow_id) != null && hashFlowId_Stat.get(real_flow_id).equals("3100"))
             {
             //1.수행시점
-                chanRepository.countChanCust(tableName, camp_id, act_id, real_flow_id, cust_id, "C");
+                cnt = chanService.getSendChanCount(tableName, camp_id, act_id, real_flow_id, cust_id, "C");
             }else{
             //2.시뮬레이션용
-                chanRepository.countChanCust(tableName, camp_id, act_id, real_flow_id, cust_id, "T");
+                cnt = chanService.getSendChanCount(tableName, camp_id, act_id, real_flow_id, cust_id, "T");
             }
 
-            if(false){
+            if(cnt > 0){
                 return false;
             }
         }
@@ -273,8 +309,8 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
     /*
         중복제거 정보 세팅
      */
-    public void setCampOlappList(MyBatisOlappRepository repository){
-        olappList = olappRepository.getCampOlappList();
+    public void setCampOlappList(){
+        olappList = olappService.getOlappUseList();
 
         hashActOneTimeOlapp110.clear();  // 110. 활동별 1회 중복제거  T:이벤트당)    //캠페인당 중복 제거등 여러개 있는 경우 처리 필요, Fatigue도 유형별 등 마찬가지로  110이 아닌 다른 변수를 설정하여 처리함.
         hashCampOneTimeOlapp113.clear();  // 113. 캠페인별(flow) 1회 중복제거  T:이벤트당)
@@ -323,7 +359,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
         //3. 캠페인 분류 코드 추출
         // select CAMP_ID, CAMP_BRCH from R_PLAN
         hashCampBrch.clear();
-        List<Camp> campBrchList = campRepository.getCampBrch();
+        List<Camp> campBrchList = campService.getCampBrchList();
         for(int i = 0 ; i < campBrchList.size() ; i++){
             hashCampBrch.put(campBrchList.get(i).getCampId(), campBrchList.get(i).getCampBrch());
         }
@@ -332,7 +368,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
         hashNoFatigue3.clear();
         hashNoFatigue99.clear();
 
-        List<Olapp> noFatList = olappRepository.getNoFatigueAct();
+        List<Olapp> noFatList = olappService.getNoFatActList();
         for(int i = 0 ; i < noFatList.size() ; i++){
             if(noFatList.get(i).getOlappKindCd().equals("3")){
                 hashNoFatigue3.put(noFatList.get(i).getActId(), "1");
@@ -342,21 +378,47 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
         }
         //5. 상태추출
         hashFlowId_Stat.clear();
-        List<Camp> flowList = campRepository.getFlowStat(df_YYYYMMDD.toString());
+        List<Camp> flowList = campService.getFlowStatList(df_YYYYMMDD.toString());
         for(int i = 0 ; i < flowList.size() ; i++){
             hashFlowId_Stat.put(flowList.get(i).getRealFlowId(), flowList.get(i).getStatCd());
         }
+    }
+    /*
+        GlobalFatigue 정보 추출
+     */
+    private void getChanInfo(){
+        hashChanBrchCd.clear();
+        hashChanContRsrctTem.clear();
+        hashChanContRsrctCnt.clear();
+        hashChanContNoTime.clear();
+
+        // Global Fatigue의 채널별 설정 정보 조회
+        List<Olapp> fatChanInfo = olappService.findFatChanInfo();
+        for(int i = 0 ; i < fatChanInfo.size() ; i++){
+
+            hashChanBrchCd.put(fatChanInfo.get(i).getChanCd() , fatChanInfo.get(i).getChanBrchCd());
+            hashChanContRsrctTem.put(fatChanInfo.get(i).getChanCd() , fatChanInfo.get(i).getContRsrctTem());
+            hashChanContRsrctCnt.put(fatChanInfo.get(i).getChanCd(), fatChanInfo.get(i).getContRsrctCnt());
+            hashChanContNoTime.put(fatChanInfo.get(i).getChanCd(), fatChanInfo.get(i).getContNoTime());
+        }
+
+        // 중복제거 일자 추출
+        camp_brch_fatigue_day = olappService.findFatStupDay();
 
 
+        //-----  채널 접촉횟수 제한 여부
+        chan_fatigue_count = olappService.findFatStupCount();
 
     }
+
+
     /*
         채널별 제외조건 수행
      */
-    public String runChanExcld(MyBatisOlappRepository repository, String actId){
+    public String runChanExcld(String actId){
         String excldCondId = "";
         Boolean isExRule = false;
-        List<Olapp> chanExcldList = repository.getActExcldOlappList(actId);
+        List<Olapp> chanExcldList = olappService.getActExcldUseList(actId);
         for(int i = 0 ; i < chanExcldList.size() ; i++){
             //채널 제외 조건 ID 추출
             excldCondId = chanExcldList.get(i).getExcldCondId();

@@ -19,4 +19,15 @@ public class Olapp {
     String realFlowId;
 
     String excldCondId;
+
+
+    String chanCd;
+    String chanBrchCd;
+    int contRsrctTem;
+    int contRsrctCnt;
+    int contNoTime;
+
+    String stupDay;
+    int cnt;
+
 }
