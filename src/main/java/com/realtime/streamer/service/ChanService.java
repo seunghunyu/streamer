@@ -1,14 +1,10 @@
 package com.realtime.streamer.service;
 
 
-import com.realtime.streamer.data.Camp;
-import com.realtime.streamer.repository.MyBatisCampRepository;
-import com.realtime.streamer.repository.MyBatisChanRepository;
+import com.realtime.streamer.repository.rebm.MyBatisChanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

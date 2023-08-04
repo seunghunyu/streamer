@@ -1,13 +1,13 @@
 package com.realtime.streamer.repository;
 
 import com.realtime.streamer.data.Camp;
+import com.realtime.streamer.repository.rebm.JdbcTemplateCampRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 

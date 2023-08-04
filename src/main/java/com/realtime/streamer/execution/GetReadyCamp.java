@@ -1,6 +1,6 @@
 package com.realtime.streamer.execution;
 
-import com.realtime.streamer.repository.JdbcTemplateCampRepository;
+import com.realtime.streamer.repository.rebm.JdbcTemplateCampRepository;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.PreparedStatement;

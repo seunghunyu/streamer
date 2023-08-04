@@ -1,6 +1,7 @@
 package com.realtime.streamer.repository;
 
 import com.realtime.streamer.data.DetcChanSql;
+import com.realtime.streamer.repository.rebm.JdbcTemplateDetcChanSqlRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

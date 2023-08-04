@@ -1,4 +1,4 @@
-package com.realtime.streamer.repository;
+package com.realtime.streamer.repository.rebm;
 
 import com.realtime.streamer.data.Camp;
 import org.apache.ibatis.annotations.Mapper;

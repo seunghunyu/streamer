@@ -1,9 +1,7 @@
-package com.realtime.streamer.repository;
+package com.realtime.streamer.repository.rebm;
 
 import com.realtime.streamer.data.Camp;
-import com.realtime.streamer.mappers.CampMapper;
-import com.realtime.streamer.mappers.OlappMapper;
-import com.realtime.streamer.service.CampService;
+import com.realtime.streamer.mappers.rebm.CampMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

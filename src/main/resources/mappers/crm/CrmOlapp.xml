@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.realtime.streamer.mappers.crm.CrmOlappMapper">
+    <!-- Global Fatigue의 채널별 설정 정보 조회 -->
+    <select id="findFatChanInfo" resultType="Olapp">
+        SELECT B.CHAN_CD, A.CHAN_BRCH_CD, A.CONT_RSRCT_TEM, A.CONT_RSRCT_CNT, A.CONT_NO_TIME
+          FROM C_CHAN_BRCH_MNG A, C_CHAN_BRCH_MAP B
+         WHERE A.CHAN_BRCH_CD = B.CHAN_BRCH_CD
+    </select>
+    <!-- 중복제거 일자 추출 -->
+    <select id="findFatStupDay" resultType="int">
+          SELECT STUP_DAY
+            FROM C_GLBL_FATG_OLAPP_STUP
+           WHERE OLAPP_KIND_CD = '3' AND USE_YN = '1' and EX_SYS = 'CAMPAIGN'
+    </select>
+    <!-- 채널 접촉횟수 제한 여부 -->
+    <select id="findFatStupCount" resultType="int">
+          SELECT COUNT(*)
+            FROM C_GLBL_FATG_OLAPP_STUP
+           WHERE OLAPP_KIND_CD = '99' AND USE_YN = '1' and EX_SYS = 'CAMPAIGN'
+    </select>
+</mapper>

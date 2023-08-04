@@ -3,8 +3,8 @@ package com.realtime.streamer.util;
 import com.realtime.streamer.data.DetcChan;
 import com.realtime.streamer.data.DetcChanSql;
 import com.realtime.streamer.data.DetcChanSqlInfo;
-import com.realtime.streamer.repository.JdbcTemplateDetcChanRepository;
-import com.realtime.streamer.repository.JdbcTemplateDetcChanSqlRepository;
+import com.realtime.streamer.repository.rebm.JdbcTemplateDetcChanRepository;
+import com.realtime.streamer.repository.rebm.JdbcTemplateDetcChanSqlRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ListOperations;
@@ -18,9 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
 /* 필요 메소드 정의
  * [2023.07.05] 신규생성

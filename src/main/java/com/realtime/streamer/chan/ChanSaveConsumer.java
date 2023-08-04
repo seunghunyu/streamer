@@ -2,9 +2,7 @@ package com.realtime.streamer.chan;
 
 import com.realtime.streamer.cosumer.DataConsumer;
 import com.realtime.streamer.data.ChanEx;
-import com.realtime.streamer.data.RuleExS;
-import com.realtime.streamer.repository.JdbcTemplateHistorySaveRepository;
-import com.realtime.streamer.rule.RuleSuccessSaveConsumer;
+import com.realtime.streamer.repository.rebm.JdbcTemplateHistorySaveRepository;
 import com.realtime.streamer.util.Utility;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

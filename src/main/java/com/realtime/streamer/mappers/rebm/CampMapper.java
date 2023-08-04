@@ -1,4 +1,4 @@
-package com.realtime.streamer.mappers;
+package com.realtime.streamer.mappers.rebm;
 
 import com.realtime.streamer.data.Camp;
 import org.apache.ibatis.annotations.Mapper;

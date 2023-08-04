@@ -1,4 +1,4 @@
-package com.realtime.streamer.repository;
+package com.realtime.streamer.repository.rebm;
 
 import com.realtime.streamer.data.Olapp;
 
@@ -10,7 +10,4 @@ public interface OlappRepository {
     List<Olapp> getActExcldOlappList(String actId);
     List<Olapp> getExternalFatList();
     List<Olapp> getNoFatigueAct();
-    List<Olapp> findFatChanInfo();
-    Integer findFatStupDay();
-    Integer findFatStupCount();
 }

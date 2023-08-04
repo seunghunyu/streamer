@@ -2,9 +2,7 @@ package com.realtime.streamer.clan;
 
 import com.realtime.streamer.cosumer.DataConsumer;
 import com.realtime.streamer.data.ClanEx;
-import com.realtime.streamer.data.RuleExS;
-import com.realtime.streamer.repository.JdbcTemplateHistorySaveRepository;
-import com.realtime.streamer.rule.RuleSuccessSaveConsumer;
+import com.realtime.streamer.repository.rebm.JdbcTemplateHistorySaveRepository;
 import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -17,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Duration;

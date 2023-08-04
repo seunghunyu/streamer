@@ -1,7 +1,7 @@
 package com.realtime.streamer.repository;
 
-import com.realtime.streamer.data.DetcChan;
 import com.realtime.streamer.data.DetcMstr;
+import com.realtime.streamer.repository.rebm.JdbcTemplateHistorySaveRepository;
 import com.realtime.streamer.util.Utility;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class JdbcTemplateHistorySaveRepositoryTest {
 

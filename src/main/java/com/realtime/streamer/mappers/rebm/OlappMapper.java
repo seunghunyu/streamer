@@ -1,4 +1,4 @@
-package com.realtime.streamer.mappers;
+package com.realtime.streamer.mappers.rebm;
 
 import com.realtime.streamer.data.Olapp;
 import org.apache.ibatis.annotations.Mapper;
@@ -9,16 +9,8 @@ import java.util.Optional;
 
 @Mapper
 public interface OlappMapper {
-//    void save(Item item);
-//    void update(@Param("id") Long id, @Param("updateParam") ItemUpdateDto updateParam);
-//    Optional<Item> findById(Long id);
     List<Olapp> findAll();
     List<Olapp> findActExcldOlapp(@Param("actId") String actId);
     List<Olapp> findExternalFatList();
     List<Olapp> findNoFatigueAct();
-
-    List<Olapp> findFatChanInfo();
-    Integer findFatStupDay();
-    Integer findFatStupCount();
-
 }

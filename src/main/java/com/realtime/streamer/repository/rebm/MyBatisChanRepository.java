@@ -1,6 +1,6 @@
-package com.realtime.streamer.repository;
+package com.realtime.streamer.repository.rebm;
 
-import com.realtime.streamer.mappers.ChanMapper;
+import com.realtime.streamer.mappers.rebm.ChanMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;

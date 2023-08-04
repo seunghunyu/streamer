@@ -2,7 +2,7 @@ package com.realtime.streamer.detect;
 
 import com.realtime.streamer.cosumer.DataConsumer;
 import com.realtime.streamer.data.Camp;
-import com.realtime.streamer.repository.JdbcTemplateCampRepository;
+import com.realtime.streamer.repository.rebm.JdbcTemplateCampRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -13,21 +13,17 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 /*
  * [2023.06.27] 신규 생성 - 감지 토픽에서 데이터 컨슈밍

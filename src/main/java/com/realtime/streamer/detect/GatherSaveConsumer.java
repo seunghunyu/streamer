@@ -1,12 +1,9 @@
 package com.realtime.streamer.detect;
 
 import com.realtime.streamer.cosumer.DataConsumer;
-import com.realtime.streamer.data.DetcChan;
-import com.realtime.streamer.data.DetcChanSqlInfo;
 import com.realtime.streamer.data.DetcMstr;
-import com.realtime.streamer.repository.JdbcTemplateHistorySaveRepository;
+import com.realtime.streamer.repository.rebm.JdbcTemplateHistorySaveRepository;
 import com.realtime.streamer.util.Utility;
-import jdk.jshell.execution.Util;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -15,14 +12,11 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Duration;

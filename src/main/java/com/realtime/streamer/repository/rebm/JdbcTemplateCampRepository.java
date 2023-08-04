@@ -1,4 +1,4 @@
-package com.realtime.streamer.repository;
+package com.realtime.streamer.repository.rebm;
 
 import com.realtime.streamer.data.Camp;
 import lombok.RequiredArgsConstructor;
@@ -8,13 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import javax.sql.RowSet;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;

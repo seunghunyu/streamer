@@ -2,9 +2,7 @@ package com.realtime.streamer.service;
 
 
 import com.realtime.streamer.data.Camp;
-import com.realtime.streamer.mappers.CampMapper;
-import com.realtime.streamer.repository.CampRepository;
-import com.realtime.streamer.repository.MyBatisCampRepository;
+import com.realtime.streamer.repository.rebm.MyBatisCampRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

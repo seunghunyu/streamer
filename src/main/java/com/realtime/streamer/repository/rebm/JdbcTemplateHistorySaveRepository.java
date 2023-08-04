@@ -1,4 +1,4 @@
-package com.realtime.streamer.repository;
+package com.realtime.streamer.repository.rebm;
 
 import com.realtime.streamer.data.*;
 import com.realtime.streamer.util.Utility;
@@ -7,12 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Base64;
 import java.util.List;
 
 @Slf4j

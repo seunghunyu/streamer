@@ -1,6 +1,5 @@
-package com.realtime.streamer.repository;
+package com.realtime.streamer.repository.rebm;
 
-import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.data.DetcChan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,10 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
