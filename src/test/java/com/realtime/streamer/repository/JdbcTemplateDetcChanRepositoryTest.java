@@ -24,4 +24,13 @@ class JdbcTemplateDetcChanRepositoryTest {
             System.out.println(detcChanList.get(i));
         }
     }
+
+    @Test
+    void getUseDetcChanList2(){
+        System.out.println("getUseDetcChanList");
+        List<DetcChan> detcChanList = jdbcTemplateDetcChanRepository.getUseDetcChanList2();
+        for(int i = 0; i < detcChanList.size() ; i++){
+            System.out.println(detcChanList.get(i));
+        }
+    }
 }

@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface DetcChanReposiotry {
     List<DetcChan> getUseDetcChanList();
+    List<DetcChan> getUseDetcChanList2();
 }

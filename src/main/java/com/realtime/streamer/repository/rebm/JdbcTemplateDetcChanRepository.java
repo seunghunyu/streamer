@@ -22,6 +22,11 @@ public class JdbcTemplateDetcChanRepository implements DetcChanReposiotry{
         return jdbcTemplate.query(" SELECT DETC_CHAN_CD, DETC_CHAN_NM, STOP_REG_YN, USE_YN  FROM R_REBM_DETC_CHAN WHERE USE_YN = '1' ", detChanRowMapper());
     }
 
+    @Override
+    public List<DetcChan> getUseDetcChanList2() {
+        return jdbcTemplate.query(" SELECT DETC_CHAN_CD, DETC_ROUTE_NM  FROM C_REBM_ROUTE_MNG ", detChanRowMapper());
+    }
+
     private RowMapper<DetcChan> detChanRowMapper() {
         return (rs, rowNum) -> {
             DetcChan detcChan = new DetcChan();
