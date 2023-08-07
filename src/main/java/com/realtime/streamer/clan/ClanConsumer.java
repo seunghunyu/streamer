@@ -209,13 +209,10 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
 
 
                             if(hashChanContRsrctTem.get(chan_cd) == 1) {
-                            // concCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), "", df_yyyyMMdd, cust_id);
+                                contCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), "", df_yyyyMMdd.toString(), cust_id);
                             }else{
-
-                                clntime = nowtime - (24*60*60*1000 * (hashChanContRsrctTem.get(chan_cd) -1));  // 당일 포함
-                              //contCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), df_yyyyMMdd.format(new java.util.Date(clntime)), df_yyyyMMdd, cust_id);
-
-
+                              clntime = nowtime - (24*60*60*1000 * (hashChanContRsrctTem.get(chan_cd) -1));  // 당일 포함
+                                contCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), df_yyyyMMdd.format(new java.util.Date(clntime)), df_yyyyMMdd.toString(), cust_id);
                             }
 
                             if(contCount >= hashChanContRsrctCnt.get(chan_cd)) {
@@ -228,6 +225,56 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
 
 
                     //5. 3.Global Fatigue 유형별  중복제거 체크
+                    if(notClean == true) {
+
+                        if (camp_brch_fatigue_day > 0 && hashNoFatigue3.get(act_id) == null) {
+                            int contCount = 0;
+
+                            if(camp_brch_fatigue_day == 1) {
+                                contCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), "", df_yyyyMMdd.toString(), cust_id);
+                            }else{
+                                clntime = nowtime - (24*60*60*1000 * (hashChanContRsrctTem.get(chan_cd) -1));  // 당일 포함
+                                contCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), df_yyyyMMdd.format(new java.util.Date(clntime)), df_yyyyMMdd.toString(), cust_id);
+                            }
+
+                            if(contCount >= 1) {
+                                notClean = false;
+                                exdBrch = "1";
+                                excldCd = "3";
+                            }
+                        }
+                    }
+                    //6. 외부확장 fatigue가 설정되어 있는 경우
+                    if(notClean == true && hashAct_ExternalFatigue.get(act_id) != null){
+                        for(String OLAPP_KIND_CD : hashAct_ExternalFatigue.get(act_id))
+                        {
+                            String external_data = "";
+                            JSONObject externalObj  = new JSONObject();
+
+                            externalObj.put("CAMP_ID", camp_id);
+                            externalObj.put("ACT_ID", act_id);
+                            externalObj.put("CHAN_CD", chan_cd);
+                            externalObj.put("EX_CAMP_ID", ex_camp_id);
+                            externalObj.put("REAL_FLOW_ID", real_flow_id);
+                            externalObj.put("EXTERNAL_DATA", external_data);
+
+
+                          //외부 클래스 호출
+//                          com.realtime.streamer.externalRealTime.ExternalFatigue ext = new com.realtime.streamer.externalRealTime.ExternalFatigue();
+//                          if(ext.execute(externalObj) == false)
+//                          {
+//                             external_data = "확장 퍼티그 중복";
+//                             notClean = false;
+//                             exdBrch = "3";
+//                             excldCd = OLAPP_KIND_CD;
+//                             break;
+//                          } else {
+//                             external_data = "";
+//                          }
+
+                        }
+
+                    }
 
                     SuccessCnt++;
                     System.out.println("Clan Success count : "+SuccessCnt);
@@ -236,7 +283,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
 //                        break loop; //탈출
 //                    }
                     consumer.commitSync(); //commit
-                    producing(conf, bjob.toString());
+                    producing(conf, bjob.toString(), notClean);
                 }
                 consumer.commitSync();//commit
             }
@@ -282,7 +329,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
     }
 
 
-    public void producing(Properties conf, String producingData){
+    public void producing(Properties conf, String producingData, boolean notClean){
         //채널 발송 전 단계에서의 처리 토픽
         String chanTopic = "CHAN";
         //중복제거에 걸린 데이터 저장
@@ -296,25 +343,29 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
         record2 = new ProducerRecord<>(clanSaveTopic, producingData);
 
         try {
-            //  Thread.sleep(2000);
-            System.out.println("CHAN MESSAGE PRODUCING:::::: " + producingData);
-            //Rule처리로 이동하는 메시지
-            producer.send(record, (metadata, exception) -> {
-                if (exception != null) {
-                    System.out.println("CHAN TOPIC SENDING EXCEPTION :: "+ exception.toString());
-                }
-            });
-            System.out.println("CLAN SAVE PRODUCING:::::: " + producingData);
-            //감지이력 저장으로 이동하는 메시지
 
-            producer.send(record2, (metadata, exception) -> {
-                if (exception != null) {
-                    System.out.println("CLAN SAVE TOPIC SENDING EXCEPTION ::" + exception.toString());
-                }
-            });
+            //중복제거 대상이 아닌 경우
+            if(!notClean) {
+                System.out.println("CHAN MESSAGE PRODUCING:::::: " + producingData);
+                //채널 전송으로 이동하는 메시지
+                producer.send(record, (metadata, exception) -> {
+                    if (exception != null) {
+                        System.out.println("CHAN TOPIC SENDING EXCEPTION :: " + exception.toString());
+                    }
+                });
+            //중복제거 대상인 경우
+            }else {
+                System.out.println("CLAN SAVE PRODUCING:::::: " + producingData);
+                //중복제거 이력 저장으로 이동하는 메시지
 
+                producer.send(record2, (metadata, exception) -> {
+                    if (exception != null) {
+                        System.out.println("CLAN SAVE TOPIC SENDING EXCEPTION ::" + exception.toString());
+                    }
+                });
+            }
         } catch (Exception e) {
-            System.out.println("PRODUCING EXCEPTION ::" + e.toString());
+            System.out.println("Clan Consumer PRODUCING EXCEPTION ::" + e.toString());
         } finally {
             producer.flush();
         }
