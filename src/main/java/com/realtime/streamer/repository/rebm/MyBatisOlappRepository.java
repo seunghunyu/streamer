@@ -1,7 +1,9 @@
 package com.realtime.streamer.repository.rebm;
 
 import com.realtime.streamer.data.Olapp;
+import com.realtime.streamer.mappers.crm.CrmOlappMapper;
 import com.realtime.streamer.mappers.rebm.OlappMapper;
+import com.realtime.streamer.repository.crm.CrmOlappRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -11,13 +13,14 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Repository
-public class MyBatisOlappRepository implements OlappRepository{
+public class MyBatisOlappRepository implements OlappRepository {
 
     private final OlappMapper olappMapper;
 
+
     @Override
     public List<Olapp> getCampOlappList() {
-        List<Olapp> olappList = olappMapper.findAll();
+        List<Olapp> olappList = olappMapper.findAllOlapp();
         return olappList;
     }
 
@@ -36,6 +39,12 @@ public class MyBatisOlappRepository implements OlappRepository{
     public List<Olapp> getNoFatigueAct() {
         List<Olapp> noFatList = olappMapper.findNoFatigueAct();
         return noFatList;
+    }
+
+    @Override
+    public Integer getFatExCustList(String campBrch, String strDt, String endDt, String custId) {
+        Integer fatCount = olappMapper.getFatExCustList(campBrch, strDt, endDt, custId);
+        return fatCount;
     }
 
 }

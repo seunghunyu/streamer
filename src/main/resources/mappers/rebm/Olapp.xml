@@ -4,7 +4,7 @@
 
 <mapper namespace="com.realtime.streamer.mappers.rebm.OlappMapper">
     <!-- 수행중인 중복제거 정보 조회 -->
-    <select id="findAll" resultType="Olapp">
+    <select id="findAllOlapp" resultType="Olapp">
         SELECT ACT_ID, OLAPP_KIND_CD, OLAPP_USE_OBJ_ID, OLAPP_OBJ_ID, CAMP_ID, REAL_FLOW_ID
         FROM R_ACT_OLAPP_USE_LIST
     </select>
@@ -22,6 +22,20 @@
     </select>
     <!-- 글로벌 퍼티그 미사용 채널 추출 -->
     <select id="findNoFatigueAct" resultType="Olapp">
-        select ACT_ID, OLAPP_KIND_CD from R_ACT_GLBL_FATG where KIND_UNUSED_YN = '1'
+        SELECT ACT_ID, OLAPP_KIND_CD FROM R_ACT_GLBL_FATG WHERE KIND_UNUSED_YN = '1'
+    </select>
+    <!-- 글로벌 퍼티그 미사용 채널 추출 -->
+    <select id="getFatExCustList" resultType="int">
+       SELECT COUNT(*) FROM R_FATG_EX_CUST_LIST
+        WHERE CAMP_BRCH = #{campBrch}
+        <choose>
+            <when test = "#{endDt} != null">
+                AND CRAT_DT BETWEEN #{strDt} AND #{endDt}
+            </when>
+            <otherwise>
+                AND CRAT_DT = #{strDt}
+            </otherwise>
+        </choose>
+        AND CUST_ID = #{custId}
     </select>
 </mapper>

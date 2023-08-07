@@ -25,19 +25,19 @@ public class OlappService {
     @Autowired
     private final MyBatisCrmOlappRepository crm_repository;
 
+
     //REBM
     public List<Olapp> getOlappUseList(){
         return repository.getCampOlappList();
     }
-
     public List<Olapp> getActExcldUseList(String id){
         return repository.getActExcldOlappList(id);
     }
     public List<Olapp> getExternalFatList(){
         return repository.getExternalFatList();
     }
-
     public List<Olapp> getNoFatActList(){ return repository.getNoFatigueAct();}
+    public Integer getFatExCustList(String campBrch, String strDt, String endDt, String custId){return repository.getFatExCustList(campBrch, strDt, endDt, custId);};
 
     //CRM
     public List<Olapp> findFatChanInfo(){
@@ -46,8 +46,8 @@ public class OlappService {
     public Integer findFatStupDay() {
         return crm_repository.findFatStupDay();
     }
-
     public Integer findFatStupCount() {
         return crm_repository.findFatStupCount();
     }
+
 }

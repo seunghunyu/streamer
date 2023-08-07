@@ -58,4 +58,13 @@ class OlappServiceTest {
         log.info("fatStupCount = {}",fatStupCount);
     }
 
+    @Test
+    void  getFatCustList() {
+        String campBrch = "A0201";
+        String strDt = "20230622";
+        String endDt = "20230622";
+        String custId = "C0000107262";
+        Integer fatCustCount = olappService.getFatExCustList(campBrch, strDt, endDt, custId);
+        log.info("fatCustCount = {}",fatCustCount);
+    }
 }

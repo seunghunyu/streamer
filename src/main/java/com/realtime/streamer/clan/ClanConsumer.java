@@ -5,6 +5,7 @@ import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.data.Olapp;
 import com.realtime.streamer.service.CampService;
 import com.realtime.streamer.service.ChanService;
+
 import com.realtime.streamer.service.OlappService;
 import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
@@ -77,6 +78,8 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
     List<Olapp> olappList = new ArrayList<>();
     List<Olapp> externalFatList = new ArrayList<>();
 
+    long nowtime = 0;
+    long clntime = 0;
 
     @Autowired
     CampService campService;
@@ -202,7 +205,24 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
                     if(notClean == true){
                         if(hashNoFatigue99.get(act_id) == null && chan_fatigue_count > 0 && hashChanContRsrctTem.get(chan_cd) > 0 && hashChanContRsrctCnt.get(chan_cd) > 0)
                         {
+                            int contCount = 0;
 
+
+                            if(hashChanContRsrctTem.get(chan_cd) == 1) {
+                            // concCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), "", df_yyyyMMdd, cust_id);
+                            }else{
+
+                                clntime = nowtime - (24*60*60*1000 * (hashChanContRsrctTem.get(chan_cd) -1));  // 당일 포함
+                              //contCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), df_yyyyMMdd.format(new java.util.Date(clntime)), df_yyyyMMdd, cust_id);
+
+
+                            }
+
+                            if(contCount >= hashChanContRsrctCnt.get(chan_cd)) {
+                                notClean = false;
+                                exdBrch = "1";
+                                excldCd = "99";
+                            }
                         }
                     }
 

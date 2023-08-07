@@ -38,6 +38,9 @@ dependencies {
 	//MyBatis
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.4'
 
+	//log ¼³Á¤
+	implementation group: 'org.bgee.log4jdbc-log4j2', name:'log4jdbc-log4j2-jdbc4.1', version: '1.16'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
 	//runtimeOnly 'com.oracle.database.jdbc:ojdbc6'
