@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <settings>
+        <!--<setting name="mybatis.type-aliases-package" value="com.realtime.streamer.data"/>-->
+        <setting name="mapUnderscoreToCamelCase" value="true" />
+        <setting name="callSettersOnNulls" value="true"/>
+        <!--<setting name="mapper-locations" value="mappers/*.xml"/>-->
+    </settings>
+    <typeAliases>
+        <!-- packge 채로 선언해줄때 -->
+        <package name="com.realtime.streamer.data"/>
+        <!-- Mapper data 클래스를 한개씩 alias 줄때
+            <typeAlias type="com.realtime.streamer.data.Olapp" alias="Olapp" />
+        -->
+    </typeAliases>
+    <mappers>
+        <!-- package 채로 인터페이스를 등록할 경우 -->
+        <!-- <package name="mappers"/> -->
+        <!-- 한개씩 등록할때
+            <mapper resource="mappers/crm/CrmOlappMapper.xml"/>
+            <mapper resource="mappers/rebm/CampMapper.xml"/>
+            <mapper resource="mappers/rebm/ChanMapper.xml"/>
+            <mapper resource="mappers/rebm/OlappMapper.xml"/>
+        -->
+    </mappers>
+</configuration>
