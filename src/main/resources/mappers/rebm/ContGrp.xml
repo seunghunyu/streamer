@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.realtime.streamer.mappers.rebm.ContGrpMapper">
+    <update id="updateCratCnt" >
+        UPDATE R_REBM_CONT_SET_OBJ SET CONT_SET_CRAT_CNT = CONT_SET_CRAT_CNT + 1 WHERE CONT_SET_OBJ_ID = #{contSetObjId}
+    </update>
+
+    <select id="selectContSetObj" resultType="ContGrp">
+        SELECT CONT_SET_OBJ_ID, REAL_FLOW_ID, CAMP_ID, CONT_SET_RATIO, CONT_SET_MAX_CNT, APLY_OBJ_ID, CONT_SET_CRAT_CNT
+          FROM R_REBM_CONT_SET_OBJ
+        <choose>
+            <when test = "#{contSetObjId} != null">
+                WHERE CONT_SET_OBJ_ID = #{contSetObjId}
+            </when>
+        </choose>
+    </select>
+
+
+
+</mapper>
