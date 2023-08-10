@@ -13,6 +13,6 @@ public interface ChanMapper {
 
     Integer countOTimeCust(@Param("actId") String actId, @Param("custId") String custId);
 
-    List<Scrt> getScrtInfo(String actId);
+    List<Scrt> getScrtInfo(@Param("actId") String actId);
 
 }

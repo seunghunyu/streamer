@@ -15,4 +15,5 @@ public class Scrt {
     String stepId;
     String detcRouteId;
     String contSetYn;
+    String scrtId;
 }

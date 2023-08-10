@@ -13,4 +13,8 @@
         SELECT 1 from R_OTIME_EX_CUST_LIST WHERE ACT_ID = #{actId} and CUST_ID = #{custId}
     </select>
 
+    <!-- 스크립트 ID 조회 -->
+    <select id="getScrtInfo" resultType="Scrt">
+        SELECT SCRT_ID FROM R_ACT_SCRT WHERE ACT_ID = #{actId}
+    </select>
 </mapper>

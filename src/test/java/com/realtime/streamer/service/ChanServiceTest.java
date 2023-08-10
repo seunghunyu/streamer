@@ -1,6 +1,7 @@
 package com.realtime.streamer.service;
 
 import com.realtime.streamer.data.Camp;
+import com.realtime.streamer.data.Scrt;
 import com.realtime.streamer.util.Utility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,14 @@ class ChanServiceTest {
         String custId = "C0000000053";
         Integer oTimeCount = chanService.getOTimeCustCount(actId, custId);
         log.info("oTimeCount =  {}", oTimeCount);
+    }
+
+    @Test
+    void getScrtId(){
+        String actId = "C22052390M_00F";
+        List<Scrt> list = chanService.getScrtInfo(actId);
+        log.info("sctId = {}", list.get(0).getScrtId());
+
     }
 
 }
