@@ -1,7 +1,10 @@
 package com.realtime.streamer.mappers.rebm;
 
+import com.realtime.streamer.data.Scrt;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface ChanMapper {
@@ -9,5 +12,7 @@ public interface ChanMapper {
                           String realFlowId, @Param("custId") String custId, String runYn);
 
     Integer countOTimeCust(@Param("actId") String actId, @Param("custId") String custId);
+
+    List<Scrt> getScrtInfo(String actId);
 
 }

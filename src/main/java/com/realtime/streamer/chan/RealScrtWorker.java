@@ -85,6 +85,8 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
 
     String tableDt = "";
 
+    String scrt_id;
+
     public RealScrtWorker(String address, String groupId, String topic) {
         System.out.println("call Gather Consumer Constructor");
         this.Address = address;
@@ -149,6 +151,7 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
                     JSONObject bjob = (JSONObject)parser.parse(record.value());
                     System.out.println(bjob.get("CUST_ID"));
 
+                    HashMap<String,String> actTagInfo = new HashMap<String,String>();
 
                     camp_id       = bjob.get("CAMP_ID").toString();
                     act_id        = bjob.get("ACT_ID").toString();
@@ -173,7 +176,18 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
                     bjob.put("CONT_SET_OBJ_ID", cont_set_obj_id);
 
                     //2.개인화 태그 추출
+                    JSONObject tagJobj = new JSONObject();
+                    if(hashAct_PsnlTagNm.get(act_id) != null){
+                        for(String tagNm : hashAct_PsnlTagNm.get(act_id)) {
+                            tagJobj.put(tagNm,(bjob.get(tagNm) == null ? "" : bjob.get(tagNm)));
+                        }
+                    }
+                    actTagInfo = (HashMap)bjob;
 
+                    // 사용 변수 초기화
+                    scrt_id = "0";
+                    //3. 활동별 스크립트 정보 추출
+                    //" SELECT SCRT_ID FROM R_ACT_SCRT  WHERE ACT_ID = ? ";
 
 
                     SuccessCnt++;
