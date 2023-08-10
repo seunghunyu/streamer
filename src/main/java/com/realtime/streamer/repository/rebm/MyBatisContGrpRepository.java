@@ -24,4 +24,8 @@ public class MyBatisContGrpRepository implements ContGrpRepsoitory{
     public List<ContGrp> selectContSetObj(String contSetObjId) {
         return contGrpMapper.selectContSetObj(contSetObjId);
     }
+
+    public String getContSetYn(String contSetObjId, String custId) {
+        return contGrpMapper.getContSetYn(contSetObjId, custId);
+    }
 }

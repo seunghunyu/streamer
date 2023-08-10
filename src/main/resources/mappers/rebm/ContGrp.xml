@@ -16,7 +16,19 @@
             </when>
         </choose>
     </select>
+    <select id="getContSetYn" resultType="String">
+        SELECT CONT_SET_YN
+        FROM R_REBM_CONT_CUST_LIST
+        <choose>
+            <when test = "#{contSetObjId} != null">
+                WHERE CONT_SET_OBJ_ID = #{contSetObjId}
+                <choose>
+                    <when test = "#{custId} != null">
+                        AND CUST_ID = #{custId}
+                    </when>
+                </choose>
+            </when>
 
-
-
+        </choose>
+    </select>
 </mapper>

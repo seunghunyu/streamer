@@ -2,10 +2,10 @@ package com.realtime.streamer.chan;
 
 import com.realtime.streamer.cosumer.DataConsumer;
 import com.realtime.streamer.data.Camp;
+import com.realtime.streamer.data.ContGrp;
 import com.realtime.streamer.data.Olapp;
-import com.realtime.streamer.service.CampService;
-import com.realtime.streamer.service.ChanService;
-import com.realtime.streamer.service.OlappService;
+import com.realtime.streamer.data.PsnlTag;
+import com.realtime.streamer.service.*;
 import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -75,14 +75,10 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
     long clntime = 0;
 
     @Autowired
-    CampService campService;
+    ContGrpService contGrpService;
 
     @Autowired
-    OlappService olappService;
-
-    @Autowired
-    ChanService chanService;
-
+    PsnlTagService psnlTagService;
 
     @Autowired
     Utility utility;
@@ -172,10 +168,11 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
                         else
                             cont_set_obj_id = contContObjId.get(real_flow_id);
 
-                        contSetYn = getCustContSetYn(cont_set_obj_id, camp_id);
+                        contSetYn = getCustContSetYn(cont_set_obj_id, camp_id, cust_id);
                     }
                     bjob.put("CONT_SET_OBJ_ID", cont_set_obj_id);
 
+                    //2.개인화 태그 추출
 
 
 
@@ -202,26 +199,28 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
     }
 
     //고객별 대조군 여부 추출
-    public int getCustContSetYn(String cont_set_obj_id, String camp_id) throws Exception{
+    public int getCustContSetYn(String cont_set_obj_id, String camp_id, String cust_id) throws Exception{
         int contSetYn = 0;
         String dbContSet = "";
         //메모리 DB 에서 1차적으로 저장 여부 파악
-        //"SELECT CONT_SET_YN FROM R_REBM_CONT_CUST_LIST WHERE CONT_SET_OBJ_ID = ? AND CUST_ID = ? ";
-        if(!dbContSet.equals("")) {
-            contSetYn = Integer.parseInt(dbContSet);
-            return contSetYn;
-        }
+//        "SELECT CONT_SET_YN FROM R_REBM_CONT_CUST_LIST WHERE CONT_SET_OBJ_ID = ? AND CUST_ID = ? ";
+//        if(!dbContSet.equals("")) {
+//            contSetYn = Integer.parseInt(dbContSet);
+//            return contSetYn;
+//        }
+
         //수행 시점에만
         if(!isSimul){
             // RDB 조회 후 저장 여부 파악
             // SELECT CONT_SET_YN FROM R_REBM_CONT_CUST_LIST WHERE CONT_SET_OBJ_ID = ? AND CUST_ID = ?
+            dbContSet = contGrpService.getContSetYn(cont_set_obj_id, cust_id);
             if(!dbContSet.equals("")) {
                 contSetYn = Integer.parseInt(dbContSet);
                 //svrBridge.debug_println("2222 = " + cont_set_obj_id + "," + contSetYn);
                 return contSetYn;
             }
-
         }
+        // 현재 생성된 고객수가 최대 고객수보다 큰 경우 수행군으로 전달
         if(contCratCnt.get(cont_set_obj_id) >= contMaxCnt.get(cont_set_obj_id))
         {
             contSetYn = 0;
@@ -243,6 +242,7 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
             //svrBridge.debug_println("CONT_SET : " + camp_id + " = "+ tmpWorkInfo.hashmap.get("REBM_DETECT_ID"));
         }
 
+
         contUpdate = "UPDATE R_REBM_CONT_SET_OBJ SET CONT_SET_CRAT_CNT = CONT_SET_CRAT_CNT + 1 WHERE CONT_SET_OBJ_ID = ? ";
         // 시뮬레이션이면 메모리에 update 수행
 //        if(isSimul == true && contSetYn == 1)
@@ -258,20 +258,10 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
 //                if(pstmt2 != null) { try { pstmt2.close(); } catch(Exception ex) { };  }
 //            }
 //        }
-//        else if(isSimul == false && contSetYn == 1)   // 시뮬레이션이 아니면 대조군 DB에 update 수행
-//        {
-//            try {
-//                pstmt2 = conn.prepareStatement(contUpdate);
-//                pstmt2.setString(1, cont_set_obj_id);
-//                pstmt2.executeUpdate();
-//                conn.commit();
-//            } catch(Exception e) {
-//                e.printStackTrace();
-//            } finally {
-//                if(pstmt2 != null) { try { pstmt2.close(); } catch(Exception ex) { };  }
-//                if(conn != null) { try { conn.commit(); } catch(Exception ex) { };  }
-//            }
-//        }
+//        else
+        if(isSimul == false && contSetYn == 1){   // 시뮬레이션이 아니면 대조군 DB에 update 수행
+            contGrpService.updateCratCnt(cont_set_obj_id);
+        }
 //
 //        // 데이터가 너무 큰 경우 초기화
 //        if(excnt > 100000000) {
@@ -285,6 +275,39 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
         return contSetYn;
     }
 
+    /**
+     * 활동별 개인화 태그 정보 추출
+     * @param
+     * @param
+     * @param
+     */
+    public void setActPsnlTagNm(){
+
+        hashAct_PsnlTagNm.clear();
+        String beforeActId = "";
+//        qry1 = " select ACT_ID, PSNL_TAG_NM from R_ACT_PSNL_TAG_LIST order by ACT_ID asc ";
+        List<PsnlTag> psnlTagList = psnlTagService.getAllPsnlTagList();
+        ArrayList<String> psnlNms = new ArrayList<String>();
+
+        for(int i = 0 ; i < psnlTagList.size() ; i++){
+            if( (!psnlTagList.get(i).getActId().equals(beforeActId)) && beforeActId.length() > 1){
+                ArrayList<String> saveIds = new ArrayList<String>();
+                saveIds.addAll(psnlNms);
+                psnlNms.clear();
+                hashAct_PsnlTagNm.put(beforeActId, saveIds);
+                beforeActId = "";
+            }
+            beforeActId = psnlTagList.get(i).getActId();
+            psnlNms.add(psnlTagList.get(i).getPsnlTagNm().replaceAll("@", ""));
+        }
+
+        if(beforeActId.length() > 0) {
+            ArrayList<String> saveIds = new ArrayList<String>();
+            saveIds.addAll(psnlNms);
+            psnlNms.clear();
+            hashAct_PsnlTagNm.put(beforeActId, saveIds);
+        }
+    }
 
 
 

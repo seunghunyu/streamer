@@ -20,4 +20,8 @@ public class ContGrpService {
     public List<ContGrp> selectContSetObj(String contSetObjId){
         return contGrpRepository.selectContSetObj(contSetObjId);
     }
+
+    public String getContSetYn(String contSetObjId, String custId) {
+        return contGrpRepository.getContSetYn(contSetObjId, custId);
+    }
 }

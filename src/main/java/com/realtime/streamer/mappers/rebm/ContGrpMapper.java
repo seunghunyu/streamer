@@ -10,4 +10,5 @@ import java.util.List;
 public interface ContGrpMapper {
     void updateCratCnt(@Param("contSetObjId") String contSetObjId);
     List<ContGrp> selectContSetObj (@Param("contSetObjId") String contSetObjId);
+    String getContSetYn(@Param("contSetObjId") String contSetObjId, @Param("custId") String custId);
 }
