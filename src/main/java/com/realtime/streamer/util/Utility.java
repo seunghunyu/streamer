@@ -228,6 +228,15 @@ public class Utility {
 //       System.out.println(stringListOperations);
 
     }
+
+    /**
+     *
+     * @param info : 오래걸리는 작업
+     * @param ptagSqlId : sql 정보
+     */
+    public void autoAlarmSave(String info, String ptagSqlId) {
+
+    }
 }
 //    테이블을 동적으로 할 때는 ${변수명} 사용
 //        column = #{변수명} => column = '변수명'

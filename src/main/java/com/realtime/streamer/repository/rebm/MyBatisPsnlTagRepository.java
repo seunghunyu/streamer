@@ -1,6 +1,7 @@
 package com.realtime.streamer.repository.rebm;
 
 import com.realtime.streamer.data.PsnlTag;
+import com.realtime.streamer.data.Scrt;
 import com.realtime.streamer.mappers.rebm.PsnlTagMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -15,5 +16,9 @@ public class MyBatisPsnlTagRepository implements PsnlTagRepository{
     @Override
     public List<PsnlTag> getAllPsnlTagList() {
         return psnlTagMapper.getAllPsnlTagList();
+    }
+    @Override
+    public List<Scrt> getPsnlScrtInfo(String actId) {
+        return psnlTagMapper.getPsnlScrtInfo(actId);
     }
 }

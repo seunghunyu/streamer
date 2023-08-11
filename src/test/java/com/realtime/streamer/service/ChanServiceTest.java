@@ -25,7 +25,7 @@ class ChanServiceTest {
 
     @Test
     void getSendChanCount() {
-        String tableName = "R_REBM_CHAN_EX_LIST_" + Integer.toString(Integer.parseInt(utility.getTableDtNum())+1);
+        String tableName = "R_REBM_CHAN_EX_LIST_" + Integer.toString(Integer.parseInt(utility.getTableDtNum()) + 1);
         String campId = "C230803902";
         String actId = "C230803902_006";
         String realFlowId = "C230803902_002";
@@ -45,11 +45,16 @@ class ChanServiceTest {
     }
 
     @Test
-    void getScrtId(){
+    void getScrtId() {
         String actId = "C22052390M_00F";
         List<Scrt> list = chanService.getScrtInfo(actId);
         log.info("sctId = {}", list.get(0).getScrtId());
-
     }
 
+    @Test
+    void getScrtInfo() {
+        String actId = "C22052390M_00F";
+        List<Scrt> list = chanService.getScrtInfo(actId);
+        log.info("sctId = {}", list.get(0).getScrtId());
+    }
 }

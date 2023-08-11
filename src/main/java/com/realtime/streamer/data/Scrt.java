@@ -16,4 +16,15 @@ public class Scrt {
     String detcRouteId;
     String contSetYn;
     String scrtId;
+
+    String sqlScrt1;
+    String sqlScrt2;
+    String sqlScrt3;
+    String psnlTagNmGrp;
+    String psnlSqlColmgrp;
+    String dbPool;
+    String rplcVarNmGrp;
+    String rplcVarTyGrp;
+    String ptagSqlId;
+
 }

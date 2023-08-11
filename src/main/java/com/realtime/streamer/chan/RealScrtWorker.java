@@ -1,13 +1,12 @@
 package com.realtime.streamer.chan;
 
 import com.realtime.streamer.cosumer.DataConsumer;
-import com.realtime.streamer.data.Camp;
-import com.realtime.streamer.data.ContGrp;
-import com.realtime.streamer.data.Olapp;
-import com.realtime.streamer.data.PsnlTag;
+import com.realtime.streamer.data.*;
 import com.realtime.streamer.service.*;
+import com.realtime.streamer.util.ElapsedTime;
 import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -29,6 +28,7 @@ import java.util.*;
 
 @EnableAsync
 @RequiredArgsConstructor
+@Slf4j
 //@Component
 //public class GatherConsumer implements DataConsumer,ApplicationRunner {
 public class RealScrtWorker implements DataConsumer, CommandLineRunner {
@@ -79,6 +79,9 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
 
     @Autowired
     PsnlTagService psnlTagService;
+
+    @Autowired
+    ChanService chanService;
 
     @Autowired
     Utility utility;
@@ -187,7 +190,92 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
                     // 사용 변수 초기화
                     scrt_id = "0";
                     //3. 활동별 스크립트 정보 추출
-                    //" SELECT SCRT_ID FROM R_ACT_SCRT  WHERE ACT_ID = ? ";
+                    List<Scrt> scrtInfo = chanService.getScrtInfo(act_id);
+                    if(scrtInfo.size() > 0){
+                        //scrt_id 가 비어있으면 0으로 세팅
+                        scrt_id = scrtInfo.get(0).getScrtId() == null ? "0" : scrtInfo.get(0).getScrtId();
+                    }
+                    String sqlScrt ="";
+                    //4.대상목록 부가정보를 이용하여 개인화 작업 수행
+                    //5.공통개인화 정보를 이용하여 개인화 작업(DB 개인화 TAG 관리를 이용)
+                    //      Csql = " SELECT SQL_SCRT1, SQL_SCRT2, SQL_SCRT3, PSNL_TAG_NM_GRP, PSNL_SQL_COLM_GRP,     DB_POOL, RPLC_VAR_NM_GRP, RPLC_VAR_TY_GRP, PTAG_SQL_ID "
+                    //           + " FROM R_ACT_PSNL_SQL_SCRT  WHERE ACT_ID = ? ";
+                    ElapsedTime elapse = new ElapsedTime();
+                    List<Scrt> psnlScrtInfoList = psnlTagService.getPsnlScrtInfo(act_id);
+                    for(int i = 0 ; i < psnlScrtInfoList.size(); i++){
+                        sqlScrt = psnlScrtInfoList.get(i).getSqlScrt1() + psnlScrtInfoList.get(i).getSqlScrt2() == null ? ""
+                                    : psnlScrtInfoList.get(i).getSqlScrt2() + psnlScrtInfoList.get(i).getSqlScrt3() == null ? "" : psnlScrtInfoList.get(i).getSqlScrt3();
+
+                        String tagGrp = psnlScrtInfoList.get(i).getPsnlTagNmGrp();
+                        String colmGrp = psnlScrtInfoList.get(i).getPsnlSqlColmgrp();
+
+                        String tag_grp[] = tagGrp.replaceAll("@", "").split(",");
+                        String colm_grp[] = colmGrp.split(",");
+
+                        if(sqlScrt != null && sqlScrt.length() > 2) {
+                            if (psnlScrtInfoList.get(i).getRplcVarNmGrp() == null || psnlScrtInfoList.get(i).getRplcVarNmGrp() == "")
+                                throw new Exception("R_ACT_PSNL_SQL_SCRT.RPLC_VAR_NM_GRP is NULL");
+
+                            String[] repcNm = psnlScrtInfoList.get(i).getRplcVarNmGrp().split(";");
+                            String[] repcTy = psnlScrtInfoList.get(i).getRplcVarTyGrp().split(";");
+
+                            elapse.startTimer();
+                            if (tag_grp.length != colm_grp.length) {
+                                log.info("is unmatch tag size = " + tag_grp.length + " : column size = " + colm_grp.length);
+                            }
+                            //이기종 디비의 경우
+                            if (!psnlScrtInfoList.get(i).getDbPool().equals("REBMDB")) {
+
+                            } else {
+                                //쿼리 수행 sqlScrt
+                            }
+                            for (int j = 0; j < repcNm.length ; j++){
+//                                if(repcNm[i].equals("CAMP_ID"))
+//                                    pstmt2.setString(i+1, camp_id);
+//                                else if(repcNm[i].equals("ACT_ID"))
+//                                    pstmt2.setString(i+1, act_id);
+//                                else if(repcTy[i].equals("CHAR"))
+//                                    pstmt2.setString(i+1, tmpWorkInfo.hashmap.get(repcNm[i]));
+//                                else
+//                                    pstmt2.setLong(i+1, Long.parseLong(tmpWorkInfo.hashmap.get(repcNm[i])));
+                            }
+
+//                            rs2 = pstmt2.executeQuery();
+//                            if(rs2.next())
+//                            {
+//                                for(int j=0; j<tag_grp.length; j++)  {
+//                                    if(tag_grp[j] != null && colm_grp[j] != null && rs2.getString(colm_grp[j]) != null) {
+//                                        if(actTagInfo.get(tag_grp[j]) != null && actTagInfo.get(tag_grp[j]).length() == 0) {
+//                                            actTagInfo.put(tag_grp[j], rs2.getString(colm_grp[j]));
+//                                        }
+//                                        //svrBridge.debug_println(tag_grp[j] + " = " + rs2.getString(colm_grp[j]));
+//                                    }
+//                                }
+//                            }
+
+                            // 소요시간 경고 체크
+                            if(autoAlarmTime > 0 && autoAlarmTime <= elapse.getElapsed())
+                            {
+                                utility.autoAlarmSave("R_CMN_PSNL_TAG_SQL", psnlScrtInfoList.get(i).getPtagSqlId());
+                                utility = null;
+                            }
+
+                        }
+                    }
+
+                    //6.RULE수행시발생된정보를 이용하여 개인화 작업 수행, 4:DB조회아이템 개인화 통합
+                    if(actTagInfo != null)
+                    {
+                        Iterator<String> iter = actTagInfo.keySet().iterator();
+                        String na;
+                        while(iter.hasNext()) {
+                            na = iter.next();
+                            // workinfo에 값이 없으면 값을 채워서 r_rebm_chan_ex_list_X 에 저장시 사용
+                            //if(tmpWorkInfo.hashmap.get(na) == null) tmpWorkInfo.hashmap.put(na, actTagInfo.get(na));
+                            if(actTagInfo.get(na) != null && actTagInfo.get(na).length() > 0) bjob.put(na, actTagInfo.get(na));
+                        }
+                        iter = null;
+                    }
 
 
                     SuccessCnt++;
@@ -327,39 +415,28 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
 
     public void producing(Properties conf, String producingData, boolean notClean){
         //채널 발송 전 단계에서의 처리 토픽
-        String chanTopic = "CHAN";
-        //중복제거에 걸린 데이터 저장
-        String clanSaveTopic = "CLAN_SAVE";
+        String chanTopic = "REALCHAN";
+
 
         int num = 0;
 
         KafkaProducer<String, String> producer = new KafkaProducer<String, String>(conf);;
         ProducerRecord<String, String> record, record2;
         record = new ProducerRecord<>(chanTopic, producingData);
-        record2 = new ProducerRecord<>(clanSaveTopic, producingData);
 
         try {
 
             //중복제거 대상이 아닌 경우
-            if(!notClean) {
-                System.out.println("CHAN MESSAGE PRODUCING:::::: " + producingData);
-                //채널 전송으로 이동하는 메시지
-                producer.send(record, (metadata, exception) -> {
-                    if (exception != null) {
-                        System.out.println("CHAN TOPIC SENDING EXCEPTION :: " + exception.toString());
-                    }
-                });
-                //중복제거 대상인 경우
-            }else {
-                System.out.println("CLAN SAVE PRODUCING:::::: " + producingData);
-                //중복제거 이력 저장으로 이동하는 메시지
 
-                producer.send(record2, (metadata, exception) -> {
-                    if (exception != null) {
-                        System.out.println("CLAN SAVE TOPIC SENDING EXCEPTION ::" + exception.toString());
-                    }
-                });
-            }
+            System.out.println("CHAN MESSAGE PRODUCING:::::: " + producingData);
+            //채널 전송으로 이동하는 메시지
+            producer.send(record, (metadata, exception) -> {
+                if (exception != null) {
+                    System.out.println("CHAN TOPIC SENDING EXCEPTION :: " + exception.toString());
+                }
+            });
+
+
         } catch (Exception e) {
             System.out.println("Clan Consumer PRODUCING EXCEPTION ::" + e.toString());
         } finally {
@@ -373,7 +450,7 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         System.out.println("RealScrt Worker Consumer START::::::::::::::::::::::::::::::::::");
-        RealScrtWorker realScrtWorker = new RealScrtWorker("192.168.20.57:9092","test-consumer-group","SCRT");
+        RealScrtWorker realScrtWorker = new RealScrtWorker("192.168.20.57:9092","test-consumer-group","REALSCRT");
         polling(realScrtWorker.configs, realScrtWorker.consumer);
     }
 }
