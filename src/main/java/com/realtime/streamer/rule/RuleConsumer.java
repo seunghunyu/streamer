@@ -2,6 +2,7 @@ package com.realtime.streamer.rule;
 
 import com.realtime.streamer.cosumer.DataConsumer;
 import com.realtime.streamer.detect.GatherConsumer;
+import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -12,6 +13,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.core.annotation.Order;
@@ -39,8 +41,9 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
     String Address = "192.168.20.57:9092";
     String GroupId = "test-consumer-group";
     String topic   = "RULE";
-    Properties configs;
+    Properties cosumerConfigs, producerConfigs;
     KafkaConsumer<String, String> consumer;
+    KafkaProducer<String, String> producer;
     int lastUpdate = 0;
     private Vector<InnerRuleWorkInfo> innerRuleWorkInfoArray =  new Vector<InnerRuleWorkInfo>();
 
@@ -48,6 +51,9 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
     private int      innerRuleWorkThreadCount = 0;;
     boolean isClose = false;
     int multiExecCount = 5;  //한번에 수행 될 룰 수행 쓰레드의 갯수
+
+    @Autowired
+    Utility utility;
 
     public static class InnerRuleWorkInfo
     {
@@ -69,26 +75,16 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
 
-        this.configs = new Properties();
-        this.configs.put("bootstrap.servers", Address);
-        this.configs.put("session.timeout.ms", "10000"); // session 설정
-        this.configs.put("group.id", GroupId); // 그룹아이디 설정
-        this.configs.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        this.configs.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        //Producing을 위해 serializer 추가
-        this.configs.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        this.configs.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        this.configs.put("auto.offset.reset", "latest");
-        this.configs.put("enable.auto.commit", false);
-        this.configs.put("acks", "all");
-        this.configs.put("block.on.buffer.full", "true");
-
-        this.consumer = new KafkaConsumer<String, String>(this.configs);
+        this.cosumerConfigs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
+        this.consumer = new KafkaConsumer<String, String>(this.cosumerConfigs);
         this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
+
+        this.producerConfigs = utility.setKafkaProducerConfigs(this.Address);
+        this.producer = new KafkaProducer<String, String >(this.producerConfigs);
     }
 
     @Override
-    public void polling(Properties conf, Consumer consumer) {
+    public void polling(Consumer consumer) {
         int SuccessCnt = 0;
         int FailCnt = 0;
         if(lastUpdate + 7 < LocalTime.now().getSecond()){
@@ -171,7 +167,7 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
                         FailCnt = 0;
                     }
                     //@@@@@@@@@@@@@@@@@@@@@@@RULE 수행 로직@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                    producing(conf, bjob.toString(), innerRuleWorkInfo.resultStr);
+                    producing(bjob.toString(), innerRuleWorkInfo.resultStr);
 
                     consumer.commitSync(); //commit
 
@@ -188,14 +184,14 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
         }
     }
 
-    public void producing(Properties conf, String producingData, String resultStr){
+    public void producing(String producingData, String resultStr){
 
         String clanTopic = "CLAN";
         String ruleSTopic = "RULES_SAVE";
         String ruleFTopic = "RULEF_SAVE";
         int num = 0;
 
-        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(conf);;
+
         ProducerRecord<String, String> clanRecord, ruleSRecord, ruleFRecord;
         clanRecord = new ProducerRecord<>(clanTopic, producingData);
         ruleSRecord = new ProducerRecord<>(ruleSTopic, producingData);
@@ -291,6 +287,6 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
 
 
         RuleConsumer ruleConsumer = new RuleConsumer("192.168.20.57:9092","test-consumer-group","RULE");
-        polling(ruleConsumer.configs, ruleConsumer.consumer);
+        polling(ruleConsumer.consumer);
     }
 }

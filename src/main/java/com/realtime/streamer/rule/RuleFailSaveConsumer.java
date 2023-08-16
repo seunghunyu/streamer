@@ -47,19 +47,7 @@ public class RuleFailSaveConsumer implements DataConsumer, CommandLineRunner {
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
 
-        this.configs = new Properties();
-        this.configs.put("bootstrap.servers", Address);
-        this.configs.put("session.timeout.ms", "10000"); // session 설정
-        this.configs.put("group.id", GroupId); // 그룹아이디 설정
-        this.configs.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        this.configs.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        //Producing을 위해 serializer 추가
-        this.configs.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        this.configs.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        this.configs.put("auto.offset.reset", "latest");
-        this.configs.put("enable.auto.commit", false);
-        this.configs.put("acks", "all");
-        this.configs.put("block.on.buffer.full", "true");
+        this.configs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
 
         this.consumer = new KafkaConsumer<String, String>(this.configs);
         this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
@@ -68,7 +56,7 @@ public class RuleFailSaveConsumer implements DataConsumer, CommandLineRunner {
     }
 
     @Override
-    public void polling(Properties conf, Consumer consumer) {
+    public void polling(Consumer consumer) {
         System.out.println("RuleFailSave SAVE POLLING START@@@@@@@@@@@@@@@@@@@@");
         int SuccessCnt = 0;
         List<RuleExF> ruleExFList = new ArrayList<>();
@@ -148,6 +136,6 @@ public class RuleFailSaveConsumer implements DataConsumer, CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("RuleConsumer start ::::::::::::::::::::::::::::");
         RuleFailSaveConsumer ruleFailSaveConsumer = new RuleFailSaveConsumer("192.168.20.57:9092","test-consumer-group","RULE_FAIL_SAVE");
-        polling(ruleFailSaveConsumer.configs, ruleFailSaveConsumer.consumer);
+        polling(ruleFailSaveConsumer.consumer);
     }
 }

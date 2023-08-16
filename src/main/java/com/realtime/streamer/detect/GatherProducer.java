@@ -2,10 +2,12 @@ package com.realtime.streamer.detect;
 
 import com.realtime.streamer.cosumer.DataConsumer;
 import com.realtime.streamer.producer.DataProducer;
+import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
@@ -35,27 +37,24 @@ public class GatherProducer implements DataProducer, CommandLineRunner {
     String topic = "TEST";
     Properties configs;
     KafkaProducer<String, String> producer;
+    @Autowired
+    Utility utility;
 
     //String address, String groupId, String topic
-    public GatherProducer(String IP, String topic, Properties configs) {
+    public GatherProducer(String IP, String topic) {
         this.IP = IP;
         this.topic = topic;
-        this.configs = configs;
+        this.configs = utility.setKafkaProducerConfigs(IP);
+        this.producer = new KafkaProducer<String, String>(this.configs);
     }
     @Override
-    public void sendMessage(Properties configs, Producer producer) {
-        configs = new Properties();
-        configs.put("bootstrap.servers", IP); // kafka host 및 server 설정
-        configs.put("acks", "all");                         // 자신이 보낸 메시지에 대해 카프카로부터 확인을 기다리지 않습니다.
-        configs.put("block.on.buffer.full", "true");        // 서버로 보낼 레코드를 버퍼링 할 때 사용할 수 있는 전체 메모리의 바이트수
-        configs.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");   // serialize 설정
-        configs.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); // serialize 설정
+    public void sendMessage(Producer producer) {
 
         //고객 ID 생성
         String cust_id = Integer.toString((int)(Math.random() * 10000));
         String age     = Integer.toString((int)(Math.random() * 10));
-        // producer 생성
-        producer = new KafkaProducer<String, String>(configs);
+//        // producer 생성
+//        producer = new KafkaProducer<String, String>(configs);
         int num = 0;
         while(true) {
             cust_id = Integer.toString((int)(Math.random() * 10000));
@@ -97,7 +96,7 @@ public class GatherProducer implements DataProducer, CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Gather Producer START::::::::::::::::::::::::::::::::::");
-        GatherProducer gatherProducer = new GatherProducer("192.168.20.57:9092","TEST",configs);
-        sendMessage(gatherProducer.configs, gatherProducer.producer);
+        GatherProducer gatherProducer = new GatherProducer("192.168.20.57:9092","TEST");
+        sendMessage(gatherProducer.producer);
     }
 }

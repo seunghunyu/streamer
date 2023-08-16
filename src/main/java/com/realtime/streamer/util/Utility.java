@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Properties;
 
 /* 필요 메소드 정의
  * [2023.07.05] 신규생성
@@ -31,6 +32,9 @@ public class Utility {
      *               기존 DayOfWeek 클래스 기준 1,2,3,4,5,6,7(월,화,수,목,금,토,일)
      *                               현재 기준 2,3,4,5,6,7,1(월,화,수,목,금,토,일) -> 0은 Simulation
      */
+    String Address = "192.168.20.57:9092";
+    String GroupId = "test-consumer-group";
+
     @Autowired
     JdbcTemplateDetcChanRepository detcChanRepository;
 
@@ -237,6 +241,37 @@ public class Utility {
     public void autoAlarmSave(String info, String ptagSqlId) {
 
     }
+
+    /**
+     * kafka Producer 세팅
+     * @return Producer Config return;
+     */
+    public Properties setKafkaProducerConfigs(String Address){
+        Properties configs = new Properties();
+        configs.put("bootstrap.servers", Address); // kafka server host 및 port //192.168.20.99:9092,192.168.20.100:9092,192.168.20.101:9092
+        configs.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");   // serialize 설정
+        configs.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); // serialize 설정
+        configs.put("acks", "all");                         // 자신이 보낸 메시지에 대해 카프카로부터 확인을 기다리지 않습니다.
+        configs.put("block.on.buffer.full", "true");        // 서버로 보낼 레코드를 버퍼링 할 때 사용할 수 있는 전체 메모리의 바이트수
+        return configs;
+    }
+    /**
+     * kafka Consumer 세팅
+     * @return Consumer Config return;
+     */
+    public Properties setKafkaConsumerConfigs(String Address, String GroupId){
+        Properties configs = new Properties();
+        configs.put("bootstrap.servers", Address); // kafka server host 및 port    //192.168.20.99:9092,192.168.20.100:9092,192.168.20.101:9092
+        configs.put("session.timeout.ms", "10000"); // session 설정
+        configs.put("group.id", GroupId); // 그룹아이디 설정
+        configs.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); // key deserializer
+        configs.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); // value deserializer
+        configs.put("auto.offset.reset", "latest"); // earliest(처음부터 읽음) | latest(현재부터 읽음)
+        configs.put("enable.auto.commit", false); //AutoCommit 여부
+        return configs;
+    }
+
+
 }
 //    테이블을 동적으로 할 때는 ${변수명} 사용
 //        column = #{변수명} => column = '변수명'

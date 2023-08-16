@@ -37,9 +37,9 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
     String Address = "192.168.20.57:9092";
     String GroupId = "test-consumer-group";
     String topic   = "TEST";
-    Properties configs;
+    Properties consumerConfigs, producerConfigs;
     KafkaConsumer<String, String> consumer;
-    //    KafkaProducer<String, String> producer;
+    KafkaProducer<String, String> producer;
 //    ProducerRecord<String, String> record, record2;
     int lastUpdate = 0;
     List<Camp> useDetcChanList;
@@ -103,38 +103,19 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
 
-        this.configs = new Properties();
-        this.configs.put("bootstrap.servers", Address); // kafka server host 및 port
-        //192.168.20.99:9092,192.168.20.100:9092,192.168.20.101:9092
-        this.configs.put("session.timeout.ms", "10000"); // session 설정
-        this.configs.put("group.id", GroupId); // 그룹아이디 설정
-        this.configs.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); // key deserializer
-        this.configs.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); // value deserializer
-        this.configs.put("auto.offset.reset", "latest"); // earliest(처음부터 읽음) | latest(현재부터 읽음)
-        this.configs.put("enable.auto.commit", false); //AutoCommit 여부
-
-        this.configs.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");   // serialize 설정
-        this.configs.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); // serialize 설정
-
-        this.configs.put("acks", "all");                         // 자신이 보낸 메시지에 대해 카프카로부터 확인을 기다리지 않습니다.
-        this.configs.put("block.on.buffer.full", "true");        // 서버로 보낼 레코드를 버퍼링 할 때 사용할 수 있는 전체 메모리의 바이트수
-
-        this.consumer = new KafkaConsumer<String, String>(this.configs);
+        this.consumerConfigs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
+        this.consumer = new KafkaConsumer<String, String>(this.consumerConfigs);
         this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
 
-        System.out.println("######### consturctor info");
-        System.out.println("%%"+configs.get("group.id"));
-        System.out.println("%%"+configs.get("bootstrap.servers"));
-        System.out.println("%%"+configs.get("group.id"));
-        System.out.println("%%"+configs.get("auto.offset.reset"));
-        System.out.println("######### consturctor info end");
-//        this.producer = new KafkaProducer<String, String>(this.configs);
-        setCampOlappList();
+        this.producerConfigs = utility.setKafkaProducerConfigs(this.Address);
+        this.producer = new KafkaProducer<String, String>(this.producerConfigs);
 
-        tableDt = utility.getTableDtNum();
+        this.tableDt = utility.getTableDtNum();
+
+        setCampOlappList();
     }
 
-    public void polling(Properties conf, Consumer consumer){
+    public void polling(Consumer consumer){
         int SuccessCnt = 0;
         int FailCnt = 0;
         boolean notClean = true;
@@ -283,7 +264,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
 //                        break loop; //탈출
 //                    }
                     consumer.commitSync(); //commit
-                    producing(conf, bjob.toString(), notClean);
+                    producing(bjob.toString(), notClean);
                 }
                 consumer.commitSync();//commit
             }
@@ -329,7 +310,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
     }
 
 
-    public void producing(Properties conf, String producingData, boolean notClean){
+    public void producing(String producingData, boolean notClean){
         //채널 발송 전 단계에서의 처리 토픽
         String chanTopic = "CHAN";
         //중복제거에 걸린 데이터 저장
@@ -337,7 +318,6 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
 
         int num = 0;
 
-        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(conf);;
         ProducerRecord<String, String> record, record2;
         record = new ProducerRecord<>(chanTopic, producingData);
         record2 = new ProducerRecord<>(clanSaveTopic, producingData);
@@ -470,7 +450,6 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
         // 중복제거 일자 추출
         camp_brch_fatigue_day = olappService.findFatStupDay();
 
-
         //-----  채널 접촉횟수 제한 여부
         chan_fatigue_count = olappService.findFatStupCount();
 
@@ -506,7 +485,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Gather Consumer START::::::::::::::::::::::::::::::::::");
-        ClanConsumer clanConsumer = new ClanConsumer("192.168.20.57:9092","test-consumer-group","TEST");
-        polling(clanConsumer.configs, clanConsumer.consumer);
+        ClanConsumer clanConsumer = new ClanConsumer("192.168.20.57:9092","test-consumer-group","CLAN");
+        polling(clanConsumer.consumer);
     }
 }

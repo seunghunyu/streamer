@@ -55,28 +55,12 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
         this.GroupId = groupId;
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
-
-        this.configs = new Properties();
-        this.configs.put("bootstrap.servers", Address); // kafka server host 및 port
-        this.configs.put("session.timeout.ms", "10000"); // session 설정
-        this.configs.put("group.id", GroupId); // 그룹아이디 설정
-        this.configs.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); // key deserializer
-        this.configs.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); // value deserializer
-        this.configs.put("auto.offset.reset", "latest"); // earliest(처음부터 읽음) | latest(현재부터 읽음)
-        this.configs.put("enable.auto.commit", false); //AutoCommit 여부
-
-        this.configs.put("acks", "all");                         // 자신이 보낸 메시지에 대해 카프카로부터 확인을 기다리지 않습니다.
-        this.configs.put("block.on.buffer.full", "true");        // 서버로 보낼 레코드를 버퍼링 할 때 사용할 수 있는 전체 메모리의 바이트수
-
+        this.configs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
         this.consumer = new KafkaConsumer<String, String>(this.configs);
         this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
-        //요일별 테이블 날짜 조회
-//        System.out.println("utility.getTableDtNum()::::" + utility.getTableDtNum());
-//        if(utility.getTableDtNum() != null) this.tableDt = utility.getTableDtNum();
-
     }
     @Override
-    public void polling(Properties conf, Consumer consumer) {
+    public void polling(Consumer consumer) {
             int SuccessCnt = 0;
             int FailCnt = 0;
             String inst_Qry = "";
@@ -226,6 +210,6 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("Gather SaveConsumer START::::::::::::::::::::::::::::::::::");
         GatherSaveConsumer gatherSaveConsumer = new GatherSaveConsumer("192.168.20.57:9092", "test-consumer-group", "DETC_SAVE");
-        polling(gatherSaveConsumer.configs, gatherSaveConsumer.consumer);
+        polling(gatherSaveConsumer.consumer);
     }
 }

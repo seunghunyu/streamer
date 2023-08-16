@@ -1,17 +1,20 @@
 package com.realtime.streamer.producer;
 
+import com.realtime.streamer.util.Utility;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Properties;
 
-public class TestProducer implements DataProducer {
+public class TestProducer {//implements DataProducer {
     private static final String TOPIC_NAME = "TEST";
     private static final String FIN_MESSAGE = "exit";
     String IP = "192.168.20.57:9092";
     String topic = "TEST";
     Properties configs;
+
 
     public TestProducer(String IP, String topic, Properties configs) {
         this.IP = IP;
@@ -64,8 +67,5 @@ public class TestProducer implements DataProducer {
     }
 
 
-    @Override
-    public void sendMessage(Properties configs, Producer producer) {
 
-    }
 }

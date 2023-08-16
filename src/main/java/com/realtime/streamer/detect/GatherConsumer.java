@@ -3,6 +3,7 @@ package com.realtime.streamer.detect;
 import com.realtime.streamer.cosumer.DataConsumer;
 import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.repository.rebm.JdbcTemplateCampRepository;
+import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -39,10 +40,12 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
     String Address = "192.168.20.57:9092";
     String GroupId = "test-consumer-group";
     String topic   = "TEST";
-    Properties configs;
+    Properties consumerConfigs;
+    Properties producerConfigs;
+
     KafkaConsumer<String, String> consumer;
-//    KafkaProducer<String, String> producer;
-//    ProducerRecord<String, String> record, record2;
+    KafkaProducer<String, String> producer;
+
     int lastUpdate = 0;
     List<Camp> useDetcChanList;
     //신규 감지 ID
@@ -52,6 +55,8 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
     @Autowired
     JdbcTemplateCampRepository repository;
 
+    @Autowired
+    Utility utility;
 
     public GatherConsumer(String address, String groupId, String topic) {
         System.out.println("call Gather Consumer Constructor");
@@ -60,35 +65,16 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
 
-        this.configs = new Properties();
-        this.configs.put("bootstrap.servers", Address); // kafka server host 및 port
-        //192.168.20.99:9092,192.168.20.100:9092,192.168.20.101:9092
-        this.configs.put("session.timeout.ms", "10000"); // session 설정
-        this.configs.put("group.id", GroupId); // 그룹아이디 설정
-        this.configs.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); // key deserializer
-        this.configs.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); // value deserializer
-        this.configs.put("auto.offset.reset", "latest"); // earliest(처음부터 읽음) | latest(현재부터 읽음)
-        this.configs.put("enable.auto.commit", false); //AutoCommit 여부
+        this.consumerConfigs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
+        this.producerConfigs = utility.setKafkaProducerConfigs(this.Address);
 
-        this.configs.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");   // serialize 설정
-        this.configs.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); // serialize 설정
+        this.consumer = new KafkaConsumer<String, String>(this.consumerConfigs);
+        this.producer = new KafkaProducer<String, String>(this.producerConfigs);
+        this.consumer.subscribe(Arrays.asList(topic));
 
-        this.configs.put("acks", "all");                         // 자신이 보낸 메시지에 대해 카프카로부터 확인을 기다리지 않습니다.
-        this.configs.put("block.on.buffer.full", "true");        // 서버로 보낼 레코드를 버퍼링 할 때 사용할 수 있는 전체 메모리의 바이트수
-
-        this.consumer = new KafkaConsumer<String, String>(this.configs);
-        this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
-
-        System.out.println("######### consturctor info");
-        System.out.println("%%"+configs.get("group.id"));
-        System.out.println("%%"+configs.get("bootstrap.servers"));
-        System.out.println("%%"+configs.get("group.id"));
-        System.out.println("%%"+configs.get("auto.offset.reset"));
-        System.out.println("######### consturctor info end");
-//        this.producer = new KafkaProducer<String, String>(this.configs);
     }
 
-    public void polling(Properties conf, Consumer consumer){
+    public void polling(Consumer consumer){
         int SuccessCnt = 0;
         int FailCnt = 0;
         if(lastUpdate + 7 < LocalTime.now().getSecond()){
@@ -136,7 +122,7 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
 //                        break loop; //탈출
 //                    }
                     consumer.commitSync(); //commit
-                    producing(conf, bjob.toString());
+                    producing(bjob.toString());
                 }
                 consumer.commitSync();//commit
             }
@@ -152,13 +138,13 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
     }
 
 
-    public void producing(Properties conf, String producingData){
+    public void producing(String producingData){
 
         String ruleTopic = "RULE";
         String detcSaveTopic = "DETC_SAVE";
         int num = 0;
 
-        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(conf);;
+//        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(conf);;
         ProducerRecord<String, String> record, record2;
         record = new ProducerRecord<>(ruleTopic, producingData);
         record2 = new ProducerRecord<>(detcSaveTopic, producingData);
@@ -187,18 +173,11 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
 
     }
 
-//    @Override
-//    public void run(ApplicationArguments args) throws Exception {
-//        System.out.println("Gather Consumer START::::::::::::::::::::::::::::::::::");
-//        GatherConsumer gatherConsumer = new GatherConsumer("192.168.20.57:9092","test-consumer-group","TEST");
-//        polling(gatherConsumer.configs, gatherConsumer.consumer);
-//
-//    }
     @Async
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Gather Consumer START::::::::::::::::::::::::::::::::::");
         GatherConsumer gatherConsumer = new GatherConsumer("192.168.20.57:9092","test-consumer-group","TEST");
-        polling(gatherConsumer.configs, gatherConsumer.consumer);
+        polling(gatherConsumer.consumer);
     }
 }
