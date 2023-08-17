@@ -103,15 +103,6 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
 
-        this.consumerConfigs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
-        this.consumer = new KafkaConsumer<String, String>(this.consumerConfigs);
-        this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
-
-        this.producerConfigs = utility.setKafkaProducerConfigs(this.Address);
-        this.producer = new KafkaProducer<String, String>(this.producerConfigs);
-
-        this.tableDt = utility.getTableDtNum();
-
         setCampOlappList();
     }
 
@@ -486,6 +477,14 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("Gather Consumer START::::::::::::::::::::::::::::::::::");
         ClanConsumer clanConsumer = new ClanConsumer("192.168.20.57:9092","test-consumer-group","CLAN");
+        clanConsumer.consumerConfigs = utility.setKafkaConsumerConfigs(clanConsumer.Address, clanConsumer.GroupId);
+        clanConsumer.consumer = new KafkaConsumer<String, String>(clanConsumer.consumerConfigs);
+        clanConsumer.consumer.subscribe(Arrays.asList(clanConsumer.topic)); // 구독할 topic 설정
+
+        clanConsumer.producerConfigs = utility.setKafkaProducerConfigs(clanConsumer.Address);
+        clanConsumer.producer = new KafkaProducer<String, String>(clanConsumer.producerConfigs);
+        clanConsumer.tableDt = utility.getTableDtNum();
+
         polling(clanConsumer.consumer);
     }
 }

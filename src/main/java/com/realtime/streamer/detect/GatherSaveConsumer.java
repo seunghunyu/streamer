@@ -17,6 +17,7 @@ import org.springframework.boot.json.JsonParseException;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -55,9 +56,6 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
         this.GroupId = groupId;
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
-        this.configs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
-        this.consumer = new KafkaConsumer<String, String>(this.configs);
-        this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
     }
     @Override
     public void polling(Consumer consumer) {
@@ -209,7 +207,13 @@ public class GatherSaveConsumer implements DataConsumer, CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Gather SaveConsumer START::::::::::::::::::::::::::::::::::");
+
         GatherSaveConsumer gatherSaveConsumer = new GatherSaveConsumer("192.168.20.57:9092", "test-consumer-group", "DETC_SAVE");
+        gatherSaveConsumer.configs = utility.setKafkaConsumerConfigs(gatherSaveConsumer.Address, gatherSaveConsumer.GroupId);
+        gatherSaveConsumer.consumer = new KafkaConsumer<String, String>(gatherSaveConsumer.configs);
+        gatherSaveConsumer.consumer.subscribe(Arrays.asList(gatherSaveConsumer.topic)); // 구독할 topic 설정
+
         polling(gatherSaveConsumer.consumer);
+
     }
 }

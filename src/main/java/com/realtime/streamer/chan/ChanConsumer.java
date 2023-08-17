@@ -117,15 +117,6 @@ public class ChanConsumer implements DataConsumer, CommandLineRunner {
         this.GroupId = groupId;
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
-
-        this.consumerConfigs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
-        this.consumer = new KafkaConsumer<String, String>(this.consumerConfigs);
-        this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
-
-        this.producerConfigs = utility.setKafkaProducerConfigs(this.Address);
-        this.producer = new KafkaProducer<String, String>(this.producerConfigs);
-
-        this.tableDt = utility.getTableDtNum();
     }
 
     public void polling(Consumer consumer){
@@ -304,6 +295,15 @@ public class ChanConsumer implements DataConsumer, CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("ChanConsumer Consumer START::::::::::::::::::::::::::::::::::");
         ChanConsumer chanConsumer = new ChanConsumer("192.168.20.57:9092","test-consumer-group","REALCHAN");
+
+        chanConsumer.consumerConfigs = utility.setKafkaConsumerConfigs(chanConsumer.Address, chanConsumer.GroupId);
+        chanConsumer.consumer = new KafkaConsumer<String, String>(chanConsumer.consumerConfigs);
+        chanConsumer.consumer.subscribe(Arrays.asList(chanConsumer.topic)); // 구독할 topic 설정
+
+        chanConsumer.producerConfigs = utility.setKafkaProducerConfigs(chanConsumer.Address);
+        chanConsumer.producer = new KafkaProducer<String, String>(chanConsumer.producerConfigs);
+
+        chanConsumer.tableDt = utility.getTableDtNum();
         polling(chanConsumer.consumer);
     }
 }

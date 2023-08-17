@@ -17,40 +17,36 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
-@MapperScan(value = "com.realtime.streamer.mappers.crm", sqlSessionFactoryRef = "CrmSqlSessionFactory")
-public class CrmDbDataSourceConfig {
+@MapperScan(value = "com.realtime.streamer.mappers.h2", sqlSessionFactoryRef = "H2SqlSessionFactory")
+public class H2DbDataSourceConfig {
 
-    private final String CRM_SOURCE = "crmSource";
+    private final String H2_SOURCE = "h2Source";
 
 
     // crm database DataSource
-    @Bean(CRM_SOURCE)
-    @ConfigurationProperties(prefix = "spring.crm.datasource.hikari")
-    public DataSource crmSource() {
+    @Bean(H2_SOURCE)
+    @ConfigurationProperties(prefix = "spring.h2.datasource.hikari")
+    public DataSource h2Source() {
         return DataSourceBuilder.create()
                 .type(HikariDataSource.class)
                 .build();
     }
 
-    @Bean(name = "crmJdbcTemplate")
-    public JdbcTemplate crmDataConnection(@Qualifier(CRM_SOURCE) DataSource dataSource){
+    @Bean(name = "h2JdbcTemplate")
+    public JdbcTemplate h2DataConnection(@Qualifier(H2_SOURCE) DataSource dataSource){
         return new JdbcTemplate(dataSource);
     }
 
     // SqlSessionTemplate 에서 사용할 SqlSession 을 생성하는 Factory
     @Bean
-    public SqlSessionFactory CrmSqlSessionFactory(@Qualifier(CRM_SOURCE) DataSource dataSource) throws Exception {
-        /*
-         * MyBatis 는 JdbcTemplate 대신 Connection 객체를 통한 질의를 위해서 SqlSession 을 사용한다.
-         * 내부적으로 SqlSessionTemplate 가 SqlSession 을 구현한다.
-         * Thread-Safe 하고 여러 개의 Mapper 에서 공유할 수 있다.
-         */
+    public SqlSessionFactory H2SqlSessionFactory(@Qualifier(H2_SOURCE) DataSource dataSource) throws Exception {
+
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(dataSource);
 
         // MyBatis Mapper Source
         // MyBatis 의 SqlSession 에서 불러올 쿼리 정보
-        Resource[] res = new PathMatchingResourcePatternResolver().getResources("classpath:mappers/crm/*.xml");
+        Resource[] res = new PathMatchingResourcePatternResolver().getResources("classpath:mappers/h2/*.xml");
         bean.setMapperLocations(res);
 
         // MyBatis Config Setting
@@ -63,7 +59,7 @@ public class CrmDbDataSourceConfig {
 
     // DataSource 에서 Transaction 관리를 위한 Manager 클래스 등록
     @Bean
-    public DataSourceTransactionManager CrmTransactionManager(@Qualifier(CRM_SOURCE) DataSource dataSource) {
+    public DataSourceTransactionManager H2TransactionManager(@Qualifier(H2_SOURCE) DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 }

@@ -14,11 +14,13 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -31,7 +33,7 @@ import java.util.Properties;
  *
  *
  */
-@Order(4)
+@Order(3)
 @EnableAsync
 @RequiredArgsConstructor
 //@Component
@@ -40,6 +42,7 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
     String Address = "192.168.20.57:9092";
     String GroupId = "test-consumer-group";
     String topic   = "TEST";
+
     Properties consumerConfigs;
     Properties producerConfigs;
 
@@ -53,6 +56,7 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
 
 
     @Autowired
+    @Qualifier("rebmJdbcTemplate")
     JdbcTemplateCampRepository repository;
 
     @Autowired
@@ -64,14 +68,6 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
         this.GroupId = groupId;
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
-
-        this.consumerConfigs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
-        this.producerConfigs = utility.setKafkaProducerConfigs(this.Address);
-
-        this.consumer = new KafkaConsumer<String, String>(this.consumerConfigs);
-        this.producer = new KafkaProducer<String, String>(this.producerConfigs);
-        this.consumer.subscribe(Arrays.asList(topic));
-
     }
 
     public void polling(Consumer consumer){
@@ -178,6 +174,12 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("Gather Consumer START::::::::::::::::::::::::::::::::::");
         GatherConsumer gatherConsumer = new GatherConsumer("192.168.20.57:9092","test-consumer-group","TEST");
+        gatherConsumer.consumerConfigs = utility.setKafkaConsumerConfigs(gatherConsumer.Address, gatherConsumer.GroupId);
+        gatherConsumer.producerConfigs = utility.setKafkaProducerConfigs(gatherConsumer.Address);
+        gatherConsumer.consumer = new KafkaConsumer<String, String>(gatherConsumer.consumerConfigs);
+        gatherConsumer.producer = new KafkaProducer<String, String>(gatherConsumer.producerConfigs);
+        gatherConsumer.consumer.subscribe(Arrays.asList(gatherConsumer.topic));
+
         polling(gatherConsumer.consumer);
     }
 }

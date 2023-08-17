@@ -25,7 +25,7 @@ import java.util.Properties;
 *
 *
  */
-@Order(3)
+@Order(2)
 @EnableAsync
 @RequiredArgsConstructor
 //@Component
@@ -37,6 +37,7 @@ public class GatherProducer implements DataProducer, CommandLineRunner {
     String topic = "TEST";
     Properties configs;
     KafkaProducer<String, String> producer;
+
     @Autowired
     Utility utility;
 
@@ -44,8 +45,6 @@ public class GatherProducer implements DataProducer, CommandLineRunner {
     public GatherProducer(String IP, String topic) {
         this.IP = IP;
         this.topic = topic;
-        this.configs = utility.setKafkaProducerConfigs(IP);
-        this.producer = new KafkaProducer<String, String>(this.configs);
     }
     @Override
     public void sendMessage(Producer producer) {
@@ -97,6 +96,8 @@ public class GatherProducer implements DataProducer, CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("Gather Producer START::::::::::::::::::::::::::::::::::");
         GatherProducer gatherProducer = new GatherProducer("192.168.20.57:9092","TEST");
+        gatherProducer.configs = utility.setKafkaProducerConfigs(gatherProducer.IP);
+        gatherProducer.producer = new KafkaProducer<String, String>(gatherProducer.configs);
         sendMessage(gatherProducer.producer);
     }
 }

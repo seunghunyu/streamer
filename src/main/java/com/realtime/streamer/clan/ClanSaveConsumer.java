@@ -51,10 +51,6 @@ public class ClanSaveConsumer implements DataConsumer, CommandLineRunner {
         this.GroupId = groupId;
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
-
-        this.configs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
-        this.consumer = new KafkaConsumer<String, String>(this.configs);
-        this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
     }
 
     @Override
@@ -143,6 +139,9 @@ public class ClanSaveConsumer implements DataConsumer, CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("CLANSaveConsumer start ::::::::::::::::::::::::::::");
         ClanSaveConsumer clanSaveConsumer = new ClanSaveConsumer("192.168.20.57:9092","test-consumer-group","CLAN_SAVE");
+        clanSaveConsumer.configs = utility.setKafkaConsumerConfigs(clanSaveConsumer.Address, clanSaveConsumer.GroupId);
+        clanSaveConsumer.consumer = new KafkaConsumer<String, String>(clanSaveConsumer.configs);
+        clanSaveConsumer.consumer.subscribe(Arrays.asList(clanSaveConsumer.topic)); // 구독할 topic 설정
         polling(clanSaveConsumer.consumer);
     }
 }

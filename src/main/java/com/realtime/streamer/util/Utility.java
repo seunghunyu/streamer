@@ -6,7 +6,9 @@ import com.realtime.streamer.data.DetcChanSqlInfo;
 import com.realtime.streamer.repository.rebm.JdbcTemplateDetcChanRepository;
 import com.realtime.streamer.repository.rebm.JdbcTemplateDetcChanSqlRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -24,6 +26,7 @@ import java.util.Properties;
 /* 필요 메소드 정의
  * [2023.07.05] 신규생성
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class Utility {
@@ -36,15 +39,18 @@ public class Utility {
     String GroupId = "test-consumer-group";
 
     @Autowired
+    //@Qualifier("rebmJdbcTemplate")
     JdbcTemplateDetcChanRepository detcChanRepository;
 
     @Autowired
+    //@Qualifier("rebmJdbcTemplate")
     JdbcTemplateDetcChanSqlRepository detcChanSqlRepository;
 
     @Autowired
     StringRedisTemplate redisTemplate;
 
     @Autowired
+    //@Qualifier("rebmJdbcTemplate")
     private final JdbcTemplate jdbcTemplate;
 
     public String getTableDtNum() {
@@ -239,7 +245,7 @@ public class Utility {
      * @param ptagSqlId : sql 정보
      */
     public void autoAlarmSave(String info, String ptagSqlId) {
-
+        log.info("auto alarm test code:::::::::::::::::::::");
     }
 
     /**
@@ -247,12 +253,18 @@ public class Utility {
      * @return Producer Config return;
      */
     public Properties setKafkaProducerConfigs(String Address){
+        System.out.println("utility call properties ::::::::::::::::qwe:" );
+        log.info("log info utility call properties ::::::::::::::::retert:" );
+
         Properties configs = new Properties();
         configs.put("bootstrap.servers", Address); // kafka server host 및 port //192.168.20.99:9092,192.168.20.100:9092,192.168.20.101:9092
         configs.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");   // serialize 설정
         configs.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); // serialize 설정
         configs.put("acks", "all");                         // 자신이 보낸 메시지에 대해 카프카로부터 확인을 기다리지 않습니다.
         configs.put("block.on.buffer.full", "true");        // 서버로 보낼 레코드를 버퍼링 할 때 사용할 수 있는 전체 메모리의 바이트수
+
+        System.out.println("utility call properties :::::::::::::::::" + configs);
+        log.info("log info utility call properties :::::::::::::::::" + configs);
         return configs;
     }
     /**
@@ -268,6 +280,11 @@ public class Utility {
         configs.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); // value deserializer
         configs.put("auto.offset.reset", "latest"); // earliest(처음부터 읽음) | latest(현재부터 읽음)
         configs.put("enable.auto.commit", false); //AutoCommit 여부
+
+        System.out.println("utility call properties :::::::::::::::::" + configs);
+        log.info("log info utility call properties :::::::::::::::::" + configs);
+
+
         return configs;
     }
 

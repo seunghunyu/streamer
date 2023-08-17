@@ -17,8 +17,6 @@ public class MyBatisCampRepository  implements CampRepository{
 
     private final CampMapper campMapper;
 
-    @Autowired
-
     @Override
     public List<Camp> getCampList() {
         return null;

@@ -88,7 +88,7 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
 
     String tableDt = "";
 
-    String scrt_id;
+    String scrt_id = "";
 
     public RealScrtWorker(String address, String groupId, String topic) {
         System.out.println("call Gather Consumer Constructor");
@@ -96,15 +96,6 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
         this.GroupId = groupId;
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
-
-        this.consumerConfigs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
-        this.consumer = new KafkaConsumer<String, String>(this.consumerConfigs);
-        this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
-
-        this.producerConfig = utility.setKafkaProducerConfigs(this.Address);
-        this.producer = new KafkaProducer<String, String>(producerConfig);
-
-        this.tableDt = utility.getTableDtNum();
     }
 
     public void polling(Consumer consumer){
@@ -427,6 +418,15 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("RealScrt Worker Consumer START::::::::::::::::::::::::::::::::::");
         RealScrtWorker realScrtWorker = new RealScrtWorker("192.168.20.57:9092","test-consumer-group","REALSCRT");
+        realScrtWorker.consumerConfigs = utility.setKafkaConsumerConfigs(realScrtWorker.Address, realScrtWorker.GroupId);
+        realScrtWorker.consumer = new KafkaConsumer<String, String>(realScrtWorker.consumerConfigs);
+        realScrtWorker.consumer.subscribe(Arrays.asList(realScrtWorker.topic)); // 구독할 topic 설정
+
+        realScrtWorker.producerConfig = utility.setKafkaProducerConfigs(realScrtWorker.Address);
+        realScrtWorker.producer = new KafkaProducer<String, String>(producerConfig);
+
+        realScrtWorker.tableDt = utility.getTableDtNum();
+
         polling(realScrtWorker.consumer);
     }
 }

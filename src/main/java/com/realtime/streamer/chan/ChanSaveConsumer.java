@@ -46,12 +46,6 @@ public class ChanSaveConsumer implements DataConsumer, CommandLineRunner {
         this.GroupId = groupId;
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
-
-        this.configs = utility.setKafkaConsumerConfigs(this.Address,this.GroupId);
-
-        this.consumer = new KafkaConsumer<String, String>(this.configs);
-        this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
-        this.tableDt = utility.getTableDtNum();
     }
 
     @Override
@@ -146,6 +140,10 @@ public class ChanSaveConsumer implements DataConsumer, CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("ChanSaveConsumer start ::::::::::::::::::::::::::::");
         ChanSaveConsumer chanSaveConsumer = new ChanSaveConsumer("192.168.20.57:9092","test-consumer-group","RULE_SUCCESS_SAVE");
+        chanSaveConsumer.configs = utility.setKafkaConsumerConfigs(chanSaveConsumer.Address,chanSaveConsumer.GroupId);
+        chanSaveConsumer.consumer = new KafkaConsumer<String, String>(chanSaveConsumer.configs);
+        chanSaveConsumer.consumer.subscribe(Arrays.asList(chanSaveConsumer.topic)); // 구독할 topic 설정
+        chanSaveConsumer.tableDt = utility.getTableDtNum();
         polling(chanSaveConsumer.consumer);
     }
 }
