@@ -64,4 +64,12 @@ class UtilityTest {
         System.out.println("TEST @@@@@@@@@@@@@9001"+utility.getRedisDetcChanAddInfoItem("9001"));
         System.out.println("TEST @@@@@@@@@@@@@9009"+utility.getRedisDetcChanAddInfoItem("9009"));
     }
+
+    @Test
+    //@Transactional
+    void setREBMJBxml(){
+        System.out.println("RULE_DATA LOAD START::::::::::::::::::::::::::::::::");
+        utility.ruleUseDataLoader();
+        System.out.println("RULE_DATA LOAD END::::::::::::::::::::::::::::::::");
+    }
 }

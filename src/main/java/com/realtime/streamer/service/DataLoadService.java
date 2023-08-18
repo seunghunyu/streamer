@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class DataLoadService {
     @Autowired
@@ -13,4 +16,18 @@ public class DataLoadService {
     public void dataLoad(){
         repository.dataLoad();
     }
+
+    public void createTable(String qry){
+        repository.createTable(qry);
+    };
+    public void createIndex(String qry){
+        repository.createIndex(qry);
+    };
+    public void insertData(String qry, Map<String, Object> map){
+        repository.insertData(qry, map);
+    };
+    public List<?> selectData(String qry, String dbPool){
+        return repository.selectData(qry, dbPool);
+    };
+
 }

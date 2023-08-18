@@ -3,10 +3,14 @@ package com.realtime.streamer.util;
 import com.realtime.streamer.data.DetcChan;
 import com.realtime.streamer.data.DetcChanSql;
 import com.realtime.streamer.data.DetcChanSqlInfo;
+import com.realtime.streamer.repository.rebm.JdbcTemplateDataLoadRepository;
 import com.realtime.streamer.repository.rebm.JdbcTemplateDetcChanRepository;
 import com.realtime.streamer.repository.rebm.JdbcTemplateDetcChanSqlRepository;
+import com.realtime.streamer.service.DataLoadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.ListOperations;
@@ -15,12 +19,19 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /* 필요 메소드 정의
@@ -45,6 +56,11 @@ public class Utility {
     @Autowired
     //@Qualifier("rebmJdbcTemplate")
     JdbcTemplateDetcChanSqlRepository detcChanSqlRepository;
+
+    @Autowired
+    DataLoadService dataLoadService;
+
+
 
     @Autowired
     StringRedisTemplate redisTemplate;
@@ -287,7 +303,134 @@ public class Utility {
 
         return configs;
     }
+    /**
+     * REBM rule프로세스 h2 db 데이터 적재
+     * @return
+     */
+    public void ruleUseDataLoader(){
 
+        DocumentBuilderFactory factory = null;
+        DocumentBuilder builder = null;
+        JSONArray tblJArr = new JSONArray();
+        String errorPart = "";
+        try{
+            factory = DocumentBuilderFactory.newInstance();
+            builder = factory.newDocumentBuilder();
+
+            Document document = builder.parse("xml/REBMJB.xml");
+
+            NodeList locList = document.getElementsByTagName("LocalTables");
+            for (int temp = 0; temp < locList.getLength(); temp++) {
+                Node nNode = locList.item(temp);
+                System.out.println("\nCurrent Element :" + nNode.getNodeName());
+
+                NodeList locCList = nNode.getChildNodes();
+                for(int i = 0 ; i < locCList.getLength() ; i++){
+                    Node lCNode = locCList.item(i);
+
+                    if(lCNode.getNodeName().equals("Table")){
+                        //System.out.println(Integer.toString(i)+"::Table");
+                        NodeList locCCNList = lCNode.getChildNodes();
+                        //System.out.println(locCCNList.getLength());
+                        JSONObject tblObj = new JSONObject();
+
+                        tblObj.put("name",lCNode.getAttributes().getNamedItem("name").getNodeValue());
+                        tblObj.put("desc",lCNode.getAttributes().getNamedItem("desc").getNodeValue());
+                        tblObj.put("exceptionignore",lCNode.getAttributes().getNamedItem("exceptionignore").getNodeValue());
+                        tblObj.put("selectdbpool",lCNode.getAttributes().getNamedItem("selectdbpool").getNodeValue());
+
+                        JSONArray jArr = new JSONArray();
+                        for(int j = 0 ; j < locCCNList.getLength() ; j++){
+                            if(locCCNList.item(j).getNodeType() == Node.ELEMENT_NODE) {
+                                JSONObject jobj = new JSONObject();
+                                //System.out.println("   " + locCCNList.item(j).getNodeName());
+                                if (locCCNList.item(j).getNodeName().equals("Insert")) {
+                                    //System.out.println("Insert :: " + locCCNList.item(j).getTextContent());
+                                    jobj.put("insert",locCCNList.item(j).getTextContent());
+                                } else if (locCCNList.item(j).getNodeName().equals("Create")) {
+                                    //System.out.println("Create :: " + locCCNList.item(j).getTextContent());
+                                    jobj.put("create",locCCNList.item(j).getTextContent());
+                                } else if (locCCNList.item(j).getNodeName().equals("Select")) {
+                                    //System.out.println("Select :: " + locCCNList.item(j).getTextContent());
+                                    jobj.put("select",locCCNList.item(j).getTextContent());
+                                } else if (locCCNList.item(j).getNodeName().equals("Index")) {
+                                    //System.out.println("Index :: " + locCCNList.item(j).getTextContent());
+                                    jobj.put("index", locCCNList.item(j).getTextContent());
+                                }
+                                jArr.add(jobj);
+                            }
+                        }
+                        tblObj.put("query", jArr);
+
+                        tblJArr.add(tblObj);
+                    }
+                }
+
+            }
+
+            for(int i = 0 ; i < tblJArr.size() ; i++){
+                JSONObject jsonObject  = (JSONObject) tblJArr.get(i);
+                //System.out.println(Integer.toString(i)+"###################################"+jsonObject.toString());
+                String tableName       = jsonObject.get("name")              != null ? jsonObject.get("name").toString() : "";
+                String exceptionIgnore = jsonObject.get("exceptionignore")   != null ? jsonObject.get("exceptionignore").toString() : "";
+                String selectdbpool    = jsonObject.get("selectdbpool")      != null ? jsonObject.get("selectdbpool").toString() : "";
+                JSONArray jsonArray    = (JSONArray) jsonObject.get("query");
+                System.out.println(Integer.toString(i)+"jsonArraySize()" + jsonArray.size());
+                String indexQry  = "";
+                String createQry = "";
+                String selectQry = "";
+                String insertQry = "";
+                for(int j = 0 ; j < jsonArray.size() ; j++) {
+                    JSONObject jobj = (JSONObject) jsonArray.get(j);
+                    if(jobj.get("create") != null){
+                        createQry = jobj.get("create").toString();
+                    }else if(jobj.get("index") != null){
+                        indexQry  = jobj.get("index").toString();
+                    }else if(jobj.get("select") != null){
+                        selectQry = jobj.get("select").toString();
+                    }else if(jobj.get("insert") != null) {
+                        insertQry = jobj.get("insert").toString();
+                    }
+                }
+                try{
+                    if(!createQry.equals("")) {
+                        System.out.println(tableName+"create###################################"+createQry);
+                        errorPart = "create";
+                        dataLoadService.createTable(createQry);
+                        if(!indexQry.equals("")){
+                            System.out.println(tableName+"index###################################"+indexQry);
+                            errorPart = "index";
+                            dataLoadService.createIndex(indexQry);
+                        }
+                    }
+                    if(!selectQry.equals("")){
+                        errorPart = "select";
+                        System.out.println(tableName+"select###################################"+selectQry);
+                        List<?> objects = dataLoadService.selectData(selectQry, selectdbpool);
+
+                        for(int k = 0 ; k < objects.size() ; k++){
+                            log.info(objects.get(k).toString());
+                            Map<String, Object> map = (Map<String, Object>) objects.get(k);
+
+                            if(!insertQry.equals("")){
+                                errorPart = "insert";
+                                System.out.println(tableName+"insert###################################"+insertQry);
+                                dataLoadService.insertData(insertQry, map);
+                            }
+                        }
+                    }
+
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                    if(exceptionIgnore.equals("F")) System.out.println(tableName + " error occuring in " + errorPart);
+                }
+
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
 }
 //    테이블을 동적으로 할 때는 ${변수명} 사용
