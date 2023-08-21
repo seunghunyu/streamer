@@ -53,13 +53,26 @@ public class JdbcTemplateDataLoadRepository implements DataLoadRepository {
         Iterator<String> itr = dataMap.keySet().iterator();
         ArrayList<Object> paramList = new ArrayList<>();
         //SqlParameterSource parameterSource = new MapSqlParameterSource("map",dataMap);
+        //파라미터 객체
+        Object[] args = new Object[dataMap.keySet().size()];
+        int idx = 0;
         while (itr.hasNext()){
             String key = itr.next();
             log.info("key = {}, valueClass = {}", key, dataMap.get(key));
-            paramList.add(dataMap.get(key));
+//            if(dataMap.get(key) == null){
+//                dataMap.replace(key,"");
+//            }
+            args[idx]= dataMap.get(key);
+            idx++;
+            //paramList.add(dataMap.get(key));
         }
-        h2JdbcTemplate.update(qry, paramList);
-        //h2JdbcTemplate.execute(qry);
+
+        System.out.println("@@@@@@@@@insertdata"+dataMap);
+        System.out.println("@@@@@@@@@insertqry"+qry);
+
+//        h2JdbcTemplate.update(qry, paramList);
+//        h2JdbcTemplate.update(qry, dataMap);
+        h2JdbcTemplate.update(qry, args);
     }
 
     @Override
