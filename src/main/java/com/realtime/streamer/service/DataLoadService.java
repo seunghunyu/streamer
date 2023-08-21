@@ -23,8 +23,8 @@ public class DataLoadService {
     public void createIndex(String qry){
         repository.createIndex(qry);
     };
-    public void insertData(String qry, Map<String, Object> map){
-        repository.insertData(qry, map);
+    public void insertData(String qry, List<Object[]> list){
+        repository.insertData(qry, list);
     };
     public List<?> selectData(String qry, String dbPool){
         return repository.selectData(qry, dbPool);

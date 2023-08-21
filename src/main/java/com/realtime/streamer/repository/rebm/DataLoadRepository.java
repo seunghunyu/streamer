@@ -7,6 +7,6 @@ public interface DataLoadRepository {
     public void dataLoad();
     public void createTable(String qry);
     public void createIndex(String qry);
-    public void insertData(String qry, Map<String, Object> dataMap);
+    public void insertData(String qry, List<Object[]> list);
     public List<?> selectData(String qry, String dbPool);
 }

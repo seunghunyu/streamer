@@ -28,10 +28,12 @@ public class DataLoader implements CommandLineRunner {
         utility.setRedisDetcChanInstSqlList();
         //3. 사용중인 감지채널 사용 아이템 Redis 서버 업로드
         utility.setRedisDetcChanAddInfoItem();
-
         System.out.println("REDIS DATA LOADER ::::::::::::::::::::::::::::::::::::END");
 
-        //System.out.println("REDIS DATA LOADER ::::::::::::::::::::::::::::::::::::" + utility.getRedisDetcChanInstSqlList("9001"));
+        //4. REBMJB.xml h2 업로드
+        System.out.println("REBMJB DATA LOADER ::::::::::::::::::::::::::::::::::::START");
+        //utility.ruleUseDataLoader();
+        System.out.println("REBMJB DATA LOADER ::::::::::::::::::::::::::::::::::::END");
 
     }
 }

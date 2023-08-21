@@ -1,14 +1,18 @@
 package com.realtime.streamer.repository.rebm;
 
+import com.realtime.streamer.data.ClanEx;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -49,30 +53,17 @@ public class JdbcTemplateDataLoadRepository implements DataLoadRepository {
     }
 
     @Override
-    public void insertData(String qry, Map<String, Object> dataMap) {
-        Iterator<String> itr = dataMap.keySet().iterator();
-        ArrayList<Object> paramList = new ArrayList<>();
-        //SqlParameterSource parameterSource = new MapSqlParameterSource("map",dataMap);
-        //파라미터 객체
-        Object[] args = new Object[dataMap.keySet().size()];
-        int idx = 0;
-        while (itr.hasNext()){
-            String key = itr.next();
-            log.info("key = {}, valueClass = {}", key, dataMap.get(key));
-//            if(dataMap.get(key) == null){
-//                dataMap.replace(key,"");
-//            }
-            args[idx]= dataMap.get(key);
-            idx++;
-            //paramList.add(dataMap.get(key));
-        }
-
-        System.out.println("@@@@@@@@@insertdata"+dataMap);
-        System.out.println("@@@@@@@@@insertqry"+qry);
-
-//        h2JdbcTemplate.update(qry, paramList);
-//        h2JdbcTemplate.update(qry, dataMap);
-        h2JdbcTemplate.update(qry, args);
+    public void insertData(String qry, List<Object[]> list) {
+        //list는 insert 데이터 모음
+//        for(int i = 0 ; i < list.size(); i++) {
+//
+//            System.out.println("@@@@@@@@@insertdata" + list.get(i));
+//            System.out.println("@@@@@@@@@insertqry" + qry);
+//            h2JdbcTemplate.update(qry, args);
+//            h2JdbcTemplate.batchUpdate(qry, list);
+//
+//        }
+        h2JdbcTemplate.batchUpdate(qry, list);
     }
 
     @Override

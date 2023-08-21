@@ -29,10 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /* 필요 메소드 정의
  * [2023.07.05] 신규생성
@@ -407,16 +404,37 @@ public class Utility {
                         errorPart = "select";
                         System.out.println(tableName+"select###################################"+selectQry);
                         List<?> objects = dataLoadService.selectData(selectQry, selectdbpool);
-
+                        ArrayList<Object[]> paramList = new ArrayList<>();
+                        //insert data 조합
                         for(int k = 0 ; k < objects.size() ; k++){
                             log.info(objects.get(k).toString());
                             Map<String, Object> map = (Map<String, Object>) objects.get(k);
 
-                            if(!insertQry.equals("")){
-                                errorPart = "insert";
-                                System.out.println(tableName+"insert###################################"+insertQry);
-                                dataLoadService.insertData(insertQry, map);
+                            Iterator<String> itr = map.keySet().iterator();
+                            //파라미터 객체
+                            Object[] args = new Object[map.keySet().size()];
+                            int idx = 0;
+                            while (itr.hasNext()){
+                                String key = itr.next();
+                                log.info("key = {}, valueClass = {}", key, map.get(key));
+                                args[idx]= map.get(key);
+                                idx++;
                             }
+                            paramList.add(args);
+                            if(k >= 500){
+                                if(!insertQry.equals("") && paramList.size() > 0){
+                                    errorPart = "insert";
+                                    System.out.println(tableName+"insert###################################"+insertQry);
+                                    dataLoadService.insertData(insertQry, paramList);
+                                }
+                                paramList = new ArrayList<>();
+                            }
+                        }
+
+                        if(!insertQry.equals("") && paramList.size() > 0){
+                            errorPart = "insert";
+                            System.out.println(tableName+"insert###################################"+insertQry);
+                            dataLoadService.insertData(insertQry, paramList);
                         }
                     }
 
