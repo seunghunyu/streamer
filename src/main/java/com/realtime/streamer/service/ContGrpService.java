@@ -24,4 +24,25 @@ public class ContGrpService {
     public String getContSetYn(String contSetObjId, String custId) {
         return contGrpRepository.getContSetYn(contSetObjId, custId);
     }
+
+    public String getMemContSetYn(String contSetObjId, String custId) {
+        return contGrpRepository.getMemContSetYn(contSetObjId, custId);
+    }
+
+    public void contUpdate(String contSetObjId){
+        contGrpRepository.contUpdate(contSetObjId);
+    }
+
+    public void initContCount(String contSetObjId){
+        contGrpRepository.initContCount(contSetObjId);
+    }
+
+    public void contExecUpdate(String contSetObjId) {
+        contGrpRepository.contExecUpdate(contSetObjId);
+    }
+
+    public Integer selExCnt(String contSetObjId) {
+        return contGrpRepository.selExCnt(contSetObjId);
+    }
+
 }

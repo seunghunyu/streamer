@@ -276,10 +276,11 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
         String dbContSet = "";
         //메모리 DB 에서 1차적으로 저장 여부 파악
 //        "SELECT CONT_SET_YN FROM R_REBM_CONT_CUST_LIST WHERE CONT_SET_OBJ_ID = ? AND CUST_ID = ? ";
-//        if(!dbContSet.equals("")) {
-//            contSetYn = Integer.parseInt(dbContSet);
-//            return contSetYn;
-//        }
+        dbContSet = contGrpService.getMemContSetYn(cont_set_obj_id, cust_id);
+        if(!dbContSet.equals("")) {
+            contSetYn = Integer.parseInt(dbContSet);
+            return contSetYn;
+        }
 
         //수행 시점에만
         if(!isSimul){
@@ -300,49 +301,30 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
         }
 
         // 수행 증가
-//        contExec = "UPDATE R_CONT_SET_EX_CNT SET EX_CNT = EX_CNT + 1 WHERE CONT_SET_OBJ_ID = ? ";
-//
+        //"UPDATE R_CONT_SET_EX_CNT SET EX_CNT = EX_CNT + 1 WHERE CONT_SET_OBJ_ID = ? ";
+        contGrpService.contExecUpdate(cont_set_obj_id);
         int excnt = 1;
-//        contExSel = "SELECT EX_CNT FROM R_CONT_SET_EX_CNT WHERE CONT_SET_OBJ_ID = ? ";
-//
-//        excnt = rsEx.getInt(1);
-
+        //"SELECT EX_CNT FROM R_CONT_SET_EX_CNT WHERE CONT_SET_OBJ_ID = ? ";
+        excnt = contGrpService.selExCnt(cont_set_obj_id);
         // 비율에 맞게 대조군 여부 계산
         int b = 100 / contRatio.get(cont_set_obj_id);
         if((excnt % 100) % b == 0) {
             contSetYn = 1;
-            //svrBridge.debug_println("CONT_SET : " + camp_id + " = "+ tmpWorkInfo.hashmap.get("REBM_DETECT_ID"));
         }
 
-
-        contUpdate = "UPDATE R_REBM_CONT_SET_OBJ SET CONT_SET_CRAT_CNT = CONT_SET_CRAT_CNT + 1 WHERE CONT_SET_OBJ_ID = ? ";
-        // 시뮬레이션이면 메모리에 update 수행
-//        if(isSimul == true && contSetYn == 1)
-//        {
-//            try {
-//                pstmt2 = connm.prepareStatement(contUpdate);
-//                pstmt2.setString(1, cont_set_obj_id);
-//                pstmt2.executeUpdate();
-//                connm.commit();
-//            } catch(Exception e) {
-//                e.printStackTrace();
-//            } finally {
-//                if(pstmt2 != null) { try { pstmt2.close(); } catch(Exception ex) { };  }
-//            }
-//        }
-//        else
-        if(isSimul == false && contSetYn == 1){   // 시뮬레이션이 아니면 대조군 DB에 update 수행
+        //시뮬레이션이면 메모리에 update 수행
+        //"UPDATE R_REBM_CONT_SET_OBJ SET CONT_SET_CRAT_CNT = CONT_SET_CRAT_CNT + 1 WHERE CONT_SET_OBJ_ID = ? ";
+        if(isSimul == true && contSetYn == 1){
+            contGrpService.contUpdate(cont_set_obj_id);
+        }else if(isSimul == false && contSetYn == 1){   // 시뮬레이션이 아니면 대조군 DB에 update 수행
             contGrpService.updateCratCnt(cont_set_obj_id);
         }
 //
-//        // 데이터가 너무 큰 경우 초기화
-//        if(excnt > 100000000) {
-//            String qry0 = "UPDATE R_CONT_SET_EX_CNT SET EX_CNT = 1 WHERE CONT_SET_OBJ_ID = ? ";
-//            pstmt2 = connm.prepareStatement(qry0);
-//            pstmt2.setString(1, cont_set_obj_id);
-//            pstmt2.executeUpdate();
-//            pstmt2.close();
-//        }
+        // 데이터가 너무 큰 경우 초기화
+        if(excnt > 100000000) {
+            String qry0 = "UPDATE R_CONT_SET_EX_CNT SET EX_CNT = 1 WHERE CONT_SET_OBJ_ID = ? ";
+            contGrpService.initContCount(cont_set_obj_id);
+        }
 
         return contSetYn;
     }
@@ -357,7 +339,7 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
 
         hashAct_PsnlTagNm.clear();
         String beforeActId = "";
-//        qry1 = " select ACT_ID, PSNL_TAG_NM from R_ACT_PSNL_TAG_LIST order by ACT_ID asc ";
+        //"select ACT_ID, PSNL_TAG_NM from R_ACT_PSNL_TAG_LIST order by ACT_ID asc ";
         List<PsnlTag> psnlTagList = psnlTagService.getAllPsnlTagList();
         ArrayList<String> psnlNms = new ArrayList<String>();
 

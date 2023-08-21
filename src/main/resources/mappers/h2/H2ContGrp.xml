@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.realtime.streamer.mappers.h2.H2ContGrpMapper">
+    <select id="getMemContSetYn" resultType="String">
+        SELECT CONT_SET_YN
+        FROM R_REBM_CONT_CUST_LIST
+        <choose>
+            <when test = "#{contSetObjId} != null">
+                WHERE CONT_SET_OBJ_ID = #{contSetObjId}
+                <choose>
+                    <when test = "#{custId} != null">
+                        AND CUST_ID = #{custId}
+                    </when>
+                </choose>
+            </when>
+        </choose>
+    </select>
+    <select id="selExCnt" resultType="int">
+        SELECT EX_CNT FROM R_CONT_SET_EX_CNT WHERE CONT_SET_OBJ_ID = #{contSetObjId}
+    </select>
+    <update id="contUpdate" >
+        UPDATE R_REBM_CONT_SET_OBJ SET CONT_SET_CRAT_CNT = CONT_SET_CRAT_CNT + 1 WHERE CONT_SET_OBJ_ID = #{contSetObjId}
+    </update>
+    <update id="initContCount" >
+        UPDATE R_CONT_SET_EX_CNT SET EX_CNT = 1 WHERE CONT_SET_OBJ_ID = #{contSetObjId}
+    </update>
+    <update id="contExecUpdate" >
+        UPDATE R_CONT_SET_EX_CNT SET EX_CNT = EX_CNT + 1 WHERE CONT_SET_OBJ_ID = #{contSetObjId}
+    </update>
+</mapper>
