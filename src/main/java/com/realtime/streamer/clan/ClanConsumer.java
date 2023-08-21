@@ -365,12 +365,12 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
 
         //2.확장 fatigue 여부 파악 ( h2 테이블 조회 )
         // SELECT ACT_ID, OLAPP_KIND_CD  FROM R_ACT_OLAPP_USE_LIST   WHERE OLAPP_KIND_CD like '2%' order by ACT_ID asc
-        /*
+
         hashAct_ExternalFatigue.clear();
         String beforeActId = "";
 
         ArrayList<String> kindCds = new ArrayList<String>();
-        externalFatList  = olappRepository.getExternalFatList();
+        externalFatList  =  olappService.getMemExternalFatList();
 
         for(int i = 0 ; i < externalFatList.size() ; i++){
             if( (!externalFatList.get(i).getActId().equals(beforeActId)) && beforeActId.length() > 1){
@@ -390,7 +390,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
             kindCds.clear();
             hashAct_ExternalFatigue.put(beforeActId, saveIds);
         }
-        */
+
 
         //3. 캠페인 분류 코드 추출
         // select CAMP_ID, CAMP_BRCH from R_PLAN

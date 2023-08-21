@@ -50,4 +50,7 @@ public class OlappService {
         return crm_repository.findFatStupCount();
     }
 
+    //H2
+    public List<Olapp> getMemExternalFatList(){ return repository.getMemExternalFatList(); }
+
 }

@@ -11,4 +11,6 @@ public interface OlappRepository {
     List<Olapp> getExternalFatList();
     List<Olapp> getNoFatigueAct();
     Integer getFatExCustList(String campBrch, String strDt, String endDt, String custId);
+
+    List<Olapp> getMemExternalFatList();
 }

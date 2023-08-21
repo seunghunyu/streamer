@@ -3,6 +3,7 @@ package com.realtime.streamer.service;
 import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.data.Olapp;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.util.VisibleForTesting;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -66,5 +67,14 @@ class OlappServiceTest {
         String custId = "C0000107262";
         Integer fatCustCount = olappService.getFatExCustList(campBrch, strDt, endDt, custId);
         log.info("fatCustCount = {}",fatCustCount);
+    }
+
+    @Test
+    void getMemFatlist(){
+        List<Olapp> list = olappService.getMemExternalFatList();
+        log.info(Integer.toString(list.size()));
+        for(int i = 0; i < list.size() ; i++){
+            log.info(list.get(i).toString());
+        }
     }
 }

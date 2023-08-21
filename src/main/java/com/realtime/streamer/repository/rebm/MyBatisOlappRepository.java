@@ -2,6 +2,7 @@ package com.realtime.streamer.repository.rebm;
 
 import com.realtime.streamer.data.Olapp;
 import com.realtime.streamer.mappers.crm.CrmOlappMapper;
+import com.realtime.streamer.mappers.h2.H2OlappMapper;
 import com.realtime.streamer.mappers.rebm.OlappMapper;
 import com.realtime.streamer.repository.crm.CrmOlappRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.List;
 public class MyBatisOlappRepository implements OlappRepository {
 
     private final OlappMapper olappMapper;
-
+    private final H2OlappMapper h2OlappMapper;
 
     @Override
     public List<Olapp> getCampOlappList() {
@@ -45,6 +46,11 @@ public class MyBatisOlappRepository implements OlappRepository {
     public Integer getFatExCustList(String campBrch, String strDt, String endDt, String custId) {
         Integer fatCount = olappMapper.getFatExCustList(campBrch, strDt, endDt, custId);
         return fatCount;
+    }
+
+    @Override
+    public List<Olapp> getMemExternalFatList() {
+        return h2OlappMapper.getMemExternalFatList();
     }
 
 }

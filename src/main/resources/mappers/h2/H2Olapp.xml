@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.realtime.streamer.mappers.h2.H2OlappMapper">
+    <select id="getMemExternalFatList" resultType="Olapp">
+        SELECT ACT_ID, OLAPP_KIND_CD
+          FROM R_ACT_OLAPP_USE_LIST
+         WHERE OLAPP_KIND_CD LIKE '2%' ORDER BY ACT_ID ASC
+    </select>
+</mapper>
