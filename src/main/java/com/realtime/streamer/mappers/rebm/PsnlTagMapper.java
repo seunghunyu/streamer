@@ -13,4 +13,6 @@ public interface PsnlTagMapper {
     //스크립트 정보 조회
     List<Scrt> getPsnlScrtInfo(String actId);
 
+
+
 }

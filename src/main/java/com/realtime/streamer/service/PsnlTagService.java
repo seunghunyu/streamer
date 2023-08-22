@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -20,5 +21,8 @@ public class PsnlTagService {
     }
     public List<Scrt> getPsnlScrtInfo(String actId){
         return psnlTagRepository.getPsnlScrtInfo(actId);
+    }
+    public List<Map<String, Object>> getPsnlScrtColInfo(String dbPool, String qry, Object[] objArr) {
+        return psnlTagRepository.getPsnlScrtColInfo(dbPool, qry, objArr);
     }
 }

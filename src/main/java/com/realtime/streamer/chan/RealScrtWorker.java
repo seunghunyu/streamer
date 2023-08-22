@@ -197,31 +197,42 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
                             if (!psnlScrtInfoList.get(i).getDbPool().equals("REBMDB")) {
 
                             } else {
-                                //쿼리 수행 sqlScrt
+                                //쿼리 수행 sqlScrt(REBMDB의 경우)
+
                             }
+                            Object[] objArr = new Object[repcNm.length];
+
                             for (int j = 0; j < repcNm.length ; j++){
-//                                if(repcNm[i].equals("CAMP_ID"))
-//                                    pstmt2.setString(i+1, camp_id);
-//                                else if(repcNm[i].equals("ACT_ID"))
-//                                    pstmt2.setString(i+1, act_id);
-//                                else if(repcTy[i].equals("CHAR"))
-//                                    pstmt2.setString(i+1, tmpWorkInfo.hashmap.get(repcNm[i]));
-//                                else
-//                                    pstmt2.setLong(i+1, Long.parseLong(tmpWorkInfo.hashmap.get(repcNm[i])));
+                                if(repcNm[i].equals("CAMP_ID")) objArr[j] = camp_id;
+                                else if(repcNm[i].equals("ACT_ID")) objArr[j] = act_id;
+                                else if(repcTy[i].equals("CHAR")) objArr[j] = bjob.get(repcNm[i]).toString();
+                                else objArr[j] = Long.parseLong(bjob.get(repcNm[i]).toString());
+                            }
+                            //개인화태그 아이템화
+                            List<Map<String, Object>> psnlScrtColInfo = psnlTagService.getPsnlScrtColInfo(psnlScrtInfoList.get(i).getDbPool(), sqlScrt, objArr);
+                            for(int j = 0 ; j < psnlScrtColInfo.size() ; j++){
+                                Map<String, Object> psnlScrtColMap = psnlScrtColInfo.get(j);
+
+
+                                Iterator<String> itr = psnlScrtColMap.keySet().iterator();
+                                //Object[] args = new Object[psnlScrtColMap.keySet().size()];
+                                int idx = 0;
+                                while (itr.hasNext()){
+                                    String key = itr.next();
+                                    log.info("key = {}, valueClass = {}", key, psnlScrtColMap.get(key));
+
+                                    for(int k = 0; k < tag_grp.length ; k++)  {
+                                        if(tag_grp[j] != null && colm_grp[j] != null && psnlScrtColMap.get(colm_grp[j]) != null) {
+                                            if(actTagInfo.get(tag_grp[j]) != null && actTagInfo.get(tag_grp[j]).length() == 0) {
+                                                actTagInfo.put(tag_grp[j], psnlScrtColMap.get(colm_grp[j]).toString());
+                                            }
+                                            System.out.println(tag_grp[j] + " = " + psnlScrtColMap.get(colm_grp[j]));
+                                        }
+                                    }
+                                    idx++;
+                                }
                             }
 
-//                            rs2 = pstmt2.executeQuery();
-//                            if(rs2.next())
-//                            {
-//                                for(int j=0; j<tag_grp.length; j++)  {
-//                                    if(tag_grp[j] != null && colm_grp[j] != null && rs2.getString(colm_grp[j]) != null) {
-//                                        if(actTagInfo.get(tag_grp[j]) != null && actTagInfo.get(tag_grp[j]).length() == 0) {
-//                                            actTagInfo.put(tag_grp[j], rs2.getString(colm_grp[j]));
-//                                        }
-//                                        //svrBridge.debug_println(tag_grp[j] + " = " + rs2.getString(colm_grp[j]));
-//                                    }
-//                                }
-//                            }
 
                             // 소요시간 경고 체크
                             if(autoAlarmTime > 0 && autoAlarmTime <= elapse.getElapsed())

@@ -4,14 +4,31 @@ import com.realtime.streamer.data.PsnlTag;
 import com.realtime.streamer.data.Scrt;
 import com.realtime.streamer.mappers.rebm.PsnlTagMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
+
 @Repository
 @RequiredArgsConstructor
 public class MyBatisPsnlTagRepository implements PsnlTagRepository{
 
     private  final PsnlTagMapper psnlTagMapper;
+
+    @Autowired
+    @Qualifier("h2JdbcTemplate")
+    private final JdbcTemplate h2JdbcTemplate;
+
+    @Autowired
+    @Qualifier("crmJdbcTemplate")
+    private final JdbcTemplate crmJdbcTemplate;
+
+
+    @Autowired
+    private final JdbcTemplate rebmJdbcTemplate;
 
     @Override
     public List<PsnlTag> getAllPsnlTagList() {
@@ -21,4 +38,12 @@ public class MyBatisPsnlTagRepository implements PsnlTagRepository{
     public List<Scrt> getPsnlScrtInfo(String actId) {
         return psnlTagMapper.getPsnlScrtInfo(actId);
     }
+
+    @Override
+    public List<Map<String, Object>> getPsnlScrtColInfo(String dbPool, String qry, Object[] objArr) {
+        List<Map<String, Object>> maps = rebmJdbcTemplate.queryForList(qry, objArr);
+        return maps;
+    }
+
+
 }
