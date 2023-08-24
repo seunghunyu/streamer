@@ -31,4 +31,13 @@ class PsnlTagServiceTest {
             log.info("psnlTag = {}",list.get(i));
         }
     }
+    @Test
+    void getH2PsnlScrtInfo(){
+        String actId = "C230823902_005";
+            List<Scrt> list = psnlTagService.getH2PsnlScrtInfo(actId);
+            for(int i = 0 ; i < list.size() ; i++){
+                log.info("psnlTag = {}",list.get(i));
+            }
+    }
+
 }

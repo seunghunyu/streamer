@@ -171,7 +171,9 @@ public class RealScrtWorker implements DataConsumer, CommandLineRunner {
                     //      Csql = " SELECT SQL_SCRT1, SQL_SCRT2, SQL_SCRT3, PSNL_TAG_NM_GRP, PSNL_SQL_COLM_GRP,     DB_POOL, RPLC_VAR_NM_GRP, RPLC_VAR_TY_GRP, PTAG_SQL_ID "
                     //           + " FROM R_ACT_PSNL_SQL_SCRT  WHERE ACT_ID = ? ";
                     ElapsedTime elapse = new ElapsedTime();
-                    List<Scrt> psnlScrtInfoList = psnlTagService.getPsnlScrtInfo(act_id);
+                    //List<Scrt> psnlScrtInfoList = psnlTagService.getPsnlScrtInfo(act_id);
+                    List<Scrt> psnlScrtInfoList = psnlTagService.getH2PsnlScrtInfo(act_id);
+
                     for(int i = 0 ; i < psnlScrtInfoList.size(); i++){
                         sqlScrt = psnlScrtInfoList.get(i).getSqlScrt1() + psnlScrtInfoList.get(i).getSqlScrt2() == null ? ""
                                     : psnlScrtInfoList.get(i).getSqlScrt2() + psnlScrtInfoList.get(i).getSqlScrt3() == null ? "" : psnlScrtInfoList.get(i).getSqlScrt3();

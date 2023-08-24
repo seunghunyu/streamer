@@ -15,4 +15,5 @@ public interface CampRepository {
     List<Camp> getDetcChanList();
     List<Camp> getCampBrch();
     List<Camp> getFlowStat(String endDt);
+    List<Camp> getExCampStatList(String toDate);
 }

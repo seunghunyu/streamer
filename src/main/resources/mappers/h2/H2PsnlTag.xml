@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.realtime.streamer.mappers.h2.H2PsnlTagMapper">
+    <select id="getPsnlScrtInfo" resultType="Scrt">
+       SELECT SQL_SCRT1, SQL_SCRT2, SQL_SCRT3, PSNL_TAG_NM_GRP, PSNL_SQL_COLM_GRP,     DB_POOL, RPLC_VAR_NM_GRP, RPLC_VAR_TY_GRP, PTAG_SQL_ID
+         FROM R_ACT_PSNL_SQL_SCRT  WHERE ACT_ID = #{actId}
+    </select>
+</mapper>

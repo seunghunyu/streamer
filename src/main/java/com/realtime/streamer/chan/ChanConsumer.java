@@ -65,7 +65,8 @@ public class ChanConsumer implements DataConsumer, CommandLineRunner {
     HashMap<String,String> hashCampBrch = new HashMap<String,String>();
 
     HashMap<String,String> hashFlowId_Stat = new HashMap<String,String>();
-
+    HashMap<String,String> hashExCampId_Stat = new HashMap<String,String>();
+    HashMap<String,String> hashExCampId_ExSubId = new HashMap<String,String>();
 
     HashMap<String,String>  hashChanBrchCd = new HashMap<String,String>();
     HashMap<String,Integer> hashChanContRsrctTem = new HashMap<String,Integer>();
@@ -126,7 +127,7 @@ public class ChanConsumer implements DataConsumer, CommandLineRunner {
         String camp_id = "", act_id = "", chan_cd ="", detc_route_id = "", ex_camp_id = "", real_flow_id = "", cust_id = "";
         String excldCd = "", exdBrch = "";
         String qry1 = "";
-
+        String campstat = "";
         if(lastUpdate + 30 < LocalTime.now().getSecond()){
             //Olapp 정보 세팅
             tableDt = utility.getTableDtNum();
@@ -155,6 +156,8 @@ public class ChanConsumer implements DataConsumer, CommandLineRunner {
                     cust_id       = bjob.get("CUST_ID").toString();
 
                     notClean = true;
+                    campstat = (hashFlowId_Stat.get(ex_camp_id) == null ? "" : hashExCampId_Stat.get(ex_camp_id));
+
 
 
                     SuccessCnt++;
@@ -262,6 +265,13 @@ public class ChanConsumer implements DataConsumer, CommandLineRunner {
         for(int i = 0 ; i < flowList.size() ; i++){
             hashFlowId_Stat.put(flowList.get(i).getRealFlowId(), flowList.get(i).getStatCd());
         }
+        //6. 캠페인 상태, 수행캠페인 정보 추출
+        hashExCampId_Stat.clear();  // 캠페인 상태 추출
+        hashExCampId_ExSubId.clear();  // 수행캠페인 정보 추출
+        List<Camp> campStatList = campService.getExCampStatList(df_YYYYMMDD.toString());
+        // SELECT EX_CAMP_STAT, EX_CAMP_ID, EX_SUB_ID  FROM  R_EX_CAMP WHERE EX_DT = ? order by EX_CAMP_ID asc
+//        hashExCampId_Stat.put(rs1.getString("EX_CAMP_ID"), rs1.getString("EX_CAMP_STAT"));
+//        hashExCampId_ExSubId.put(rs1.getString("EX_CAMP_ID"), rs1.getString("EX_SUB_ID"));
     }
 
     /*

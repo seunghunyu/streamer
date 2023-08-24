@@ -22,4 +22,8 @@ public class CampService {
     public List<Camp> getCampBrchList() { return repository.getCampBrch(); }
 
     public List<Camp> getFlowStatList(String endDt) { return repository.getFlowStat(endDt); }
+
+    public List<Camp> getExCampStatList(String toDate) {
+        return repository.getExCampStatList(toDate);
+    }
 }

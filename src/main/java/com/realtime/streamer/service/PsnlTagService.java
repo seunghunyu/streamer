@@ -19,10 +19,15 @@ public class PsnlTagService {
     public List<PsnlTag> getAllPsnlTagList(){
         return psnlTagRepository.getAllPsnlTagList();
     }
+
     public List<Scrt> getPsnlScrtInfo(String actId){
         return psnlTagRepository.getPsnlScrtInfo(actId);
     }
     public List<Map<String, Object>> getPsnlScrtColInfo(String dbPool, String qry, Object[] objArr) {
         return psnlTagRepository.getPsnlScrtColInfo(dbPool, qry, objArr);
+    }
+
+    public List<Scrt> getH2PsnlScrtInfo(String actId){
+        return psnlTagRepository.getH2PsnlScrtInfo(actId);
     }
 }

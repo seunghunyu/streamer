@@ -10,4 +10,5 @@ public interface PsnlTagRepository{
     List<PsnlTag> getAllPsnlTagList();
     List<Scrt> getPsnlScrtInfo(String actId);
     List<Map<String, Object>> getPsnlScrtColInfo(String dbPool, String qry, Object[] objArr);
+    List<Scrt> getH2PsnlScrtInfo(String actId);
 }

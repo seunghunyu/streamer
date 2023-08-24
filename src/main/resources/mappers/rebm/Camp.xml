@@ -12,6 +12,9 @@
     <select id="getFlowStat" resultType="Camp">
         SELECT REAL_FLOW_ID, STAT_CD FROM R_REBM_FLOW_INFO WHERE END_DT >= #{endDt}
     </select>
+    <select id="getExCampStatList" resultType="Camp">
+        SELECT EX_CAMP_STAT, EX_CAMP_ID, EX_SUB_ID  FROM  R_EX_CAMP WHERE EX_DT = #{exDt} ORDER BY EX_CAMP_ID ASC
+    </select>
 
 
     <!--
