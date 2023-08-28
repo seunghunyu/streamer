@@ -1,6 +1,7 @@
 package com.realtime.streamer.service;
 
 import com.realtime.streamer.data.Camp;
+import com.realtime.streamer.data.DetcChan;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,14 @@ class CampServiceTest {
         List<Camp> flowStatList = campService.getFlowStatList("20230803");
         for(int i = 0 ; i < flowStatList.size() ; i++){
             log.info("realFlowId = {} , statCd = {}",flowStatList.get(i).getRealFlowId(), flowStatList.get(i).getStatCd());
+        }
+    }
+
+    @Test
+    void getUseDetcChanList(){
+        List<Camp> list = campService.getDetcChanList();
+        for(int i = 0 ; i < list.size() ; i++){
+            log.info("getCampId = {} , getDetcChanCd = {}", list.get(i).getCampId() , list.get(i).getDetcChanCd());
         }
 
     }

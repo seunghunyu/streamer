@@ -1,8 +1,10 @@
 package com.realtime.streamer.detect;
 
+import com.realtime.streamer.cosumer.CoWorker;
 import com.realtime.streamer.cosumer.DataConsumer;
 import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.repository.rebm.JdbcTemplateCampRepository;
+import com.realtime.streamer.service.CampService;
 import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -10,6 +12,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -36,9 +39,9 @@ import java.util.Properties;
 @Order(3)
 @EnableAsync
 @RequiredArgsConstructor
-//@Component
+@Component
 //public class GatherConsumer implements DataConsumer,ApplicationRunner {
-public class GatherConsumer implements DataConsumer, CommandLineRunner {
+public class GatherConsumer implements CoWorker, CommandLineRunner {
     String Address = "192.168.20.57:9092";
     String GroupId = "test-consumer-group";
     String topic   = "TEST";
@@ -56,8 +59,10 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
 
 
     @Autowired
-    @Qualifier("rebmJdbcTemplate")
     JdbcTemplateCampRepository repository;
+
+    @Autowired
+    CampService campService;
 
     @Autowired
     Utility utility;
@@ -70,13 +75,15 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
         this.lastUpdate = LocalTime.now().getSecond();
     }
 
-    public void polling(Consumer consumer){
+
+    @Override
+    public void polling(Consumer consumer, Producer producer){
         int SuccessCnt = 0;
         int FailCnt = 0;
         if(lastUpdate + 7 < LocalTime.now().getSecond()){
-            useDetcChanList = repository.getDetcChanList();
+            useDetcChanList = campService.getDetcChanList();
         }
-        useDetcChanList = repository.getDetcChanList();
+        //useDetcChanList = repository.getDetcChanList();
 //        System.out.println("사용중인 감지채널 :::::" + useDetcChanList.get(0).getDetcChanCd());
         System.out.println("사용중인 감지채널 :::::" + "9001");
 
@@ -118,7 +125,7 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
 //                        break loop; //탈출
 //                    }
                     consumer.commitSync(); //commit
-                    producing(bjob.toString());
+                    producing(producer, bjob.toString());
                 }
                 consumer.commitSync();//commit
             }
@@ -134,7 +141,7 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
     }
 
 
-    public void producing(String producingData){
+    public void producing(Producer producer, String producingData){
 
         String ruleTopic = "RULE";
         String detcSaveTopic = "DETC_SAVE";
@@ -149,6 +156,9 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
             //  Thread.sleep(2000);
             System.out.println("RULE MESSAGE PRODUCING:::::: " + producingData);
             //Rule처리로 이동하는 메시지
+            if(producer == null){
+                System.out.println("@@@@@@@@@@@@@@@@@@gather consumer producer is null");
+            }
             producer.send(record, (metadata, exception) -> {
                 if (exception != null) {
                     System.out.println("RULE TOPIC SENDING EXCEPTION :: "+ exception.toString());
@@ -176,10 +186,11 @@ public class GatherConsumer implements DataConsumer, CommandLineRunner {
         GatherConsumer gatherConsumer = new GatherConsumer("192.168.20.57:9092","test-consumer-group","TEST");
         gatherConsumer.consumerConfigs = utility.setKafkaConsumerConfigs(gatherConsumer.Address, gatherConsumer.GroupId);
         gatherConsumer.producerConfigs = utility.setKafkaProducerConfigs(gatherConsumer.Address);
+
         gatherConsumer.consumer = new KafkaConsumer<String, String>(gatherConsumer.consumerConfigs);
         gatherConsumer.producer = new KafkaProducer<String, String>(gatherConsumer.producerConfigs);
         gatherConsumer.consumer.subscribe(Arrays.asList(gatherConsumer.topic));
 
-        polling(gatherConsumer.consumer);
+        polling(gatherConsumer.consumer, gatherConsumer.producer);
     }
 }

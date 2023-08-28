@@ -1,5 +1,6 @@
 package com.realtime.streamer.rule;
 
+import com.realtime.streamer.cosumer.CoWorker;
 import com.realtime.streamer.cosumer.DataConsumer;
 import com.realtime.streamer.detect.GatherConsumer;
 import com.realtime.streamer.util.Utility;
@@ -9,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -36,8 +38,8 @@ import java.util.concurrent.TimeUnit;
 @Order(4)
 @EnableAsync
 @RequiredArgsConstructor
-//@Component
-public class RuleConsumer implements DataConsumer, CommandLineRunner {
+@Component
+public class RuleConsumer implements CoWorker, CommandLineRunner {
     String Address = "192.168.20.57:9092";
     String GroupId = "test-consumer-group";
     String topic   = "RULE";
@@ -74,17 +76,10 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
         this.GroupId = groupId;
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
-
-        this.cosumerConfigs = utility.setKafkaConsumerConfigs(this.Address, this.GroupId);
-        this.consumer = new KafkaConsumer<String, String>(this.cosumerConfigs);
-        this.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
-
-        this.producerConfigs = utility.setKafkaProducerConfigs(this.Address);
-        this.producer = new KafkaProducer<String, String >(this.producerConfigs);
     }
 
     @Override
-    public void polling(Consumer consumer) {
+    public void polling(Consumer consumer, Producer producer) {
         int SuccessCnt = 0;
         int FailCnt = 0;
         if(lastUpdate + 7 < LocalTime.now().getSecond()){
@@ -98,7 +93,7 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
 
                 if(records.count() == 0) continue ;
 
-                System.out.println("records count ::"+Integer.toString(records.count()));
+                System.out.println("RULE CONSUMER records count ::"+Integer.toString(records.count()));
 
                 for (ConsumerRecord<String, String> record : records) {
                     JSONParser parser = new JSONParser();
@@ -167,7 +162,7 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
                         FailCnt = 0;
                     }
                     //@@@@@@@@@@@@@@@@@@@@@@@RULE 수행 로직@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                    producing(bjob.toString(), innerRuleWorkInfo.resultStr);
+                    producing(producer, bjob.toString(), innerRuleWorkInfo.resultStr);
 
                     consumer.commitSync(); //commit
 
@@ -184,7 +179,7 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
         }
     }
 
-    public void producing(String producingData, String resultStr){
+    public void producing(Producer producer, String producingData, String resultStr){
 
         String clanTopic = "CLAN";
         String ruleSTopic = "RULES_SAVE";
@@ -226,7 +221,7 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
             }
 
         } catch (Exception e) {
-            System.out.println("PRODUCING EXCEPTION ::" + e.toString());
+            System.out.println("Rule Consumer PRODUCING EXCEPTION ::" + e.toString());
         } finally {
             producer.flush();
         }
@@ -236,6 +231,9 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
 //        info.resultStr = svrBridge.invokeRule(info.workinfo.hashmap, classpath, getAddCampId(info.real_flow_id));
         // 룰 수행 결과 저장 로직 수행
         //임시
+
+        System.out.println("__InnerRuleRun::::::::::::::::::::::::::::::::::::"+info.workinfo.toString());
+
         if(Integer.parseInt(info.workinfo.get("나이").toString()) > 20 ){
             info.resultStr = "false";
         }
@@ -287,6 +285,14 @@ public class RuleConsumer implements DataConsumer, CommandLineRunner {
 
 
         RuleConsumer ruleConsumer = new RuleConsumer("192.168.20.57:9092","test-consumer-group","RULE");
-        polling(ruleConsumer.consumer);
+
+        ruleConsumer.cosumerConfigs = utility.setKafkaConsumerConfigs(ruleConsumer.Address, ruleConsumer.GroupId);
+        ruleConsumer.producerConfigs = utility.setKafkaProducerConfigs(ruleConsumer.Address);
+
+        ruleConsumer.consumer = new KafkaConsumer<String, String>(ruleConsumer.cosumerConfigs);
+        ruleConsumer.consumer.subscribe(Arrays.asList(topic)); // 구독할 topic 설정
+        ruleConsumer.producer = new KafkaProducer<String, String >(ruleConsumer.producerConfigs);
+
+        polling(ruleConsumer.consumer, ruleConsumer.producer);
     }
 }
