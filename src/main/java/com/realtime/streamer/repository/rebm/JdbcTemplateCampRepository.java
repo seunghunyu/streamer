@@ -102,6 +102,12 @@ public class JdbcTemplateCampRepository implements CampRepository{
         return null;
     }
 
+    @Override
+    public List<Camp> getExCampChanInfo(String exDt) {
+        return null;
+    }
+
+
 
     private RowMapper<Camp> campRowMapper() {
         return (rs, rowNum) -> {

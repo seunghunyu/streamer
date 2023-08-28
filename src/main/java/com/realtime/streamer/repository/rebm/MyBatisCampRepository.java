@@ -56,4 +56,8 @@ public class MyBatisCampRepository  implements CampRepository{
     public List<Camp> getExCampStatList(String toDate) {
         return campMapper.getExCampStatList(toDate);
     }
+    @Override
+    public List<Camp> getExCampChanInfo(String exDt) {
+        return campMapper.getExCampChanInfo(exDt);
+    }
 }

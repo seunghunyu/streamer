@@ -10,12 +10,19 @@
         SELECT CAMP_ID, CAMP_BRCH FROM R_PLAN
     </select>
     <select id="getFlowStat" resultType="Camp">
-        SELECT REAL_FLOW_ID, STAT_CD FROM R_REBM_FLOW_INFO WHERE END_DT >= #{endDt}
+        SELECT REAL_FLOW_ID, STAT_CD FROM R_REBM_FLOW_INFO WHERE END_DT <![CDATA[>]]>= #{endDt}
     </select>
     <select id="getExCampStatList" resultType="Camp">
         SELECT EX_CAMP_STAT, EX_CAMP_ID, EX_SUB_ID  FROM  R_EX_CAMP WHERE EX_DT = #{exDt} ORDER BY EX_CAMP_ID ASC
     </select>
-
+    <select id="getExCampChanInfo" resultType="Camp">
+        SELECT T2.DETC_CHAN_CD, T2.REAL_FLOW_ID
+          FROM R_EX_CAMP T1, R_FLOW_DETC_CHAN T2
+         WHERE T1.EX_DT = #{exDt}
+           AND T1.REAL_FLOW_ID = T2.REAL_FLOW_ID
+           AND T1.EX_CAMP_STAT IN ('3000', '3100')
+        ORDER BY T2.DETC_CHAN_CD, T2.REAL_FLOW_ID
+    </select>
 
     <!--
     <resultMap type="org.apache.ibatis.submitted.rounding.User" id="usermap">

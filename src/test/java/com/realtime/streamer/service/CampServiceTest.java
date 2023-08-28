@@ -41,7 +41,8 @@ class CampServiceTest {
 
     @Test
     void getUseDetcChanList(){
-        List<Camp> list = campService.getDetcChanList();
+        String exDt = "20230828";
+        List<Camp> list = campService.getExCampChanInfo(exDt);
         for(int i = 0 ; i < list.size() ; i++){
             log.info("getCampId = {} , getDetcChanCd = {}", list.get(i).getCampId() , list.get(i).getDetcChanCd());
         }
