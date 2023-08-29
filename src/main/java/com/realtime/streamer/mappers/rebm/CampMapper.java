@@ -12,5 +12,5 @@ public interface CampMapper {
     List<Camp> getCampBrch();
     List<Camp> getFlowStat(@Param("endDt") String endDt);
     List<Camp> getExCampStatList(@Param("exDt") String toDate);
-    List<Camp> getExCampChanInfo(@Param("exDt")String exDt);
+    List<Camp> getExCampChanInfo(@Param("exDt") String exDt);
 }

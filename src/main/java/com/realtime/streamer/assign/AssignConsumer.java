@@ -1,8 +1,8 @@
 package com.realtime.streamer.assign;
 
-import com.realtime.streamer.cosumer.CoWorker;
+import com.realtime.streamer.Queue.AssignQueue;
+import com.realtime.streamer.consumer.CoWorker;
 import com.realtime.streamer.data.Camp;
-import com.realtime.streamer.repository.rebm.JdbcTemplateCampRepository;
 import com.realtime.streamer.service.CampService;
 import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.Duration;
 import java.time.LocalTime;
@@ -64,7 +63,7 @@ public class AssignConsumer implements CoWorker, CommandLineRunner {
     java.text.DateFormat dfhhmmss = new java.text.SimpleDateFormat("HHmmss");
 
     HashMap<String,String> hashChanFlowId = new HashMap<String,String>();
-
+    AssignQueue assignQueue = new AssignQueue();
 
     @Autowired
     CampService campService;
@@ -82,12 +81,11 @@ public class AssignConsumer implements CoWorker, CommandLineRunner {
 
 
     @Override
-    public void polling(Consumer consumer, Producer producer){
+    public void polling(Consumer consumer, Producer producer) throws Exception {
         int SuccessCnt = 0;
         int FailCnt = 0;
         if(lastUpdate + 7 < LocalTime.now().getSecond()){
-
-
+            setChanCampId();
         }
 
         try{
@@ -108,6 +106,8 @@ public class AssignConsumer implements CoWorker, CommandLineRunner {
                     if(hashChanFlowId.isEmpty() || hashChanFlowId.size() == 0) {
                         System.out.println(" Campaign mapping not found return = " + bjob.toString());
                         break;
+                    }else{
+                        System.out.println("RUNNING REALTIME CAMPAIGN ::::::::::::::::::" + hashChanFlowId);
                     }
 
                     if(bjob.get("DETC_CHAN_CD").toString() == null || hashChanFlowId.get(bjob.get("DETC_CHAN_CD").toString()) == null)  // 감지채널에 캠페인이 매핑되지 않는 경우
@@ -120,13 +120,17 @@ public class AssignConsumer implements CoWorker, CommandLineRunner {
                     }
 
 
+                    //Assign WorkQueue로 데이터
+                    System.out.println("Assing Consumer !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + bjob.toString());
+                    assignQueue.addWorkQueueItem(bjob.toString());
+
                     System.out.println("Success count : "+SuccessCnt);
                     if (SuccessCnt >= 1000) { //최대 500건 get
                         consumer.commitSync(); //commit
                         SuccessCnt = 0;
                     }
                     consumer.commitSync(); //commit
-                    producing(producer, bjob.toString());
+                    //producing(producer, bjob.toString());
                     SuccessCnt++;
                 }
                 consumer.commitSync();//commit
@@ -142,21 +146,22 @@ public class AssignConsumer implements CoWorker, CommandLineRunner {
 
     }
 
-    //   " SELECT T2.DETC_CHAN_CD, T2.REAL_FLOW_ID "
-//           + " FROM R_REBM_FLOW_INFO T1, R_FLOW_DETC_CHAN T2 "
-//           + " WHERE T1.REAL_FLOW_ID = T2.REAL_FLOW_ID "
-//           + "   AND T1.STAT_CD IN ('3000', '3100') "
-//           + "   AND T1.STR_DT <= ? "
-//           + "   AND T1.END_DT >= ? "
-//           + " ORDER BY T2.DETC_CHAN_CD, T1.CAMP_PRITY, T2.REAL_FLOW_ID ";
-    private void setChanCampId(Connection con) throws Exception
+//SELECT T2.DETC_CHAN_CD, T2.REAL_FLOW_ID
+//   FROM R_REBM_FLOW_INFO T1, R_FLOW_DETC_CHAN T2
+//   WHERE T1.REAL_FLOW_ID = T2.REAL_FLOW_ID
+//     AND T1.STAT_CD IN ('3000', '3100')
+//     AND T1.STR_DT <= ?
+//     AND T1.END_DT >= ?
+//   ORDER BY T2.DETC_CHAN_CD, T1.CAMP_PRITY, T2.REAL_FLOW_ID
+    private void setChanCampId() throws Exception
     {
         if (table_dt == null || table_dt == "") {
            table_dt = utility.getTableDtNum();
         }
 
         String detc_chan = "", old_detc_chan = "", flow_ids = "";
-        List<Camp> exFlowInfo = campService.getExCampChanInfo(toDate);
+        List<Camp> exFlowInfo = campService.getExCampChanInfo(dateFormat1.format(new java.util.Date()).toString());
+
         hashChanFlowId.clear();
         for (int i = 0; i < exFlowInfo.size(); i++) {
             detc_chan = exFlowInfo.get(i).getDetcChanCd();

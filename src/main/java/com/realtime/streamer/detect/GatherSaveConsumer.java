@@ -1,6 +1,6 @@
 package com.realtime.streamer.detect;
 
-import com.realtime.streamer.cosumer.DataConsumer;
+import com.realtime.streamer.consumer.DataConsumer;
 import com.realtime.streamer.data.DetcMstr;
 import com.realtime.streamer.repository.rebm.JdbcTemplateHistorySaveRepository;
 import com.realtime.streamer.util.Utility;
@@ -17,7 +17,6 @@ import org.springframework.boot.json.JsonParseException;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Duration;

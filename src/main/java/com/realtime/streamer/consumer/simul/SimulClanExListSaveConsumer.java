@@ -1,4 +1,4 @@
-package com.realtime.streamer.cosumer.simul;
+package com.realtime.streamer.consumer.simul;
 
 public class SimulClanExListSaveConsumer {
 }

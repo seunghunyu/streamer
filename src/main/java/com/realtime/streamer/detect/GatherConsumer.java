@@ -1,7 +1,6 @@
 package com.realtime.streamer.detect;
 
-import com.realtime.streamer.cosumer.CoWorker;
-import com.realtime.streamer.cosumer.DataConsumer;
+import com.realtime.streamer.consumer.CoWorker;
 import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.repository.rebm.JdbcTemplateCampRepository;
 import com.realtime.streamer.service.CampService;
@@ -17,7 +16,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.core.annotation.Order;
@@ -143,25 +141,35 @@ public class GatherConsumer implements CoWorker, CommandLineRunner {
 
     public void producing(Producer producer, String producingData){
 
-        String ruleTopic = "RULE";
+        String assignTopic   = "ASSIGN";
+        String ruleTopic     = "RULE";
         String detcSaveTopic = "DETC_SAVE";
+
         int num = 0;
 
 //        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(conf);;
         ProducerRecord<String, String> record, record2;
-        record = new ProducerRecord<>(ruleTopic, producingData);
+//        record = new ProducerRecord<>(ruleTopic, producingData);
+        record = new ProducerRecord<>(assignTopic, producingData);
         record2 = new ProducerRecord<>(detcSaveTopic, producingData);
 
         try {
             //  Thread.sleep(2000);
-            System.out.println("RULE MESSAGE PRODUCING:::::: " + producingData);
+//            System.out.println("RULE MESSAGE PRODUCING:::::: " + producingData);
+//            //Rule처리로 이동하는 메시지
+//            if(producer == null){
+//                System.out.println("@@@@@@@@@@@@@@@@@@gather consumer producer is null");
+//            }
+//            producer.send(record, (metadata, exception) -> {
+//                if (exception != null) {
+//                    System.out.println("RULE TOPIC SENDING EXCEPTION :: "+ exception.toString());
+//                }
+//            });
+            System.out.println("ASSIGN MESSAGE PRODUCING:::::: " + producingData);
             //Rule처리로 이동하는 메시지
-            if(producer == null){
-                System.out.println("@@@@@@@@@@@@@@@@@@gather consumer producer is null");
-            }
             producer.send(record, (metadata, exception) -> {
                 if (exception != null) {
-                    System.out.println("RULE TOPIC SENDING EXCEPTION :: "+ exception.toString());
+                    System.out.println("ASSIGN TOPIC SENDING EXCEPTION :: "+ exception.toString());
                 }
             });
             System.out.println("DETC SAVE PRODUCING:::::: " + producingData);

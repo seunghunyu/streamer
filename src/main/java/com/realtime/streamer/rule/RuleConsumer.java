@@ -1,8 +1,6 @@
 package com.realtime.streamer.rule;
 
-import com.realtime.streamer.cosumer.CoWorker;
-import com.realtime.streamer.cosumer.DataConsumer;
-import com.realtime.streamer.detect.GatherConsumer;
+import com.realtime.streamer.consumer.CoWorker;
 import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -35,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 /* [2023.07.04] ·ê Ã³¸® ÄÁ½´¸Ó
  *
  */
-@Order(4)
+@Order(6)
 @EnableAsync
 @RequiredArgsConstructor
 @Component

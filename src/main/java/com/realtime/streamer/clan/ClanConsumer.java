@@ -1,6 +1,6 @@
 package com.realtime.streamer.clan;
 
-import com.realtime.streamer.cosumer.DataConsumer;
+import com.realtime.streamer.consumer.DataConsumer;
 import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.data.Olapp;
 import com.realtime.streamer.service.CampService;

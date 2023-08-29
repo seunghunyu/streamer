@@ -1,6 +1,5 @@
 package com.realtime.streamer.detect;
 
-import com.realtime.streamer.cosumer.DataConsumer;
 import com.realtime.streamer.producer.DataProducer;
 import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
@@ -8,16 +7,12 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.Properties;
 
 /*

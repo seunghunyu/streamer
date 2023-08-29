@@ -1,6 +1,6 @@
 package com.realtime.streamer.chan;
 
-import com.realtime.streamer.cosumer.DataConsumer;
+import com.realtime.streamer.consumer.DataConsumer;
 import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.data.Olapp;
 import com.realtime.streamer.service.CampService;
@@ -23,7 +23,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;

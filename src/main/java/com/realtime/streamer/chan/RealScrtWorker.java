@@ -1,6 +1,6 @@
 package com.realtime.streamer.chan;
 
-import com.realtime.streamer.cosumer.DataConsumer;
+import com.realtime.streamer.consumer.DataConsumer;
 import com.realtime.streamer.data.*;
 import com.realtime.streamer.service.*;
 import com.realtime.streamer.util.ElapsedTime;
