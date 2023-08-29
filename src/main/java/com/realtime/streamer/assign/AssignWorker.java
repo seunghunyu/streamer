@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.core.annotation.Order;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
@@ -89,6 +90,8 @@ public class AssignWorker implements Worker, CommandLineRunner {
         this.lastUpdate = LocalTime.now().getSecond();
     }
 
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     @Override
     public void polling(){
@@ -150,8 +153,56 @@ public class AssignWorker implements Worker, CommandLineRunner {
     }
     //공통 수행 SQL 구문 관리 조회
     private void getCommonExecSql() {
+        //utility1.getCommonExecAllSql(svrBridge, commDB_POOL, commSEL_COLM, commSEL_TYPE, commSQL_SCRT, commVAR_NM, commVAR_TY, commSQL_ID, detcChanSqlId);
 
+        commDB_POOL.clear();
+        commSEL_COLM.clear();
+        commSEL_TYPE.clear();
+        commSQL_SCRT.clear();
+        commVAR_NM.clear();
+        commVAR_TY.clear();
 
+        String qry = " SELECT SQL_ID, DB_POOL, SEL_COLM_GRP, SQL_SCRT1, SQL_SCRT2, SQL_SCRT3, RPLC_VAR_NM_GRP, RPLC_VAR_TY_GRP, SEL_TYPE_GRP "
+                   + " FROM R_CMN_EX_SQL ORDER BY DB_POOL ";
+        String sqlScrt = "";
+
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(qry);
+        for(int i = 0 ; i < maps.size() ; i++){
+            sqlScrt = maps.get(i).get("SQL_SCRT1").toString() + ( maps.get(i).get("SQL_SCRT2") == null  ? "" : maps.get(i).get("SQL_SCRT2").toString())
+                    + (maps.get(i).get("SQL_SCRT3") == null ? "" : maps.get(i).get("SQL_SCRT3").toString());
+
+            sqlScrt = sqlScrt.replace("\n", " ").replace("\t", " ");
+            commSQL_SCRT.add(sqlScrt);
+            commSQL_ID.add(maps.get(i).get("SQL_ID").toString());
+            commDB_POOL.add(maps.get(i).get("DB_POOL").toString());
+            commSEL_COLM.add(maps.get(i).get("SEL_COLM_GRP").toString());
+            commSEL_TYPE.add(maps.get(i).get("SEL_TYPE_GRP").toString());
+            if(maps.get(i).get("RPLC_VAR_NM_GRP") == null || maps.get(i).get("RPLC_VAR_NM_GRP").toString().equals("")) { // 치환태그가 없는 경우
+                commVAR_NM.add("");
+                commVAR_TY.add("");
+            } else {
+                commVAR_NM.add(maps.get(i).get("RPLC_VAR_NM_GRP").toString());
+                commVAR_TY.add(maps.get(i).get("RPLC_VAR_TY_GRP").toString());
+            }
+        }
+
+        String beforeDetcChanCd = "", sqlids = "";
+        qry = " SELECT DETC_CHAN_CD, SQL_ID FROM R_DETC_CHAN_USE_CMN_SQL ORDER BY DETC_CHAN_CD ASC ";
+        maps.clear();
+        maps = jdbcTemplate.queryForList(qry);
+        for(int i = 0 ; i < maps.size() ; i++) {
+            if( (!maps.get(i).get("DETC_CHAN_CD").toString().equals(beforeDetcChanCd)) && beforeDetcChanCd.length() > 0) {
+                detcChanSqlId.put(beforeDetcChanCd, sqlids.substring(1));
+                sqlids = "";
+            }
+            beforeDetcChanCd = maps.get(i).get("DETC_CHAN_CD").toString();
+            sqlids += ";" + maps.get(i).get("SQL_ID").toString();
+        }
+
+        if(sqlids.length() > 0) {
+            detcChanSqlId.put(beforeDetcChanCd, sqlids.substring(1));
+            sqlids = "";
+        }
 
     }
     //룰 성공 실패이력 저장 여부 조회
