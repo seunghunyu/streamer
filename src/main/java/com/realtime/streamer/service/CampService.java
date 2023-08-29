@@ -38,4 +38,8 @@ public class CampService {
     public List<Camp> getRuleHistSaveYn() {
         return repository.getRuleHistSaveYn();
     }
+
+    public List<Camp> getExCampTMInfo(String realFlowId, String exDt) {
+        return repository.getExCampTMInfo(realFlowId, exDt);
+    }
 }

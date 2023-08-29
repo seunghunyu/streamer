@@ -18,4 +18,6 @@ public interface CampRepository {
     List<Camp> getExCampStatList(String toDate);
     List<Camp> getExCampChanInfo(String exDt);
     List<Camp> getRuleHistSaveYn();
+
+    List<Camp> getExCampTMInfo(String realFlowId, String exDt);
 }

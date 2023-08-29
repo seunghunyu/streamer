@@ -1,6 +1,7 @@
 package com.realtime.streamer.repository.rebm;
 
 import com.realtime.streamer.data.Camp;
+import com.realtime.streamer.mappers.h2.H2CampMapper;
 import com.realtime.streamer.mappers.rebm.CampMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ public class MyBatisCampRepository  implements CampRepository{
 
 
     private final CampMapper campMapper;
+    private final H2CampMapper h2CampMapper;
 
     @Override
     public List<Camp> getCampList() {
@@ -64,5 +66,10 @@ public class MyBatisCampRepository  implements CampRepository{
     @Override
     public List<Camp> getRuleHistSaveYn() {
         return campMapper.getRuleHistSaveYn();
+    }
+
+    @Override
+    public List<Camp> getExCampTMInfo(String realFlowId, String exDt) {
+        return h2CampMapper.getExCampTMInfo(realFlowId, exDt);
     }
 }

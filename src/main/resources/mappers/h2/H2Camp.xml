@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.realtime.streamer.mappers.h2.CampMapper">
+    <select id="getExCampTMInfo" resultType="Camp">
+        SELECT STR_TM, END_TM
+          FROM R_EX_CAMP
+         WHERE REAL_FLOW_ID = #{realFlowId} AND EX_DT = #{exDt}
+    </select>
+</mapper>

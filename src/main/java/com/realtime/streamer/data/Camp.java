@@ -24,6 +24,8 @@ public class Camp {
     String ruleSSaveYN;
     String ruleFSaveYn;
 
+    String strTm;
+    String endTm;
 
     public String getCampId() {
         return campId;
@@ -87,5 +89,21 @@ public class Camp {
 
     public void setRuleFSaveYn(String ruleFSaveYn) {
         this.ruleFSaveYn = ruleFSaveYn;
+    }
+
+    public String getStrTm() {
+        return strTm;
+    }
+
+    public void setStrTm(String strTm) {
+        this.strTm = strTm;
+    }
+
+    public String getEndTm() {
+        return endTm;
+    }
+
+    public void setEndTm(String endTm) {
+        this.endTm = endTm;
     }
 }
