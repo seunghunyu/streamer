@@ -60,4 +60,9 @@ public class MyBatisCampRepository  implements CampRepository{
     public List<Camp> getExCampChanInfo(String exDt) {
         return campMapper.getExCampChanInfo(exDt);
     }
+
+    @Override
+    public List<Camp> getRuleHistSaveYn() {
+        return campMapper.getRuleHistSaveYn();
+    }
 }

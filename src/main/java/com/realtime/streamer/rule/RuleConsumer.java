@@ -78,6 +78,8 @@ public class RuleConsumer implements CoWorker, CommandLineRunner {
 
     @Override
     public void polling(Consumer consumer, Producer producer) {
+
+
         int SuccessCnt = 0;
         int FailCnt = 0;
         if(lastUpdate + 7 < LocalTime.now().getSecond()){
@@ -96,10 +98,18 @@ public class RuleConsumer implements CoWorker, CommandLineRunner {
                 for (ConsumerRecord<String, String> record : records) {
                     JSONParser parser = new JSONParser();
                     JSONObject bjob = (JSONObject)parser.parse(record.value());
+                    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@1111");
 
-                    String routeIds = bjob.get("DETC_ROUTE_IDS").toString();
-                    String flowIds = bjob.get("REAL_FLOW_IDS").toString();
-                    String campIds = bjob.get("CAMP_IDS").toString();
+                    String routeIds = bjob.get("DETC_ROUTE_IDS") == null ? "" : bjob.get("DETC_ROUTE_IDS").toString();
+                    String flowIds = bjob.get("REAL_FLOW_IDS") == null ? "" : bjob.get("REAL_FLOW_IDS").toString();
+                    String campIds = bjob.get("CAMP_IDS") == null ? "" : bjob.get("CAMP_IDS").toString();
+
+                    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@22222");
+
+                    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                    System.out.println(bjob.get("DETC_ROUTE_IDS").toString());
+                    System.out.println(bjob.get("REAL_FLOW_IDS").toString());
+                    System.out.println(bjob.get("CAMP_IDS").toString());
 
                     String resultStr = "";
 
@@ -125,6 +135,9 @@ public class RuleConsumer implements CoWorker, CommandLineRunner {
                         work_flow_id = arr_flow_id[i];
                         work_camp_id = arr_camp_id[i];    //work_route_id.substring(0, work_route_id.indexOf("_"));
 
+                        System.out.println("CountDown ::::::::::::::::::::::"  + work_route_id + ":::"+ work_flow_id + "::::" + work_camp_id);
+
+
                         if(work_camp_id != null && work_camp_id.length() > 3)
                         {
                             innerRuleWorkInfo = new InnerRuleWorkInfo();
@@ -142,17 +155,18 @@ public class RuleConsumer implements CoWorker, CommandLineRunner {
                             innerRuleWorkInfo.countDownLatch = countDownLatch;
                             InnerRuleWorkInfoQueue.put(innerRuleWorkInfo);
                             innerRuleWorkInfoArray.addElement(innerRuleWorkInfo);
+
+
                         }
                     }
                     countDownLatch.await(); // 작업 호출
-
 
 //                    //@@@@@@@@@@@@@@@@@@@@@@@RULE 수행 로직@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //                    producing(conf, bjob.toString(), innerRuleWorkInfo.resultStr);
 
                     //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                     SuccessCnt++;
-                    System.out.println("Success count : "+SuccessCnt + ", Fail count : "+ FailCnt);
+                    System.out.println("RuleConsumer :::::::::::: Success count : "+SuccessCnt + ", Fail count : "+ FailCnt);
 
                     if (SuccessCnt >= 500) { //최대 500건 get
                         consumer.commitSync(); //commit
@@ -160,6 +174,7 @@ public class RuleConsumer implements CoWorker, CommandLineRunner {
                         FailCnt = 0;
                     }
                     //@@@@@@@@@@@@@@@@@@@@@@@RULE 수행 로직@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
                     producing(producer, bjob.toString(), innerRuleWorkInfo.resultStr);
 
                     consumer.commitSync(); //commit
@@ -171,7 +186,7 @@ public class RuleConsumer implements CoWorker, CommandLineRunner {
             System.out.println("JsonParsing Error:::" + e.getMessage());
             //e.printStackTrace();
         }catch(Exception e) {
-            System.out.println("Exception:::" + e.getMessage());
+            System.out.println("RULE CONSUMER Exception:::" + e.getMessage());
         }finally{
 
         }
@@ -193,27 +208,27 @@ public class RuleConsumer implements CoWorker, CommandLineRunner {
         try {
             //1. Rule 성공 , Clan 으로 이동
             if(resultStr == "true") {
-                System.out.println("CLAN MESSAGE PRODUCING:::::: " + producingData);
+                System.out.println("RULE CONSUMER CLAN MESSAGE PRODUCING:::::: " + producingData);
                 //Rule처리로 이동하는 메시지
                 producer.send(clanRecord, (metadata, exception) -> {
                     if (exception != null) {
-                        System.out.println("CLAN TOPIC SENDING EXCEPTION :: " + exception.toString());
+                        System.out.println("RULE CONSUMER CLAN TOPIC SENDING EXCEPTION :: " + exception.toString());
                     }
                 });
-                System.out.println("RULE SUCCESS SAVE PRODUCING:::::: " + producingData);
+                System.out.println("RULE CONSUMER RULE SUCCESS SAVE PRODUCING:::::: " + producingData);
                 //감지이력 저장으로 이동하는 메시지
                 producer.send(ruleSRecord, (metadata, exception) -> {
                     if (exception != null) {
-                        System.out.println("RULE SUCCESS TOPIC SENDING EXCEPTION ::" + exception.toString());
+                        System.out.println("RULE CONSUMER RULE SUCCESS TOPIC SENDING EXCEPTION ::" + exception.toString());
                     }
                 });
             //2. Rule 실패
             }else {
-                System.out.println("RULE FAIL SAVE PRODUCING:::::: " + producingData);
+                System.out.println("RULE CONSUMER RULE FAIL SAVE PRODUCING:::::: " + producingData);
                 //감지이력 저장으로 이동하는 메시지
                 producer.send(ruleFRecord, (metadata, exception) -> {
                     if (exception != null) {
-                        System.out.println("RULE FAIL TOPIC SENDING EXCEPTION ::" + exception.toString());
+                        System.out.println("RULE CONSUMER RULE FAIL TOPIC SENDING EXCEPTION ::" + exception.toString());
                     }
                 });
             }

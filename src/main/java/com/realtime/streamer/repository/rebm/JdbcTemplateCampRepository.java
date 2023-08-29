@@ -107,6 +107,10 @@ public class JdbcTemplateCampRepository implements CampRepository{
         return null;
     }
 
+    @Override
+    public List<Camp> getRuleHistSaveYn() {
+        return null;
+    }
 
 
     private RowMapper<Camp> campRowMapper() {

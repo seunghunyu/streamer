@@ -71,12 +71,13 @@ public class AssignConsumer implements CoWorker, CommandLineRunner {
     @Autowired
     Utility utility;
 
-    public AssignConsumer(String address, String groupId, String topic) {
+    public AssignConsumer(String address, String groupId, String topic) throws Exception {
         System.out.println("call Assign Consumer Constructor");
         this.Address = address;
         this.GroupId = groupId;
         this.topic = topic;
         this.lastUpdate = LocalTime.now().getSecond();
+
     }
 
 

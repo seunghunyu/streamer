@@ -111,9 +111,7 @@ public class AssignProducer implements CoWorker, CommandLineRunner {
 
     }
 
-
     public void producing(Producer producer, String producingData){
-
         String ruleTopic = "RULE";
         String ruleFTopic = "RULEF_SAVE";
 

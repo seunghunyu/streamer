@@ -19,6 +19,12 @@ public class Camp {
     String statCd;
     String endDt;
 
+    String exCampId;
+
+    String ruleSSaveYN;
+    String ruleFSaveYn;
+
+
     public String getCampId() {
         return campId;
     }
@@ -57,5 +63,29 @@ public class Camp {
 
     public void setCampEndDt(String campEndDt) {
         this.campEndDt = campEndDt;
+    }
+
+    public String getExCampId() {
+        return exCampId;
+    }
+
+    public void setExCampId(String exCampId) {
+        this.exCampId = exCampId;
+    }
+
+    public String getRuleSSaveYN() {
+        return ruleSSaveYN;
+    }
+
+    public void setRuleSSaveYN(String ruleSSaveYN) {
+        this.ruleSSaveYN = ruleSSaveYN;
+    }
+
+    public String getRuleFSaveYn() {
+        return ruleFSaveYn;
+    }
+
+    public void setRuleFSaveYn(String ruleFSaveYn) {
+        this.ruleFSaveYn = ruleFSaveYn;
     }
 }

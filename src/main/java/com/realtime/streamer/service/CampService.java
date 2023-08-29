@@ -34,4 +34,8 @@ public class CampService {
     public List<Camp> getDetcChanList(){return campRepository.getDetcChanList();}
 
     public List<Camp> getExCampChanInfo(String exDt) { return repository.getExCampChanInfo(exDt);}
+
+    public List<Camp> getRuleHistSaveYn() {
+        return repository.getRuleHistSaveYn();
+    }
 }

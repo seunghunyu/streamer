@@ -48,4 +48,12 @@ class CampServiceTest {
         }
 
     }
+
+    @Test
+    void getCampRuleSaveYn(){
+        List<Camp> list = campService.getRuleHistSaveYn();
+        for(int i = 0 ; i < list.size() ; i++){
+            log.info("CAMP_ID = {} , RULE_S_SAVE_YN = {} , RULE_F_SAVE_YN = {}", list.get(i).getCampId() , list.get(i).getDetcChanCd());
+        }
+    }
 }
