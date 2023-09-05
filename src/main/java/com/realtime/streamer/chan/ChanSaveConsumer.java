@@ -1,6 +1,6 @@
 package com.realtime.streamer.chan;
 
-import com.realtime.streamer.consumer.DataConsumer;
+import com.realtime.streamer.rebminterface.DataConsumer;
 import com.realtime.streamer.data.ChanEx;
 import com.realtime.streamer.repository.rebm.JdbcTemplateHistorySaveRepository;
 import com.realtime.streamer.util.Utility;

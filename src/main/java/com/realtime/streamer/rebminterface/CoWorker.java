@@ -1,4 +1,4 @@
-package com.realtime.streamer.consumer;
+package com.realtime.streamer.rebminterface;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;

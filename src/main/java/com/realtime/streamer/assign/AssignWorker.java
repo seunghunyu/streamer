@@ -1,17 +1,10 @@
 package com.realtime.streamer.assign;
 
 import com.realtime.streamer.Queue.AssignQueue;
-import com.realtime.streamer.consumer.CoWorker;
-import com.realtime.streamer.consumer.Worker;
+import com.realtime.streamer.rebminterface.Worker;
 import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.service.CampService;
 import com.realtime.streamer.util.Utility;
-import lombok.RequiredArgsConstructor;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +17,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.time.LocalTime;
 import java.util.*;
 

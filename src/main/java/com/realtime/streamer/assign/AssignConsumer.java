@@ -1,7 +1,7 @@
 package com.realtime.streamer.assign;
 
 import com.realtime.streamer.Queue.AssignQueue;
-import com.realtime.streamer.consumer.CoWorker;
+import com.realtime.streamer.rebminterface.CoWorker;
 import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.service.CampService;
 import com.realtime.streamer.util.Utility;
@@ -23,7 +23,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
-import java.sql.Connection;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;

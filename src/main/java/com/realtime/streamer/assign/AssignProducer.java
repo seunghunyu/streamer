@@ -1,14 +1,11 @@
 package com.realtime.streamer.assign;
 
 import com.realtime.streamer.Queue.AssignQueue;
-import com.realtime.streamer.consumer.CoWorker;
-import com.realtime.streamer.data.Camp;
+import com.realtime.streamer.rebminterface.CoWorker;
 import com.realtime.streamer.service.CampService;
 import com.realtime.streamer.util.Utility;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -23,12 +20,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
-import java.sql.Connection;
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
 
 @Order(5)
@@ -127,18 +121,18 @@ public class AssignProducer implements CoWorker, CommandLineRunner {
             //Rule처리로 이동하는 메시지
             producer.send(record, (metadata, exception) -> {
                 if (exception != null) {
-                    System.out.println("RULE TOPIC SENDING EXCEPTION :: "+ exception.toString());
+                    System.out.println("Assgin Producer RULE TOPIC SENDING EXCEPTION :: "+ exception.toString());
                 }
             });
-            System.out.println("RULE FAIL SAVE PRODUCING:::::: " + producingData);
-            //감지이력 저장으로 이동하는 메시지
-            producer.send(record2, (metadata, exception) -> {
-                if (exception != null) {
-                    System.out.println("RULE FAIL SAVE TOPIC SENDING EXCEPTION ::" + exception.toString());
-                }
-            });
+//            System.out.println("RULE FAIL SAVE PRODUCING:::::: " + producingData);
+//            //감지이력 저장으로 이동하는 메시지
+//            producer.send(record2, (metadata, exception) -> {
+//                if (exception != null) {
+//                    System.out.println("RULE FAIL SAVE TOPIC SENDING EXCEPTION ::" + exception.toString());
+//                }
+//            });
         } catch (Exception e) {
-            System.out.println("Assgin Consumer PRODUCING EXCEPTION ::" + e.toString());
+            System.out.println("Assgin Producer PRODUCING EXCEPTION ::" + e.toString());
         } finally {
             producer.flush();
         }

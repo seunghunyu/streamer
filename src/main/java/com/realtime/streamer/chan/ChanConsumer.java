@@ -1,6 +1,6 @@
 package com.realtime.streamer.chan;
 
-import com.realtime.streamer.consumer.DataConsumer;
+import com.realtime.streamer.rebminterface.DataConsumer;
 import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.data.Olapp;
 import com.realtime.streamer.service.CampService;

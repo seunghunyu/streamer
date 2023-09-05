@@ -1,6 +1,6 @@
 package com.realtime.streamer.detect;
 
-import com.realtime.streamer.consumer.CoWorker;
+import com.realtime.streamer.rebminterface.CoWorker;
 import com.realtime.streamer.data.Camp;
 import com.realtime.streamer.repository.rebm.JdbcTemplateCampRepository;
 import com.realtime.streamer.service.CampService;

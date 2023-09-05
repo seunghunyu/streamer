@@ -1,4 +1,4 @@
-package com.realtime.streamer.consumer;
+package com.realtime.streamer.rebminterface;
 
 import com.realtime.streamer.Queue.AssignQueue;
 import org.apache.kafka.clients.consumer.Consumer;
