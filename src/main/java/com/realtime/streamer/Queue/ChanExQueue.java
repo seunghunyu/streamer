@@ -3,57 +3,57 @@ package com.realtime.streamer.Queue;
 import java.util.LinkedList;
 
 public class ChanExQueue {
-    static LinkedList<String> assignWorkQ = new LinkedList<>();
-    static LinkedList<String> assignProdQ = new LinkedList<>();
+    static LinkedList<String> chanWorkQ = new LinkedList<>();
+    static LinkedList<String> chanProdQ = new LinkedList<>();
 
 
     //Work Queue
     public LinkedList<String> getAssignWorkQ() {
-        return assignWorkQ;
+        return chanWorkQ;
     }
 
     public void setAssignWorkQ(LinkedList<String> assignWorkQ) {
-        this.assignWorkQ = assignWorkQ;
+        this.chanWorkQ = assignWorkQ;
 
     }
 
     public void addWorkQueueItem(String item){
-        this.assignWorkQ.add(item);
+        this.chanWorkQ.add(item);
     }
 
     public String getWorkQueueItem(){
-        String retItem = this.assignWorkQ.getFirst();
-        this.assignWorkQ.remove();
+        String retItem = this.chanWorkQ.getFirst();
+        this.chanWorkQ.remove();
         return retItem;
     }
 
     public void clearWorkQ(){
-        this.assignWorkQ.clear();
+        this.chanWorkQ.clear();
     }
 
 
     //Producing Queue
     public LinkedList<String> getAssignProdQ() {
-        return assignProdQ;
+        return chanProdQ;
     }
 
     public void setAssignProdQ(LinkedList<String> assignProdQ) {
-        this.assignProdQ = assignProdQ;
+        this.chanProdQ = assignProdQ;
 
     }
 
     public void addProdQueueItem(String item){
-        this.assignProdQ.add(item);
+        this.chanProdQ.add(item);
     }
 
     public String getProdQueueItem(){
-        String retItem = this.assignProdQ.getFirst();
-        this.assignProdQ.remove();
+        String retItem = this.chanProdQ.getFirst();
+        this.chanProdQ.remove();
         return retItem;
     }
 
     public void clearProdQ(){
-        this.assignProdQ.clear();
+        this.chanProdQ.clear();
     }
 
 

@@ -3,56 +3,56 @@ package com.realtime.streamer.Queue;
 import java.util.LinkedList;
 
 public class ClanExQueue {
-    static LinkedList<String> ruleWorkQ = new LinkedList<>();
-    static LinkedList<String> ruleProdQ = new LinkedList<>();
+    static LinkedList<String> clanWorkQ = new LinkedList<>();
+    static LinkedList<String> clanProdQ = new LinkedList<>();
 
 
     //Work Queue
-    public LinkedList<String> getRuleWorkQ() {
-        return ruleWorkQ;
+    public LinkedList<String> getClanWorkQ() {
+        return clanWorkQ;
     }
 
-    public void setRuleWorkQ(LinkedList<String> assignWorkQ) {
-        this.ruleWorkQ = assignWorkQ;
+    public void setClanWorkQ(LinkedList<String> clanWorkQ) {
+        this.clanWorkQ = clanWorkQ;
 
     }
 
     public void addWorkQueueItem(String item){
-        this.ruleWorkQ.add(item);
+        this.clanWorkQ.add(item);
     }
 
     public String getWorkQueueItem(){
-        String retItem = this.ruleWorkQ.getFirst();
-        this.ruleWorkQ.remove();
+        String retItem = this.clanWorkQ.getFirst();
+        this.clanWorkQ.remove();
         return retItem;
     }
 
     public void clearWorkQ(){
-        this.ruleWorkQ.clear();
+        this.clanWorkQ.clear();
     }
 
 
     //Producing Queue
-    public LinkedList<String> getRuleProdQ() {
-        return ruleProdQ;
+    public LinkedList<String> getClanProdQ() {
+        return clanProdQ;
     }
 
-    public void setRuleProdQ(LinkedList<String> assignProdQ) {
-        this.ruleProdQ = assignProdQ;
+    public void setClanProdQ(LinkedList<String> clanProdQ) {
+        this.clanProdQ = clanProdQ;
 
     }
 
     public void addProdQueueItem(String item){
-        this.ruleProdQ.add(item);
+        this.clanProdQ.add(item);
     }
 
     public String getProdQueueItem(){
-        String retItem = this.ruleProdQ.getFirst();
-        this.ruleProdQ.remove();
+        String retItem = this.clanProdQ.getFirst();
+        this.clanProdQ.remove();
         return retItem;
     }
 
     public void clearProdQ(){
-        this.ruleProdQ.clear();
+        this.clanProdQ.clear();
     }
 }
