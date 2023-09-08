@@ -165,7 +165,7 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
                     //3. 110.캠페인당 채널 전송 1회 접촉 제한
                     //select 1 from R_OTIME_EX_CUST_LIST where ACT_ID = ? and CUST_ID = ?
                     if(notClean == true) {
-                        if(!checkActOneTimeOlapp110(act_id, cust_id)){
+                        if(!checkActOneTimeOlapp110(real_flow_id, act_id, cust_id)){
                             notClean = false;
                             exdBrch = "1";
                             excldCd = "110";
@@ -270,8 +270,8 @@ public class ClanConsumer implements DataConsumer, CommandLineRunner {
 
     }
 
-    private boolean checkActOneTimeOlapp110(String act_id, String cust_id) {
-        Integer countOTime = chanService.getOTimeCustCount(act_id, cust_id);
+    private boolean checkActOneTimeOlapp110(String realFlowId, String act_id, String cust_id) {
+        Integer countOTime = chanService.getOTimeCustCount(realFlowId, act_id, cust_id);
         if(countOTime != null && countOTime > 0){
             return false;
         }

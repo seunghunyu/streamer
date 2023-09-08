@@ -338,10 +338,21 @@ public class ChanWorker implements Worker, CommandLineRunner {
 
     private boolean checkOneTimeExCustList(JSONObject jsonObject, String campstat, String olappcd){
         boolean isOneTimeAct = false;
+        Integer oTimeCustCount = 0;
         if(olappcd.equals("110")){
 //            String qry1 = " select 1 from R_OTIME_EX_CUST_LIST where ACT_ID = ? and CUST_ID = ? ";
+            oTimeCustCount = chanService.getOTimeCustCount("", jsonObject.get("ACT_ID").toString(), jsonObject.get("CUST_ID").toString());
+
         }else{
 //            String qry1 = " select 1 from R_OTIME_EX_CUST_LIST where REAL_FLOW_ID = ? and CUST_ID = ? ";
+            oTimeCustCount = chanService.getOTimeCustCount( jsonObject.get("REAL_FLOW_ID").toString(), "", jsonObject.get("CUST_ID").toString());
+        }
+
+        if(oTimeCustCount > 0) isOneTimeAct = true;
+        else{
+            if(campstat.equals("3100")){
+                //saveOneTimeExCustList(tmpWorkInfo);
+            }
         }
 
         return isOneTimeAct;

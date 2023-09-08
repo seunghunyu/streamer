@@ -40,7 +40,7 @@ class ChanServiceTest {
     void getOTimeCount() {
         String actId = "C230803902_006";
         String custId = "C0000000053";
-        Integer oTimeCount = chanService.getOTimeCustCount(actId, custId);
+        Integer oTimeCount = chanService.getOTimeCustCount("", actId, custId);
         log.info("oTimeCount =  {}", oTimeCount);
     }
 
