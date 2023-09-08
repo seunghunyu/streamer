@@ -10,7 +10,9 @@ public interface OlappRepository {
     List<Olapp> getActExcldOlappList(String actId);
     List<Olapp> getExternalFatList();
     List<Olapp> getNoFatigueAct();
-    Integer getFatExCustList(String campBrch, String strDt, String endDt, String custId);
+    Integer getFatExCustList(String campBrch, String strDt, String endDt, String custId, String chanBrchCd);
 
     List<Olapp> getMemExternalFatList();
+
+    Integer getChanFatgExCustList(String chanBrchCd, String strDt, String endDt, String custId);
 }

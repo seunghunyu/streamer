@@ -8,12 +8,12 @@ public class ChanExQueue {
 
 
     //Work Queue
-    public LinkedList<String> getAssignWorkQ() {
+    public LinkedList<String> getChanWorkQ() {
         return chanWorkQ;
     }
 
-    public void setAssignWorkQ(LinkedList<String> assignWorkQ) {
-        this.chanWorkQ = assignWorkQ;
+    public void setChanWorkQ(LinkedList<String> chanWorkQ) {
+        this.chanWorkQ = chanWorkQ;
 
     }
 
@@ -33,12 +33,12 @@ public class ChanExQueue {
 
 
     //Producing Queue
-    public LinkedList<String> getAssignProdQ() {
+    public LinkedList<String> getChanProdQ() {
         return chanProdQ;
     }
 
-    public void setAssignProdQ(LinkedList<String> assignProdQ) {
-        this.chanProdQ = assignProdQ;
+    public void setChanProdQ(LinkedList<String> chanProdQ) {
+        this.chanProdQ = chanProdQ;
 
     }
 

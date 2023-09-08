@@ -42,15 +42,21 @@ public class MyBatisOlappRepository implements OlappRepository {
         return noFatList;
     }
 
+
     @Override
-    public Integer getFatExCustList(String campBrch, String strDt, String endDt, String custId) {
-        Integer fatCount = olappMapper.getFatExCustList(campBrch, strDt, endDt, custId);
+    public Integer getFatExCustList(String campBrch, String strDt, String endDt, String custId, String chanBrchCd) {
+        Integer fatCount = olappMapper.getFatExCustList(campBrch, strDt, endDt, custId, chanBrchCd);
         return fatCount;
     }
 
     @Override
     public List<Olapp> getMemExternalFatList() {
         return h2OlappMapper.getMemExternalFatList();
+    }
+
+    @Override
+    public Integer getChanFatgExCustList(String chanBrchCd, String strDt, String endDt, String custId) {
+        return olappMapper.getChanFatgExCustList(chanBrchCd, strDt, endDt, custId);
     }
 
 }

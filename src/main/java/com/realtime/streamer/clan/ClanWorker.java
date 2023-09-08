@@ -166,10 +166,10 @@ public class ClanWorker implements Worker, CommandLineRunner {
                         {
                             int contCount = 0;
                               if(hashChanContRsrctTem.get(chan_cd) == 1) {
-                                contCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), "", df_yyyyMMdd.toString(), cust_id);
+                                contCount = olappService.getFatExCustList("", "", df_yyyyMMdd.toString(), cust_id, hashChanBrchCd.get(chan_cd));
                             }else{
                                 clntime = nowtime - (24*60*60*1000 * (hashChanContRsrctTem.get(chan_cd) -1));  // 당일 포함
-                                contCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), df_yyyyMMdd.format(new java.util.Date(clntime)), df_yyyyMMdd.toString(), cust_id);
+                                contCount = olappService.getFatExCustList("", df_yyyyMMdd.format(new java.util.Date(clntime)), df_yyyyMMdd.toString(), cust_id,hashChanBrchCd.get(chan_cd));
                             }
                              if(contCount >= hashChanContRsrctCnt.get(chan_cd)) {
                                 notClean = false;
@@ -183,10 +183,10 @@ public class ClanWorker implements Worker, CommandLineRunner {
                          if (camp_brch_fatigue_day > 0 && hashNoFatigue3.get(act_id) == null) {
                             int contCount = 0;
                              if(camp_brch_fatigue_day == 1) {
-                                contCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), "", df_yyyyMMdd.toString(), cust_id);
+                                contCount = olappService.getFatExCustList(hashCampBrch.get(chan_cd), "", df_yyyyMMdd.toString(), cust_id, "");
                             }else{
                                 clntime = nowtime - (24*60*60*1000 * (hashChanContRsrctTem.get(chan_cd) -1));  // 당일 포함
-                                contCount = olappService.getFatExCustList(hashChanBrchCd.get(chan_cd), df_yyyyMMdd.format(new java.util.Date(clntime)), df_yyyyMMdd.toString(), cust_id);
+                                contCount = olappService.getFatExCustList(hashCampBrch.get(chan_cd), df_yyyyMMdd.format(new java.util.Date(clntime)), df_yyyyMMdd.toString(), cust_id, "");
                             }
                              if(contCount >= 1) {
                                 notClean = false;

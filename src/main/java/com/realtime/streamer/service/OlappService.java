@@ -37,7 +37,10 @@ public class OlappService {
         return repository.getExternalFatList();
     }
     public List<Olapp> getNoFatActList(){ return repository.getNoFatigueAct();}
-    public Integer getFatExCustList(String campBrch, String strDt, String endDt, String custId){return repository.getFatExCustList(campBrch, strDt, endDt, custId);};
+    public Integer getFatExCustList(String campBrch, String strDt, String endDt, String custId, String chanBrchCd){return repository.getFatExCustList(campBrch, strDt, endDt, custId, chanBrchCd);};
+    public Integer getChanFatgExCustList(String chanBrchCd, String strDt, String endDt, String custId) {
+        return repository.getChanFatgExCustList(chanBrchCd, strDt, endDt, custId);
+    }
 
     //CRM
     public List<Olapp> findFatChanInfo(){
@@ -52,5 +55,6 @@ public class OlappService {
 
     //H2
     public List<Olapp> getMemExternalFatList(){ return repository.getMemExternalFatList(); }
+
 
 }

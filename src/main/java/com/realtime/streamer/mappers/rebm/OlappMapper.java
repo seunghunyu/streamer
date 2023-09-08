@@ -13,6 +13,8 @@ public interface OlappMapper {
     List<Olapp> findActExcldOlapp(@Param("actId") String actId);
     List<Olapp> findExternalFatList();
     List<Olapp> findNoFatigueAct();
-    Integer getFatExCustList(@Param("campBrch") String campBrch, @Param("strDt") String strDt, @Param("endDt") String endDt, @Param("custId") String custId);
+    Integer getFatExCustList(@Param("campBrch") String campBrch, @Param("strDt") String strDt, @Param("endDt") String endDt,
+                             @Param("custId") String custId, @Param("chanBrchCd") String chanBrchCd);
 
+    Integer getChanFatgExCustList(@Param("chanBrchCd")String chanBrchCd, @Param("strDt")String strDt, @Param("endDt")String endDt, String custId);
 }

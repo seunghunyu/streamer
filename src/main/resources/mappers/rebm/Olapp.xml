@@ -27,7 +27,17 @@
     <!-- 글로벌 퍼티그 미사용 채널 추출 -->
     <select id="getFatExCustList" resultType="int">
        SELECT COUNT(*) FROM R_FATG_EX_CUST_LIST
-        WHERE CAMP_BRCH = #{campBrch}
+        WHERE 1=1
+        <choose>
+            <when test = "#{chanBrch} != null">
+                CHAN_BRCH = #{chanBrch}
+            </when>
+        </choose>
+        <choose>
+            <when test = "#{capmBrch} != null">
+                CAMP_BRCH = #{campBrch}
+            </when>
+        </choose>
         <choose>
             <when test = "#{endDt} != null">
                 AND CRAT_DT BETWEEN #{strDt} AND #{endDt}

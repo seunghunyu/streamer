@@ -10,7 +10,19 @@
     </select>
     <!-- 캠페인당 채널 전송 1회 접촉 고객 조회-->
     <select id="countOTimeCust" resultType="int">
-        SELECT 1 from R_OTIME_EX_CUST_LIST WHERE ACT_ID = #{actId} and CUST_ID = #{custId}
+        SELECT 1 from R_OTIME_EX_CUST_LIST
+        WHERE 1=1
+        <choose>
+            <when test = "#{actId} != null">
+                ACT_ID = #{actId}
+            </when>
+        </choose>
+        <choose>
+            <when test = "#{realFlowId} != null">
+                REAL_FLOW_ID = #{realFlowId}
+            </when>
+        </choose>
+        AND CUST_ID = #{custId}
     </select>
 
     <!-- 스크립트 ID 조회 -->
