@@ -59,4 +59,10 @@ public class MyBatisOlappRepository implements OlappRepository {
         return olappMapper.getChanFatgExCustList(chanBrchCd, strDt, endDt, custId);
     }
 
+    @Override
+    public Integer getFatCustMaxWorkTime(String chanBrchCd, String strDt, String endDt, String custId) {
+        return olappMapper.getFatCustMaxWorkTime(chanBrchCd, strDt, endDt, custId );
+    }
+
+
 }

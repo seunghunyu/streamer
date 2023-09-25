@@ -17,4 +17,7 @@ public interface OlappMapper {
                              @Param("custId") String custId, @Param("chanBrchCd") String chanBrchCd);
 
     Integer getChanFatgExCustList(@Param("chanBrchCd")String chanBrchCd, @Param("strDt")String strDt, @Param("endDt")String endDt, String custId);
+
+
+    Integer getFatCustMaxWorkTime(@Param("chanBrchCd")String chanBrchCd, @Param("strDt")String strDt, @Param("endDt")String endDt, String custId);
 }

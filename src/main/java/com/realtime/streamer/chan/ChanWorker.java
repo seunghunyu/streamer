@@ -245,46 +245,21 @@ public class ChanWorker implements Worker, CommandLineRunner {
         chan_fatigue_count = olappService.findFatStupCount();
     }
 
-    //채널 발송 시간 중복제거 체크
-    private boolean checkChanContNoTime(){
+    //채널 발송 시간 중복제거 체크(Fatg_ex_cust_list 최종 데이터 시간 기준)
+    private boolean checkChanContNoTime(JSONObject jsonObject){
         boolean isclean = false;
-//        PreparedStatement pstmt1 = null;
-//        ResultSet rs1 = null;
-//        String qry1 = "";
-//        long saveTime = 0;
-//        try
-//        {
-//            qry1 = " SELECT MAX(WORK_DTM_MIL) "
-//                    + " FROM R_FATG_EX_CUST_LIST "
-//                    + " where CHAN_BRCH_CD = ? "
-//                    + "   and CRAT_DT = ? "
-//                    + "   and CUST_ID = ? ";
-//            pstmt1 = conrebm.prepareStatement(qry1);
-//            pstmt1.setString(1, hashChanBrchCd.get(tmpWorkInfo.hashmap.get("CHAN_CD")));
-//            pstmt1.setString(2, toDate);
-//            pstmt1.setString(3, tmpWorkInfo.hashmap.get("CUST_ID"));
-//            rs1 = pstmt1.executeQuery();
-//            if(rs1.next()) {
-//                saveTime = rs1.getLong(1);
-//            }
-//            if(saveTime == 0) return isclean;
-//
-//            long nowTime = System.currentTimeMillis()/1000;
-//            int term = hashChanContNoTime.get(tmpWorkInfo.hashmap.get("CHAN_CD"));
-//
-//            if(nowTime < (saveTime + (term * 60))) {  // 저장된 시간보다 경과된 시간 추출하여 처리
-//                isclean = true;
-//            }
-//
-//        } catch(Exception ex)  {
-//            try { conrebm.rollback(); } catch(Exception e) {};
-//            ex.printStackTrace();
-//        } finally {
-//            if(pstmt1!= null)  { try { pstmt1.close(); } catch(Exception ex) {svrBridge.debug_println(ex.getMessage());}; }
-//            if(rs1!= null)     { try { rs1.close(); }    catch(Exception ex) {svrBridge.debug_println(ex.getMessage());}; }
-//        }
-        return isclean;
+        long saveTime = 0;
+        Integer fatCustMaxWorkTime = olappService.getFatCustMaxWorkTime(hashChanBrchCd.get("CHAN_CD").toString(), toDate, "", jsonObject.get("CUST_ID").toString());
+        saveTime = fatCustMaxWorkTime;
+        if(saveTime == 0) return isclean;
+        long nowTime = System.currentTimeMillis()/1000;
+        int term = hashChanContNoTime.get(jsonObject.get("CHAN_CD").toString());
 
+        if(nowTime < (saveTime + (term * 60))) {  // 저장된 시간보다 경과된 시간 추출하여 처리
+            isclean = true;
+        }
+
+        return isclean;
     }
     // 99.채널 접촉횟수 제한 설정 대상이며 제한일수와 제한횟수가 있는 경우 체크
     private boolean checkChanContRsrct(JSONObject jsonObject){

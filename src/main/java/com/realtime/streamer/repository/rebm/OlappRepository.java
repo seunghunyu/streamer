@@ -15,4 +15,5 @@ public interface OlappRepository {
     List<Olapp> getMemExternalFatList();
 
     Integer getChanFatgExCustList(String chanBrchCd, String strDt, String endDt, String custId);
+    Integer getFatCustMaxWorkTime(String chanBrchCd, String strDt, String endDt, String custId);
 }

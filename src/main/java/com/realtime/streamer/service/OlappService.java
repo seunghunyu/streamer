@@ -41,6 +41,9 @@ public class OlappService {
     public Integer getChanFatgExCustList(String chanBrchCd, String strDt, String endDt, String custId) {
         return repository.getChanFatgExCustList(chanBrchCd, strDt, endDt, custId);
     }
+    public Integer getFatCustMaxWorkTime(String chanBrchCd, String strDt, String endDt, String custId){
+        return repository.getFatCustMaxWorkTime(chanBrchCd, strDt, endDt, custId);
+    }
 
     //CRM
     public List<Olapp> findFatChanInfo(){

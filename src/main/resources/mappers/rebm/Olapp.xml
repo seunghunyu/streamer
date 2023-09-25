@@ -48,4 +48,28 @@
         </choose>
         AND CUST_ID = #{custId}
     </select>
+    <!-- 글로벌 퍼티그 고객 최종 insert 시간 추출 -->
+    <select id="getFatCustMaxWorkTime" resultType="int">
+        SELECT MAX(WORK_DTM_MIL) FROM R_FATG_EX_CUST_LIST
+        WHERE 1=1
+        <choose>
+            <when test = "#{chanBrch} != null">
+                CHAN_BRCH = #{chanBrch}
+            </when>
+        </choose>
+        <choose>
+            <when test = "#{capmBrch} != null">
+                CAMP_BRCH = #{campBrch}
+            </when>
+        </choose>
+        <choose>
+            <when test = "#{endDt} != null">
+                AND CRAT_DT BETWEEN #{strDt} AND #{endDt}
+            </when>
+            <otherwise>
+                AND CRAT_DT = #{strDt}
+            </otherwise>
+        </choose>
+        AND CUST_ID = #{custId}
+    </select>
 </mapper>
