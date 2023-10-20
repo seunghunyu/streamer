@@ -41,7 +41,7 @@ public class ChanProducer implements DataProducer, CommandLineRunner {
     java.text.DateFormat dfhhmmss = new java.text.SimpleDateFormat("HHmmss");
 
     HashMap<String,String> hashChanFlowId = new HashMap<String,String>();
-    AssignQueue assignQueue = new AssignQueue();
+
 
     @Autowired
     CampService campService;
@@ -72,9 +72,9 @@ public class ChanProducer implements DataProducer, CommandLineRunner {
                 if(chanExQueue.getChanProdQ().size() == 0){
                     continue;
                 }else if(chanExQueue.getChanProdQ().size() > 0) {
-                    String assignProdItem = chanExQueue.getProdQueueItem();
+                    String chanProdItem = chanExQueue.getProdQueueItem();
                     JSONParser parser = new JSONParser();
-                    JSONObject bjob = (JSONObject) parser.parse(assignProdItem);
+                    JSONObject bjob = (JSONObject) parser.parse(chanProdItem);
 
                     System.out.println("ChanProducer !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + bjob.toString());
 
@@ -91,9 +91,6 @@ public class ChanProducer implements DataProducer, CommandLineRunner {
         }finally{
 
         }
-
-
-
     }
 
     public void producing(String producingData, boolean notClean){
@@ -131,7 +128,7 @@ public class ChanProducer implements DataProducer, CommandLineRunner {
                 });
             }
         } catch (Exception e) {
-            System.out.println("Clan Consumer PRODUCING EXCEPTION ::" + e.toString());
+            System.out.println("CHAN  PRODUCING EXCEPTION ::" + e.toString());
         } finally {
             producer.flush();
         }

@@ -142,10 +142,6 @@ public class ChanWorker implements Worker, CommandLineRunner {
                     notClean = true;
                     campstat = (hashFlowId_Stat.get(ex_camp_id) == null ? "" : hashExCampId_Stat.get(ex_camp_id));
 
-
-
-
-
                     SuccessCnt++;
                     System.out.println("Clan Success count : "+SuccessCnt);
 
@@ -261,6 +257,7 @@ public class ChanWorker implements Worker, CommandLineRunner {
 
         return isclean;
     }
+
     // 99.채널 접촉횟수 제한 설정 대상이며 제한일수와 제한횟수가 있는 경우 체크
     private boolean checkChanContRsrct(JSONObject jsonObject){
         boolean isclean = false;
@@ -333,8 +330,18 @@ public class ChanWorker implements Worker, CommandLineRunner {
         return isOneTimeAct;
     }
 
+    public void saveOneTimeExCustList() throws Exception {
 
+    }
+    public void saveFatgExCustList() throws Exception{
 
+    }
+    private void saveCleanExList(String CAMP_ID, String exdBrch, long elapsedTime) throws Exception{
+
+    }
+    private void saveWaveTgetCustList() throws Exception{
+
+    }
     @Override
     public void run(String... args) throws Exception {
 
